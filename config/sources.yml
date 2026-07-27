@@ -50,7 +50,17 @@ fuentes:
     periodicidad: anual
     latencia_esperada_dias: 400
     anios_preliminares: 2
-    licencia: por_confirmar
+    # INVESTIGADO 2026-07-27, SIN RESOLVER. DEIS no declara licencia en ninguna parte de
+    # deis.minsal.cl ni en repositoriodeis.minsal.cl, que es de donde se descarga el
+    # archivo. En datos.gob.cl la evidencia es contradictoria y NO se refiere a este
+    # archivo: el MINSAL central publicó «Defunciones por Semana Epidemiológica» como
+    # cc-zero (dominio público), mientras 41 datasets de Servicios de Salud regionales
+    # están como cc-nc — pero esos son tablas resumidas propias, no la microdata de causas.
+    # Ninguna de las dos cosas es una declaración sobre el archivo que ingerimos.
+    # Consecuencia práctica: el proyecto NO redistribuye este archivo, publica indicadores
+    # agregados y suprimidos. Ver LICENSE-DATA.md.
+    licencia: sin_declarar
+    licencia_investigada: "2026-07-27"
     prioridad: 1
     fase: 1
     variables_esperadas:
@@ -245,7 +255,17 @@ fuentes:
     granularidad: comuna
     unidad_territorial: comuna
     periodicidad: irregular
-    licencia: por_confirmar
+    # INVESTIGADO 2026-07-27. En datos.gob.cl, SUBDERE publica cc-nc sus dos datasets de
+    # DPA, pero ambos son CARTOGRAFÍA (shapefiles con las geometrías). Este archivo es
+    # otra cosa: la planilla de códigos y nombres, descargada de subdere.gov.cl directo,
+    # sin licencia declarada. Lo que se deriva de él (config/territorio_comunas.csv) son
+    # códigos, nombres y provincias, sin una sola coordenada.
+    # Un listado de códigos administrativos oficiales es un hecho establecido por acto
+    # administrativo, no una obra: la Ley 17.336 excluye los hechos y los textos oficiales
+    # del Estado, y Chile no tiene derecho sui generis de bases de datos. La cartografía sí
+    # supone trabajo técnico sustantivo y es lo que SUBDERE licencia cc-nc.
+    licencia: sin_declarar
+    licencia_investigada: "2026-07-27"
     prioridad: 1
     fase: 1
     critico: true
