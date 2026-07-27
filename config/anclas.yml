@@ -55,6 +55,39 @@ anclas:
       2014). Es justamente el año donde la serie semanal difería −1,23 %: contra el anuario
       en año calendario la reconciliación es exacta.
 
+  - id: causas_externas_hombres_2023
+    descripcion: "Defunciones masculinas por causas externas (CIE-10 cap. XX), 2023"
+    source_id: deis_defunciones
+    metrica:
+      tipo: conteo_filas
+    filtro:
+      anio: 2023
+      sexo: hombre
+    filtro_prefijo:
+      causa_cie10: [V, W, X, Y]
+    valor: 6180
+    unidad: personas
+    tolerancia_relativa: 0.01
+    fuente_ancla: ine_vitales_anuario
+    referencia: "Anuario de Estadísticas Vitales 2023 (INE), Gráfico 28 p.49: 9,7 % de las defunciones masculinas"
+    fecha_verificacion: "2026-07-27"
+    nota: >
+      LO QUE ESTA ANCLA PROTEGE: es la única que toca la derivación de `causa_cie10`, y
+      habría hecho fallar A-004 de forma imposible de ignorar. Si el ingestor volviera a
+      leer solo DIAG1, las causas externas caerían a casi cero —la naturaleza de la lesión
+      se codifica en el capítulo XIX (S,T), no en el XX— y esta ancla lo gritaría. Sin ella,
+      un suicidio mal derivado solo se nota si alguien mira el número de suicidios.
+      POR QUÉ LA TOLERANCIA ES 1 % Y NO 0,5 %: el anuario publica un porcentaje redondeado
+      a una décima, no un conteo. «9,7 %» significa [9,65 %, 9,75 %], que sobre 63.710
+      hombres es la banda [6.148, 6.212]: ±0,5 % de puro redondeo, que ya consumiría toda
+      la tolerancia habitual. El 1 % deja margen para el redondeo y sigue siendo estrecho.
+      La imprecisión es de la publicación, no de los datos.
+      Observado al declararla: 6.204 (9,74 %), dentro de la banda.
+      El denominador del porcentaje es 63.710 según el anuario, mientras el archivo trae
+      63.711 hombres. La diferencia es del anuario: su desglose por sexo sale de la Tabla 3
+      (p.45), que suma 122.217 porque excluye un registro sin edad. Nuestro desglose cierra
+      exacto: 63.711 + 58.495 + 12 indeterminados = 122.218.
+
   - id: poblacion_nacional_2020
     descripcion: "Población nacional proyectada a junio de 2020, base 2017"
     source_id: ine_proyecciones

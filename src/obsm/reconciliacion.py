@@ -48,13 +48,16 @@ class Ancla:
     referencia: str
     fecha_verificacion: str
     filtro: dict = field(default_factory=dict)
+    #: Filtro por prefijo de código, para capítulos CIE-10 (`V`,`W`,`X`,`Y` = causas
+    #: externas). No se puede hacer por igualdad porque un capítulo son miles de códigos.
+    filtro_prefijo: dict = field(default_factory=dict)
     unidad: str | None = None
     tolerancia_relativa: float = 0.005
     fuente_ancla: str | None = None
     nota: str | None = None
 
     def evaluar(self, df: pd.DataFrame) -> float:
-        """Calcula el valor observado en `df` aplicando filtro y métrica."""
+        """Calcula el valor observado en `df` aplicando filtros y métrica."""
         sub = df
         for col, esperado in self.filtro.items():
             if col not in sub.columns:
@@ -63,6 +66,15 @@ class Ancla:
                     f"Columnas: {list(sub.columns)[:15]}"
                 )
             sub = sub[sub[col] == esperado]
+
+        for col, prefijos in self.filtro_prefijo.items():
+            if col not in sub.columns:
+                raise ReconciliationError(
+                    f"[{self.id}] la tabla no tiene la columna de filtro por prefijo "
+                    f"{col!r}. Columnas: {list(sub.columns)[:15]}"
+                )
+            codigos = sub[col].fillna("").astype(str).str.upper()
+            sub = sub[codigos.str.startswith(tuple(str(p).upper() for p in prefijos))]
 
         tipo = self.metrica.get("tipo")
         if tipo == "conteo_filas":
@@ -117,6 +129,17 @@ def _validar(a: Ancla) -> None:
         )
     if a.metrica.get("tipo") == "suma_columna" and not a.metrica.get("columna"):
         raise ObsmError(f"[{a.id}] métrica `suma_columna` sin `columna`")
+    for col, prefijos in a.filtro_prefijo.items():
+        if not isinstance(prefijos, list) or not prefijos:
+            raise ObsmError(
+                f"[{a.id}] filtro_prefijo[{col!r}] debe ser una lista no vacía; "
+                f"llegó {prefijos!r}. Un prefijo vacío haría pasar todas las filas."
+            )
+        if any(not str(pre).strip() for pre in prefijos):
+            raise ObsmError(
+                f"[{a.id}] filtro_prefijo[{col!r}] tiene un prefijo vacío: {prefijos!r}. "
+                f"`startswith('')` es verdadero para todo y anularía el filtro."
+            )
     if a.valor <= 0:
         raise ObsmError(f"[{a.id}] valor de ancla no positivo: {a.valor}")
     if not 0 < a.tolerancia_relativa < 1:

@@ -41,10 +41,22 @@ lugar a otro.
 |---|---|---|---|---|
 | `defunciones_totales_2023` | ingesta completa del numerador | 122.218 | 0,5 % | Anuario Vitales 2023 (INE), p.38 |
 | `defunciones_totales_2020` | ídem, año de 53 semanas | 126.169 | 0,5 % | ídem |
+| `causas_externas_hombres_2023` | derivación de `causa_cie10` | 6.180 | 1 % | Anuario Vitales 2023, Gráfico 28 p.49 |
 | `poblacion_nacional_2020` | denominador | 19.458.310 | 0,01 % | INE, proyecciones base 2017 |
 | `poblacion_nacional_2023` | denominador | 19.960.889 | 0,01 % | ídem |
 
-Las cuatro reconcilian **exacto**, con diferencia 0,000000 %.
+Cuatro reconcilian **exacto** (0,000000 %) y la de causas externas queda en 0,39 %.
+
+**El ancla de causas externas es la que vigila A-004.** Es la única que toca la derivación
+de `causa_cie10`. Si el ingestor volviera a leer solo `DIAG1`, las causas externas caerían a
+casi cero —la naturaleza de la lesión vive en el capítulo XIX (`S`,`T`), no en el XX— y la
+publicación se detendría. Sin ella, un suicidio mal derivado solo se nota si alguien mira
+específicamente el número de suicidios.
+
+Su tolerancia es 1 % y no 0,5 % por una razón de la fuente, no de los datos: el anuario
+publica un porcentaje redondeado a una décima, no un conteo. «9,7 %» significa
+[9,65 %, 9,75 %], que sobre 63.710 hombres es la banda [6.148, 6.212] — ±0,5 % de puro
+redondeo, que consumiría toda la tolerancia habitual.
 
 **Por qué el denominador tiene tolerancia veinte veces más estricta.** Las anclas de
 defunciones comparan productos de dos organismos distintos, donde un desvío pequeño puede
@@ -60,10 +72,21 @@ todas las caídas de una vez.
 Existe `--sin-reconciliar` para depurar. La salida que produce **no es publicable** y el
 metadato lo declara.
 
-**Lo que estas anclas NO validan.** No hay ancla para el conteo de suicidios en sí. Lo
-verificado es que la ingesta completa y el denominador cuadran; el subconjunto X60-X84 no
-tiene una cifra oficial publicada que se haya comprobado en sesión. La diferencia importa:
-es «el total cuadra», no «la tasa cuadra».
+**Lo que estas anclas NO validan.** Sigue sin haber ancla del conteo de suicidios en sí:
+el subconjunto X60-X84 no tiene una cifra oficial publicada que se haya comprobado en
+sesión. Se buscó el 2026-07-27 sin éxito en el Anuario del INE (solo trae porcentajes por
+capítulo), en los *Indicadores Básicos de Salud* del DEIS (traen tasas de 2007, no conteos,
+y una tasa antigua arrastra el denominador de su época) y en la vigilancia de epi.minsal.cl
+(cubre lesiones no mortales). Queda pendiente.
+
+Lo verificado, entonces: la ingesta completa cuadra, el denominador cuadra, y el capítulo de
+causas externas cuadra. Eso acota mucho dónde podría estar un error del numerador, pero no
+es lo mismo que verificar el suicidio. La diferencia importa y por eso queda escrita.
+
+**Sobre el desglose por sexo del anuario.** El archivo trae 63.711 hombres y el anuario dice
+63.710. La diferencia es del anuario: su desglose sale de la Tabla 3 (p.45), que suma 122.217
+porque excluye un registro sin edad. El desglose propio cierra exacto —63.711 + 58.495 + 12
+indeterminados = 122.218— y confirma la advertencia que ya traía A-005 sobre esa tabla.
 
 **Historia de por qué esto existe.** `quality.verificar_reconciliacion` sabía comparar dos
 números desde el primer día y pasaba sus tests, pero **ninguna parte del pipeline la

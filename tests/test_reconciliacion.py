@@ -184,3 +184,73 @@ class TestValidacionDelCatalogo:
         ruta = _escribir(tmp_path, [_ancla(valor=0)])
         with pytest.raises(ObsmError, match="no positivo"):
             cargar_anclas(ruta)
+
+
+class TestFiltroPorPrefijo:
+    """Un capítulo CIE-10 son miles de códigos: no se filtra por igualdad."""
+
+    def _df(self):
+        return pd.DataFrame({
+            "anio": [2023] * 5,
+            "sexo": ["hombre", "hombre", "hombre", "mujer", "hombre"],
+            "causa_cie10": ["X700", "V892", "I219", "X701", "T71X"],
+        })
+
+    def test_selecciona_el_capitulo_completo(self):
+        a = Ancla(**_ancla(
+            filtro={"anio": 2023, "sexo": "hombre"},
+            filtro_prefijo={"causa_cie10": ["V", "W", "X", "Y"]},
+            valor=2,
+        ))
+        # X700 y V892 son hombres y causa externa. I219 es circulatoria, T71X es
+        # capítulo XIX (naturaleza de la lesión) y X701 es mujer.
+        assert a.evaluar(self._df()) == 2
+
+    def test_es_insensible_a_la_caja(self):
+        df = self._df()
+        df["causa_cie10"] = df["causa_cie10"].str.lower()
+        a = Ancla(**_ancla(
+            filtro={"anio": 2023, "sexo": "hombre"},
+            filtro_prefijo={"causa_cie10": ["v", "w", "X", "Y"]},
+            valor=2,
+        ))
+        assert a.evaluar(df) == 2
+
+    def test_no_confunde_el_capitulo_XIX_con_el_XX(self):
+        """La distinción que hace útil este ancla (ver A-004).
+
+        `T71X` es asfixia —la naturaleza de la lesión, capítulo XIX— y NO es una causa
+        externa. Si el filtro la contara, el ancla dejaría de detectar que el ingestor
+        está leyendo DIAG1 en vez de DIAG2.
+        """
+        a = Ancla(**_ancla(filtro_prefijo={"causa_cie10": ["V", "W", "X", "Y"]}, valor=1))
+        solo_t = pd.DataFrame({"causa_cie10": ["T71X", "S021", "T500"]})
+        assert a.evaluar(solo_t) == 0
+
+    def test_falla_si_falta_la_columna(self):
+        a = Ancla(**_ancla(filtro_prefijo={"causa_cie10": ["X"]}))
+        with pytest.raises(ReconciliationError, match="prefijo"):
+            a.evaluar(pd.DataFrame({"otra": [1]}))
+
+    @pytest.mark.parametrize("prefijos", [[], "", [""], ["X", ""], None])
+    def test_rechaza_prefijos_que_anularian_el_filtro(self, tmp_path, prefijos):
+        # `startswith('')` es verdadero para todo: un prefijo vacío convierte el ancla en
+        # un conteo de todas las filas, que pasaría o fallaría por razones equivocadas.
+        ruta = _escribir(tmp_path, [_ancla(filtro_prefijo={"causa_cie10": prefijos})])
+        with pytest.raises(ObsmError, match="prefijo"):
+            cargar_anclas(ruta)
+
+
+class TestAnclaDeCausasExternas:
+    """El ancla que vigila la derivación de `causa_cie10` (A-004)."""
+
+    def test_existe_y_apunta_al_capitulo_xx(self):
+        a = {x.id: x for x in cargar_anclas()}["causas_externas_hombres_2023"]
+        assert a.filtro_prefijo["causa_cie10"] == ["V", "W", "X", "Y"]
+        assert a.source_id == "deis_defunciones"
+
+    def test_su_tolerancia_absorbe_el_redondeo_de_la_publicacion(self):
+        # El anuario publica «9,7 %», que es [9,65 %, 9,75 %]: ±0,5 % solo de redondeo.
+        # Con la tolerancia habitual el ancla fallaría por la imprecisión de la fuente.
+        a = {x.id: x for x in cargar_anclas()}["causas_externas_hombres_2023"]
+        assert a.tolerancia_relativa > 0.005
