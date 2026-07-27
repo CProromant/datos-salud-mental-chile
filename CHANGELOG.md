@@ -26,8 +26,11 @@ disponible la versión anterior.
 - 174 tests; CI con tests, lint y verificación de que no se versionen datos.
 
 ### Licencias
-- Código MIT; datos derivados CC BY 4.0; normas de uso en `USO-ACEPTABLE.md`, separadas de
-  la licencia a propósito.
+- Código MIT; datos derivados CC BY-SA 4.0; normas de uso en `USO-ACEPTABLE.md`, separadas
+  de la licencia a propósito.
+- La licencia de datos pasó de CC BY 4.0 a CC BY-SA 4.0 el 2026-07-27 (`docs/adr/0005`):
+  el INE publica el denominador de toda tasa bajo CC BY-SA 4.0 y su CompartirIgual obliga
+  al derivado. Sigue permitiendo uso comercial.
 
 ### Decisiones registradas
 - ADR 0001: stack mínimo (Parquet + DuckDB + estático).

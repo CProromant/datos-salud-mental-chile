@@ -265,11 +265,13 @@ observatorio.
 3. Confirmar si `deis_urgencias` permite aislar lesión autoinfligida.
 4. Conseguir el maestro histórico de establecimientos o construirlo.
 5. Revisar términos de uso y licencia de cada portal antes de redistribuir datos derivados.
-   **Avanzado el 2026-07-27, no cerrado.** Los términos generales del INE son CC BY-SA 4.0:
-   permiten uso comercial —así que el temor a una cláusula NC era infundado para esa
-   fuente— pero exigen ShareAlike, lo que choca con la salida CC BY 4.0 del proyecto.
-   Como `ine_proyecciones` es el denominador de toda tasa, esto **bloquea la primera
-   publicación** hasta que se decida. Análisis y opciones en `LICENSE-DATA.md`.
-   Sigue sin verificar la licencia de DEIS (`deis_defunciones`, `por_confirmar`) y de
-   SUBDERE (`subdere_cut`, `por_confirmar`), y queda por aclarar la contradicción entre el
-   CC BY-NC 2.0 registrado para `ine_vitales_anuario` y el CC BY-SA 4.0 del mismo organismo.
+   **Resuelto para el INE el 2026-07-27; sigue abierto para el resto.** Los términos
+   generales del INE son CC BY-SA 4.0: permiten uso comercial —así que el temor a una
+   cláusula NC era infundado para esa fuente— pero exigen ShareAlike. Como
+   `ine_proyecciones` es el denominador de toda tasa, el proyecto adoptó CC BY-SA 4.0 para
+   su capa `gold` (ADR 0005). Ya no bloquea la publicación.
+   Falta verificar la licencia de DEIS (`deis_defunciones`, `por_confirmar`) y de SUBDERE
+   (`subdere_cut`, `por_confirmar`) —fuentes bajo CC BY o dominio público no dan problema,
+   porque se pueden incorporar a una obra CC BY-SA; una con cláusula NC sí obligaría a
+   reabrir— y queda por aclarar la contradicción entre el CC BY-NC 2.0 registrado para
+   `ine_vitales_anuario` y el CC BY-SA 4.0 del mismo organismo.

@@ -205,6 +205,11 @@ fuentes:
     granularidad: agregado_nacional
     periodicidad: anual
     licencia: "CC BY-NC 2.0"
+    # No alimenta gold: de acá solo salen dos cifras usadas para verificar el conteo propio,
+    # y el documento no se redistribuye. Por eso su cláusula NC no contamina la salida
+    # CC BY-SA 4.0 del proyecto (ADR 0005). Este campo es lo que hace cumplir esa distinción
+    # en `tests/test_registry.py`; si alguna vez se ingiere de verdad, hay que reabrir ADR 0005.
+    alimenta_gold: false
     prioridad: 1
     fase: 1
     depende_de: []
@@ -276,9 +281,9 @@ fuentes:
     cobertura_temporal: "2002-2035"
     # Términos generales del INE, leídos el 2026-07-27 en
     # https://www.ine.gob.cl/terminos-de-uso-y-licencia-de-datos-abiertos
-    # Permiten uso comercial, pero exigen ShareAlike: el derivado debe distribuirse bajo la
-    # misma licencia. Eso choca con la salida CC BY 4.0 del proyecto. Decisión abierta,
-    # documentada en LICENSE-DATA.md; NO publicar gold derivado de esta fuente hasta cerrarla.
+    # Permiten uso comercial, pero exigen ShareAlike. Como esta fuente es el denominador de
+    # toda tasa, el proyecto adoptó CC BY-SA 4.0 para su capa gold (ADR 0005). Publicar gold
+    # derivado de acá está habilitado; hacerlo bajo CC BY 4.0 no.
     licencia: "CC BY-SA 4.0"
     licencia_verificada: "2026-07-27"
     prioridad: 1

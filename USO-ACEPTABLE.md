@@ -1,7 +1,8 @@
 # Declaración de uso aceptable
 
 Este documento expresa las **normas del proyecto**, no cláusulas de licencia. Los datos se
-publican bajo CC BY 4.0 y jurídicamente permiten cualquier uso que esa licencia permita. Lo
+publican bajo CC BY-SA 4.0 y jurídicamente permiten cualquier uso que esa licencia
+permita, incluido el comercial. Lo
 que sigue es lo que el proyecto pide, y lo que hará públicamente si observa lo contrario.
 
 ## Usos para los que existe este proyecto

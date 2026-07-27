@@ -68,8 +68,9 @@ a tratar una URL no verificada como si lo estuviera.
 ## Licencia
 
 - **Código:** MIT (`LICENSE`).
-- **Datos derivados:** CC BY 4.0 (`LICENSE-DATA.md`), con atribución al proyecto y a la
-  fuente primaria correspondiente.
+- **Datos derivados:** CC BY-SA 4.0 (`LICENSE-DATA.md`), con atribución al proyecto y a
+  la fuente primaria correspondiente. El CompartirIgual es heredado: el INE publica bajo
+  esa licencia el denominador de toda tasa (ver `docs/adr/0005`). Permite uso comercial.
 - **Normas de uso:** `USO-ACEPTABLE.md`. Son normas del proyecto, no cláusulas de licencia,
   y el documento explica por qué esa distinción es deliberada.
 - Las fuentes primarias conservan sus propias condiciones de uso.
