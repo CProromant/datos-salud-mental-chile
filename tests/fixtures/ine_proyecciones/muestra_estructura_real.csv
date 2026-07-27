@@ -1,0 +1,25 @@
+Region,Nombre Region,Provincia,Nombre Provincia,Comuna,Nombre Comuna,Sexo (1=Hombre 2=Mujer),Edad,Poblacion 2002,Poblacion 2003,Poblacion 2004
+1,Tarapacá,11,Iquique,1101,Iquique,1,0,1469,1479,1490
+1,Tarapacá,11,Iquique,1101,Iquique,1,40,2100,2110,2121
+1,Tarapacá,11,Iquique,1101,Iquique,1,80,615,625,636
+1,Tarapacá,11,Iquique,1101,Iquique,2,0,1469,1479,1490
+1,Tarapacá,11,Iquique,1101,Iquique,2,40,2100,2110,2121
+1,Tarapacá,11,Iquique,1101,Iquique,2,80,615,625,636
+13,Metropolitana de Santiago,131,Santiago,13120,Ñuñoa,1,0,3200,3215,3231
+13,Metropolitana de Santiago,131,Santiago,13120,Ñuñoa,1,40,5400,5415,5431
+13,Metropolitana de Santiago,131,Santiago,13120,Ñuñoa,1,80,1810,1825,1841
+13,Metropolitana de Santiago,131,Santiago,13120,Ñuñoa,2,0,3200,3215,3231
+13,Metropolitana de Santiago,131,Santiago,13120,Ñuñoa,2,40,5400,5415,5431
+13,Metropolitana de Santiago,131,Santiago,13120,Ñuñoa,2,80,1810,1825,1841
+11,Aysén del General Carlos Ibáñez del Campo,111,Coyhaique,11101,Coyhaique,1,0,90,92,93
+11,Aysén del General Carlos Ibáñez del Campo,111,Coyhaique,11101,Coyhaique,1,40,140,142,143
+11,Aysén del General Carlos Ibáñez del Campo,111,Coyhaique,11101,Coyhaique,1,80,33,35,36
+11,Aysén del General Carlos Ibáñez del Campo,111,Coyhaique,11101,Coyhaique,2,0,90,92,93
+11,Aysén del General Carlos Ibáñez del Campo,111,Coyhaique,11101,Coyhaique,2,40,140,142,143
+11,Aysén del General Carlos Ibáñez del Campo,111,Coyhaique,11101,Coyhaique,2,80,33,35,36
+12,Magallanes y de la Antártica Chilena,122,Antártica Chilena,12202,Antártica,1,0,2,2,2
+12,Magallanes y de la Antártica Chilena,122,Antártica Chilena,12202,Antártica,1,40,0,0,0
+12,Magallanes y de la Antártica Chilena,122,Antártica Chilena,12202,Antártica,1,80,0,0,0
+12,Magallanes y de la Antártica Chilena,122,Antártica Chilena,12202,Antártica,2,0,0,0,0
+12,Magallanes y de la Antártica Chilena,122,Antártica Chilena,12202,Antártica,2,40,0,0,0
+12,Magallanes y de la Antártica Chilena,122,Antártica Chilena,12202,Antártica,2,80,0,0,0
