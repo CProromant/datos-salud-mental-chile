@@ -43,8 +43,14 @@ de publicación.
    dentro de ±0,5%. Si no cuadra, no se publica.
 6. Aplicar supresión k y la prohibición de desagregar por método.
 
-**Término:** un CSV comunal 2000–último año oficial, reproducible con un comando, con
+**Término:** un CSV comunal **2002**–último año oficial, reproducible con un comando, con
 manifiesto de procedencia, que cuadra con el total oficial y pasa la revisión de `docs/06`.
+
+> Corregido el 2026-07-27: decía 2000 y ese alcance no era alcanzable. Las proyecciones
+> comunales del INE empiezan en 2002 (A-008) y las defunciones están en CIE-9 hasta 1996
+> (A-002). Estirar la serie hacia atrás exigiría extrapolar población, que es justo lo que
+> el riesgo principal de esta fase prohíbe. 1997-2001 queda disponible como conteos, no
+> como tasas comunales.
 
 **Riesgo principal:** el cambio de base poblacional tras el Censo 2024 desplaza todas las
 tasas. Mitigación: el denominador es un dataset versionado aparte y las tasas se recalculan,
