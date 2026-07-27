@@ -11,7 +11,7 @@ producción con reconciliación pasando.
 
 ## I-01 · Tasa de mortalidad por suicidio
 
-- **Estado:** definido (Fase 1)
+- **Estado:** activo (Fase 1) — calculado sobre datos reales 2002-2023, reconciliado
 - **Numerador:** defunciones con causa básica en el agrupador `SUICIDIO` (X60–X84 + Y87.0),
   por comuna de **residencia**.
 - **Denominador:** población proyectada INE de la misma comuna, año, sexo y grupo etario.
@@ -28,8 +28,16 @@ producción con reconciliación pasando.
   constante `TOPE_EDAD_PIPELINE` para que no puedan divergir: si divergieran,
   `tasa_estandarizada_directa` descartaría los grupos que no calzan y la tasa saldría
   calculada **sin adultos mayores**, sin que nada falle.
-- **Variantes publicadas:** cruda; estandarizada por edad (estándar OMS); suavizada por
-  Bayes empírico. A nivel comunal la variante **principal es la suavizada**.
+- **Variantes publicadas:** cruda; estandarizada por edad (estándar OMS colapsado a `80+`,
+  método directo, con IC 95 %); suavizada por Bayes empírico. A nivel comunal la variante
+  **principal es la suavizada**.
+- **El límite inferior del IC se trunca en 0.** La aproximación normal sobre la varianza de
+  Poisson produce límites negativos con conteos pequeños, y una tasa negativa no existe. Que
+  el truncamiento haga falta es señal de que el conteo es demasiado bajo para el método: por
+  eso la salida acompaña siempre el número de casos.
+- **Población cero da tasa indefinida, no cero.** Hay celdas comuna × año sin habitantes
+  (A-009). Un `0,0` se leería como «no hubo muertes» cuando significa «no hay a quién
+  dividir».
 - **Desagregaciones:** región, comuna, sexo, grupo etario, año.
 - **Supresión:** k = 10.
 - **Sensibilidad:** serie paralela que suma `INTENCION_INDETERMINADA` (Y10–Y34), publicada
@@ -52,13 +60,21 @@ producción con reconciliación pasando.
 
 ## I-02 · Años de vida potencial perdidos por suicidio
 
-- **Estado:** definido (Fase 1)
+- **Estado:** activo (Fase 1) — 38,8 años perdidos por muerte en las celdas publicables
 - **Cálculo:** Σ max(0, 80 − edad al fallecer), agregado por comuna y año.
 - **Por qué existe:** la tasa cruda trata igual una muerte a los 17 y una a los 79. El AVPP
   hace visible que el suicidio concentra pérdida de vida joven, que es justamente el
   argumento que la discusión presupuestaria ignora.
+- **Supresión: la misma k = 10 que el conteo, y no es negociable.** El AVPP es el dato más
+  identificable de toda la salida: el aporte de cada muerte es 80 − edad, así que un AVPP de
+  61 en una celda con una sola muerte dice que la persona tenía 19 años. Se suprime junto
+  con el conteo, nunca después.
+- **Las defunciones sin edad no aportan y se cuentan aparte.** Tratarlas como 0 afirmaría
+  que murieron al nacer; como 80, que murieron justo en el límite. Ninguna de las dos es un
+  dato, así que la celda declara `casos_sin_edad`.
 - **Qué NO significa:** no es una medida de valor de la vida; el límite de 80 años es una
-  convención elegida por comparabilidad, no una afirmación normativa.
+  convención elegida por comparabilidad, no una afirmación normativa. Tampoco es comparable
+  con estudios que usen la esperanza de vida del año como límite en vez de uno fijo.
 
 ---
 

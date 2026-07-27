@@ -522,3 +522,128 @@ class TestContratoDelFixtureDePoblacion:
         )
         assert a_mano["comuna_cut"].str.len().eq(5).all()
         assert real["comuna_cut"].str.len().eq(5).all()
+
+
+class TestAvpp:
+    """Años de vida potencial perdidos: se calculan en silver porque necesitan la edad."""
+
+    def test_suma_los_aportes_a_mano(self, silver):
+        from obsm.transform.silver import agregar_avpp
+
+        df, _ = silver
+        av = agregar_avpp(df, "SUICIDIO").set_index(["comuna_cut", "anio"])
+        # Santiago 2022: muertes a los 34, 41 y 19 -> (80-34)+(80-41)+(80-19) = 146
+        assert av.loc[("13101", 2022), "avpp"] == pytest.approx(146.0)
+        # Valparaíso 2021: una muerte a los 51 -> 29
+        assert av.loc[("05101", 2021), "avpp"] == pytest.approx(29.0)
+
+    def test_una_muerte_sobre_el_limite_no_resta(self, silver):
+        from obsm.indicators.tasas import avpp
+
+        # El aporte se trunca en 0: morir a los 90 no "devuelve" diez años.
+        assert avpp([90]) == 0.0
+        assert avpp([20, 70, 90]) == pytest.approx(70.0)
+
+    def test_las_muertes_sin_edad_se_cuentan_aparte(self):
+        from obsm.transform.silver import agregar_avpp
+
+        df = pd.DataFrame({
+            "comuna_cut": ["05101"] * 2, "anio": [2020] * 2,
+            "edad_anios": [40.0, float("nan")], "es_suicidio": [True, True],
+        })
+        av = agregar_avpp(df, "SUICIDIO")
+        # Tratar la edad ausente como 0 afirmaría que murió al nacer, y como 80 que
+        # murió justo en el límite. Ninguna de las dos es un dato.
+        assert av["avpp"].iloc[0] == pytest.approx(40.0)
+        assert int(av["casos_sin_edad"].iloc[0]) == 1
+
+
+class TestEstandarizacionEnGold:
+    def _tablas(self):
+        # Dos comunas con el MISMO número de muertes y población, pero estructuras
+        # etarias opuestas: sin estandarizar se ven iguales, estandarizadas no.
+        pob = pd.DataFrame({
+            "comuna_cut": ["05101", "05101", "05102", "05102"],
+            "anio": [2020] * 4,
+            "grupo_edad": ["20-24", "80+", "20-24", "80+"],
+            "poblacion": [90_000, 10_000, 10_000, 90_000],
+        })
+        ag = pd.DataFrame({
+            "comuna_cut": ["05101", "05102"],
+            "anio": [2020, 2020],
+            "grupo_edad": ["80+", "80+"],
+            "casos": [20, 20],
+        })
+        return ag, pob
+
+    def test_la_tasa_cruda_no_distingue_pero_la_estandarizada_si(self):
+        ag, pob = self._tablas()
+        gold, _ = tasas_comunales(ag, pob, "SUICIDIO", k=1)
+        g = gold.set_index("comuna_cut")
+        assert g.loc["05101", "tasa_cruda"] == pytest.approx(g.loc["05102", "tasa_cruda"])
+        # La comuna joven concentra sus muertes en un grupo pequeño: su tasa específica
+        # en 80+ es nueve veces mayor, y estandarizar lo revela.
+        assert g.loc["05101", "tasa_estandarizada"] > g.loc["05102", "tasa_estandarizada"]
+
+    def test_no_descarta_el_grupo_abierto(self):
+        # Si el estándar no estuviera colapsado a 80+, este grupo se caería y la tasa
+        # saldría calculada sin adultos mayores, sin ningún error visible.
+        ag, pob = self._tablas()
+        gold, _ = tasas_comunales(ag, pob, "SUICIDIO", k=1)
+        assert (gold["grupos_edad_descartados"] == 0).all()
+        assert (gold["tasa_estandarizada"] > 0).all()
+
+    def test_poblacion_cero_da_estandarizada_indefinida_y_no_cero(self):
+        pob = pd.DataFrame({
+            "comuna_cut": ["05101"], "anio": [2020],
+            "grupo_edad": ["40-44"], "poblacion": [0],
+        })
+        ag = pd.DataFrame({"comuna_cut": [], "anio": [], "grupo_edad": [], "casos": []})
+        gold, _ = tasas_comunales(ag, pob, "SUICIDIO", k=1, anios_cobertura=(2020, 2020))
+        assert gold["tasa_estandarizada"].isna().all(), (
+            "un 0,0 se lee como «no hubo muertes»; acá significa «no hay a quién dividir»"
+        )
+
+    def test_el_intervalo_no_baja_de_cero(self):
+        ag, pob = self._tablas()
+        gold, _ = tasas_comunales(ag, pob, "SUICIDIO", k=1)
+        assert (gold["ic95_inferior"].dropna() >= 0).all(), "una tasa negativa no existe"
+
+
+class TestSupresionDeDerivadas:
+    """Todo lo que permita reconstruir el conteo suprimido se suprime con él."""
+
+    def _gold(self):
+        from obsm.transform.silver import agregar_avpp
+
+        defs, _ = normalizar_defunciones(DeisDefunciones().preparar(MUESTRA))
+        from obsm.ingest.ine_proyecciones import IneProyecciones
+        from obsm.transform.silver import normalizar_poblacion
+        pob, _ = normalizar_poblacion(
+            IneProyecciones().preparar(MUESTRA_POBLACION_CADENA)
+        )
+        ag = agregar_defunciones(defs, "SUICIDIO",
+                                 dimensiones=["comuna_cut", "anio", "grupo_edad"])
+        av = agregar_avpp(defs, "SUICIDIO")
+        return tasas_comunales(ag, pob, "SUICIDIO", avpp=av, k=10)
+
+    @pytest.mark.parametrize("col", [
+        "tasa_cruda", "tasa_estandarizada", "ic95_inferior", "ic95_superior", "avpp",
+    ])
+    def test_ninguna_derivada_sobrevive_a_la_supresion(self, col):
+        gold, _ = self._gold()
+        suprimidas = gold[gold["suprimido"]]
+        assert suprimidas[col].isna().all(), (
+            f"{col} permite reconstruir el conteo suprimido"
+        )
+
+    def test_el_avpp_es_el_caso_mas_sensible(self):
+        """Con un solo caso, AVPP revela la edad exacta del fallecido.
+
+        El aporte es 80 − edad, así que un AVPP de 61 en una celda de una muerte dice
+        que la persona tenía 19 años. Es el dato más identificable de toda la salida y
+        por eso no puede quedar fuera de la supresión.
+        """
+        gold, _ = self._gold()
+        una_muerte = gold[gold["casos"] == 1]
+        assert len(una_muerte) == 0 or una_muerte["avpp"].isna().all()
