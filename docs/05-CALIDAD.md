@@ -284,6 +284,38 @@ que es exactamente la lectura contraria a «no hay población para dividir».
 `COD_COMUNA` en DEIS (A-003). Con `zfill(5)` el join es perfecto; sin él se pierden en
 silencio todas las comunas de las regiones 01 a 09.
 
+### A-009 · ine_proyecciones · 2026-07-27
+
+**Qué se observó:** al ingerir el archivo real aparecieron **8.060 celdas con población
+cero** (0,42 % de 1.905.768). Un test del propio ingestor afirmaba que eso no podía pasar.
+
+**Verificación:** los ceros son correctos. Se concentran en **15 comunas de 346**, todas
+diminutas: Antártica (3.286 celdas), Río Verde, Timaukel, Laguna Blanca, Ollagüe, Tortel,
+Torres del Paine, O'Higgins. Las comunas sí tienen habitantes —Antártica pasa de 48 en 2002
+a 137 en 2020—; lo que está vacío son celdas concretas de comuna × sexo × edad × año. En
+Antártica no vive ninguna mujer de 73 años, y eso es un hecho, no un dato faltante.
+
+**Decisión:** los ceros se conservan tal cual. Lo que se corrigió fue el test, que afirmaba
+`poblacion > 0` y pasaba únicamente porque el fixture no tenía ceros: validaba el supuesto
+contra sí mismo, el mismo defecto que produjo A-004. El fixture ahora incluye Antártica con
+celdas en cero, y el contrato quedó en lo que sí es verdad: la población puede ser cero,
+nunca nula ni negativa. Un nulo indicaría lectura fallida; un cero indica que no hay nadie.
+
+**Consecuencia operativa:** el cálculo de tasas no puede dividir por estas celdas. Un
+denominador cero con numerador cero no es una tasa de 0 sino una tasa indefinida, y con
+numerador positivo es imposible por construcción (nadie puede morir en una celda donde no
+vive nadie): si aparece, es un error de join, no un dato. La supresión por umbral k ya
+retiraría estas celdas de la salida pública, pero el cálculo debe protegerse antes, porque
+la supresión ocurre después.
+
+**Nota:** estas 15 comunas son exactamente donde importa el suavizado bayesiano empírico del
+paso 4 de Fase 1. Una tasa comunal calculada sobre denominadores de dos dígitos es ruido.
+
+**Lección (repetida):** un fixture que no contiene el caso feo no prueba nada sobre él, y un
+test escrito contra ese fixture confirma la creencia del autor en vez de la fuente. Es la
+segunda vez en este proyecto; por eso la ingesta contra el archivo real es parte de
+verificar y no un extra.
+
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.
