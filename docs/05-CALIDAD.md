@@ -235,6 +235,31 @@ los ingestores. Corrida completa: 3.182.446 filas en 11 min 12 s.
 **Lección:** ningún fixture de 15 filas puede exponer esto. Hay defectos que solo existen a
 escala real, y por eso la ingesta contra la fuente real es parte de verificar, no un extra.
 
+### A-007 · deis_defunciones · 2026-07-27
+
+**Qué se observó:** silver corrió sobre los 3.182.446 registros reales y reportó
+`cut_invalidos: 0`. Ese cero era demasiado limpio para una serie de 34 años que cruza la
+creación de las regiones 14 y 15 (2007) y de la 16 (2018), así que se comprobó.
+
+**Verificación:** dos hallazgos, uno bueno y uno malo.
+
+1. **DEIS recodificó su historia al CUT vigente.** Chillán aparece como `16101` en los 34
+   años, incluidos los anteriores a la creación de Ñuble. No hay mezcla de marcos
+   territoriales en el archivo, lo que coincide con la decisión de ADR 0002.
+2. **64 filas traen `99999`**, centinela de «comuna ignorada». Silver validaba el *formato*
+   del CUT, no su *existencia*: `99999` tiene cinco dígitos, pasaba como comuna real y
+   generaba `region_cut` 99. La ruta por nombre sí contrastaba contra la DPA; la ruta por
+   código, que es la que se considera más confiable, no. De ahí el `cut_invalidos: 0`.
+
+**Decisión:** silver valida ahora la pertenencia a la DPA en ambas rutas y el reporte
+distingue `cut_mal_formados` (no parsea) de `cut_fuera_de_dpa` (parsea pero no existe).
+Las 64 filas se mantienen —no se borran— mapeadas a `COMUNA_DESCONOCIDA` y contadas, para
+que el total nacional siga cuadrando con el ancla de reconciliación. Quedan excluidas de
+todo indicador comunal por no tener denominador.
+
+**Lección:** un indicador de calidad que sale perfecto a la primera hay que auditarlo antes
+que celebrarlo. Acá el `0` no medía lo que su nombre decía que medía.
+
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.

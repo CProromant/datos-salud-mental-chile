@@ -284,3 +284,44 @@ class TestSuavizadoPorAnio:
     def test_casos_es_entero_nullable(self, silver):
         gold, _ = self._gold(silver)
         assert str(gold["casos"].dtype) == "Int64"
+
+
+class TestCutValidadoContraLaDPA:
+    """Un CUT bien formado no es un CUT que exista.
+
+    DEIS usa 99999 como centinela de "comuna ignorada". Cuando silver validaba solo el
+    formato, ese centinela pasaba como comuna real, producía `region_cut` 99 y el reporte
+    decía `cut_invalidos: 0`. En el archivo real son 64 filas de 3.182.446: pocas para
+    mover una tasa, suficientes para inventar una comuna en la salida.
+    """
+
+    def _bronze(self, cuts):
+        return pd.DataFrame(
+            {
+                "comuna_cut_fuente": cuts,
+                "anio": [2020] * len(cuts),
+                "sexo": ["hombre"] * len(cuts),
+                "edad_anios": [40] * len(cuts),
+                "causa_cie10": ["X700"] * len(cuts),
+                "_es_fila_total": [False] * len(cuts),
+            }
+        )
+
+    def test_el_centinela_99999_no_se_toma_como_comuna(self):
+        df, rep = normalizar_defunciones(self._bronze(["05101", "99999"]))
+        assert rep["cut_fuera_de_dpa"] == 0  # 99999 ya es el desconocido, no un error nuevo
+        assert rep["cut_desconocidos"] == 1
+        assert set(df["region_cut"]) == {"05", "99"}
+
+    def test_un_cut_inexistente_pero_bien_formado_se_cuenta(self):
+        # 05999 tiene cinco dígitos y una región válida, pero no existe.
+        df, rep = normalizar_defunciones(self._bronze(["05101", "05999"]))
+        assert rep["cut_fuera_de_dpa"] == 1
+        assert rep["cut_invalidos"] == 1
+        assert df["comuna_cut"].tolist() == ["05101", "99999"]
+
+    def test_los_cut_vigentes_no_se_tocan(self):
+        df, rep = normalizar_defunciones(self._bronze(["05101", "16101", "13101"]))
+        assert rep["cut_invalidos"] == 0
+        assert rep["cut_desconocidos"] == 0
+        assert df["comuna_cut"].tolist() == ["05101", "16101", "13101"]
