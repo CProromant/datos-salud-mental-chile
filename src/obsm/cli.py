@@ -125,11 +125,12 @@ def cmd_ingest(args) -> int:
         return 1
     ruta = Path(args.archivo)
     if not ruta.exists():
-        print(f"ERROR: no existe {ruta}. En este entorno no hay red hacia dominios de "
-              f"gobierno: descarga el archivo aparte y pásalo con --archivo.", file=sys.stderr)
+        print(f"ERROR: no existe {ruta}. Descarga el archivo y pásalo con --archivo "
+              f"(ver la receta de descarga en CLAUDE.md §4).", file=sys.stderr)
         return 1
     df, manifiesto = INGESTORES[args.id](fuente).ingerir(ruta)
-    print(f"bronze escrito: {len(df)} filas | sha256={manifiesto.sha256[:12]}… "
+    sha = manifiesto.sha256 or "sin-hash"
+    print(f"bronze escrito: {len(df)} filas | sha256={sha[:12]}… "
           f"| encoding={manifiesto.encoding}")
     return 0
 
