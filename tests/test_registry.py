@@ -139,3 +139,26 @@ class TestProcedencia:
         assert f.source_version, "sin source_version no hay procedencia en gold"
         assert f.sha256, "sin hash no se puede saber qué archivo se ingirió"
         assert f.url_principal.endswith(".zip")
+
+
+class TestFuentesCriticas:
+    """Una fuente `critico: true` sin URL verificada bloquea toda la fase.
+
+    `ine_proyecciones` es el denominador de cada tasa del proyecto: si se degrada a
+    no_verificada sin que nadie lo note, no hay ningún indicador que salga bien.
+    """
+
+    def test_las_criticas_de_fase_1_estan_verificadas(self):
+        reg = cargar_registro()
+        criticas = [f for f in reg if f.extra.get("critico") and f.fase == 1]
+        assert criticas, "el catálogo perdió las fuentes marcadas como críticas"
+        sin_verificar = [f.id for f in criticas if not f.verificada]
+        assert not sin_verificar, f"fuentes críticas sin verificar: {sin_verificar}"
+
+    def test_el_denominador_tiene_archivo_hash_y_version(self):
+        f = cargar_registro().get("ine_proyecciones")
+        assert f.url_archivo, "sin url_archivo no se puede reproducir la descarga"
+        assert len(f.sha256 or "") == 64
+        assert "base 2017" in (f.source_version or ""), (
+            "el denominador debe declarar su base: cambiarla recalcula todas las tasas"
+        )

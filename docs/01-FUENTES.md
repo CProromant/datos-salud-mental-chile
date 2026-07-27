@@ -194,10 +194,29 @@ observatorio.
 ### E1. `ine_proyecciones` — Proyecciones de población por comuna, sexo y edad
 
 - **Uso:** denominador de toda tasa. **Dependencia crítica.**
-- **Trampa:** la base cambia con cada censo. El Censo 2024 obliga a re-basar; las tasas
-  históricas cambian retroactivamente. Por eso el denominador es un dataset versionado y toda
-  tasa publicada declara qué versión de proyección usó.
-- **URL:** INE — *por_confirmar*.
+- **Contiene:** población por comuna × sexo × edad simple, un valor por año. 56.052 filas
+  (346 comunas × 2 sexos × 81 edades), 42 columnas. CSV latin-1, separador `,`.
+- **Granularidad temporal:** 2002-2035. `Edad` llega a 80 como **grupo abierto** (80 y más).
+- **Verificada** el 2026-07-27 con descarga real (9.768.366 bytes,
+  sha256 `c2a88471…`). Cuadra exactamente con la DPA: 346 comunas y 16 regiones, cero
+  diferencias en ambas direcciones. Total nacional 2020 = 19.458.310, igual a lo publicado.
+- **Trampa 1 — formato ancho:** una columna `Poblacion <año>` por cada año. Hay que pasarlo
+  a formato largo antes de usarlo como denominador.
+- **Trampa 2 — cero a la izquierda:** `Comuna` viene como entero (`1101`, no `"01101"`),
+  igual que `COD_COMUNA` en DEIS. Leer como string y `zfill(5)`. Sin eso se pierde el join
+  de todas las comunas de las regiones 01-09.
+- **Trampa 3 — cobertura:** empieza en **2002**. Defunciones va de 1990 a 2023 y en CIE-10
+  desde 1997, así que **no hay denominador comunal para 1997-2001**. La ventana efectiva de
+  tasas comunales es **2002-2023**.
+- **Trampa 4 — re-base:** la base cambia con cada censo. El INE publicó el 2026-01-28 las
+  estimaciones **base Censo 2024** (1992-2070); en la sesión de verificación solo se ubicó
+  en vivo la presentación de resultados en PDF, no los tabulados comunales. Migrar de base
+  recalcula las tasas históricas retroactivamente, así que es un cambio versionado y
+  anunciado, nunca una actualización silenciosa: toda tasa publicada declara qué versión de
+  proyección usó.
+- **URL:** `ine.gob.cl/docs/default-source/proyecciones-de-poblacion/cuadros-estadisticos/base-2017/`
+  — ver `config/sources.yml`. El listado de cuadros del sitio se arma por JavaScript: no se
+  puede raspar del HTML.
 
 ### E2. `fonasa_inscritos` — Población inscrita validada en APS
 
@@ -246,3 +265,11 @@ observatorio.
 3. Confirmar si `deis_urgencias` permite aislar lesión autoinfligida.
 4. Conseguir el maestro histórico de establecimientos o construirlo.
 5. Revisar términos de uso y licencia de cada portal antes de redistribuir datos derivados.
+   **Avanzado el 2026-07-27, no cerrado.** Los términos generales del INE son CC BY-SA 4.0:
+   permiten uso comercial —así que el temor a una cláusula NC era infundado para esa
+   fuente— pero exigen ShareAlike, lo que choca con la salida CC BY 4.0 del proyecto.
+   Como `ine_proyecciones` es el denominador de toda tasa, esto **bloquea la primera
+   publicación** hasta que se decida. Análisis y opciones en `LICENSE-DATA.md`.
+   Sigue sin verificar la licencia de DEIS (`deis_defunciones`, `por_confirmar`) y de
+   SUBDERE (`subdere_cut`, `por_confirmar`), y queda por aclarar la contradicción entre el
+   CC BY-NC 2.0 registrado para `ine_vitales_anuario` y el CC BY-SA 4.0 del mismo organismo.

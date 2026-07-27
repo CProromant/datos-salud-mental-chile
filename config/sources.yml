@@ -216,7 +216,12 @@ fuentes:
       Ojo con la Tabla 3 (p.45): dice 122.217 porque desagrega por grupo de edad y excluye
       un registro sin edad; además 63.710 hombres + 58.495 mujeres = 122.205, y los 12
       restantes son sexo no asignado. La cifra comparable es la de titular, 122.218.
-      Licencia NC: revisar antes de redistribuir cualquier derivado (pendiente 5 de docs/01).
+      CONTRADICCIÓN DE LICENCIA sin resolver (2026-07-27): acá figura CC BY-NC 2.0, pero los
+      términos generales del sitio del INE son CC BY-SA 4.0 y permiten uso comercial. No se
+      pudo determinar cuál rige para este PDF en particular. Mientras siga abierto, tratar
+      la condición más restrictiva (NC) como la vigente para este documento. En la práctica
+      el riesgo es bajo porque de acá solo se usan dos cifras como ancla de verificación y
+      no se redistribuye el anuario; un dato aislado no es una obra. Ver LICENSE-DATA.md.
 
   - id: subdere_cut
     nombre: "Códigos Únicos Territoriales (maestro de la DPA)"
@@ -252,16 +257,57 @@ fuentes:
       El servidor responde 403 sin user-agent de navegador.
 
   - id: ine_proyecciones
-    nombre: "Proyecciones de población por comuna, sexo y edad"
+    nombre: "Estimaciones y proyecciones de población por comuna, sexo y edad simple"
     organismo: "INE"
     dominio: "ine.gob.cl"
-    origen_url: por_confirmar
-    estado: no_verificada
-    formato: [xlsx, csv]
+    url_indice: "https://www.ine.gob.cl/estadisticas/sociales/demografia-y-vitales/proyecciones-de-poblacion"
+    url_archivo: "https://www.ine.gob.cl/docs/default-source/proyecciones-de-poblacion/cuadros-estadisticos/base-2017/ine_estimaciones-y-proyecciones-2002-2035_base-2017_comunas0381d25bc2224f51b9770a705a434b74.csv?sfvrsn=b6e930a7_3&download=true"
+    url_espejo: "https://www.ine.gob.cl/docs/default-source/proyecciones-de-poblacion/cuadros-estadisticos/base-2017/estimaciones-y-proyecciones-2002-2035-comunas.xlsx"
+    origen_url: verificada_en_sesion
+    fecha_origen_url: "2026-07-27"
+    estado: verificada
+    fecha_verificacion: "2026-07-27"
+    sha256: "c2a8847168b2a733410bd55e586dec67c08781f584caf3476c92ad6767a0656c"
+    source_version: "base 2017 · comunas 2002-2035"
+    formato: csv
+    granularidad: comuna_sexo_edad_anio
+    unidad_territorial: comuna
+    periodicidad: irregular
+    cobertura_temporal: "2002-2035"
+    # Términos generales del INE, leídos el 2026-07-27 en
+    # https://www.ine.gob.cl/terminos-de-uso-y-licencia-de-datos-abiertos
+    # Permiten uso comercial, pero exigen ShareAlike: el derivado debe distribuirse bajo la
+    # misma licencia. Eso choca con la salida CC BY 4.0 del proyecto. Decisión abierta,
+    # documentada en LICENSE-DATA.md; NO publicar gold derivado de esta fuente hasta cerrarla.
+    licencia: "CC BY-SA 4.0"
+    licencia_verificada: "2026-07-27"
     prioridad: 1
     fase: 1
     critico: true
-    notas: "Denominador de toda tasa. Re-base tras Censo 2024 cambia tasas retroactivamente."
+    variables_esperadas:
+      [region, provincia, comuna, sexo, edad, poblacion_por_anio]
+    ancla_reconciliacion: "total nacional por año publicado por el INE (2020 = 19.458.310)"
+    tolerancia_reconciliacion: 0.001
+    notas: >
+      Denominador de toda tasa del proyecto. VERIFICADO 2026-07-27 con descarga real:
+      9.768.366 bytes, 56.052 filas (346 comunas x 2 sexos x 81 edades), 42 columnas,
+      encoding latin-1, separador `,`. Cuadra exactamente con la DPA: 346 comunas y 16
+      regiones, cero diferencias en ambas direcciones. Total nacional 2020 = 19.458.310.
+      FORMATO ANCHO: una columna `Poblacion <año>` por cada año 2002-2035. Hay que pasarlo
+      a formato largo antes de usarlo como denominador.
+      TRAMPA: la columna `Comuna` viene como entero sin cero a la izquierda (1101, no
+      "01101"), igual que COD_COMUNA en DEIS (A-003). Leer como string y aplicar zfill(5).
+      Con eso el join contra la DPA es perfecto; sin eso se pierden las regiones 01-09.
+      LIMITE DE COBERTURA: empieza en 2002. La serie de defunciones va de 1990 a 2023 y en
+      CIE-10 desde 1997, así que NO hay denominador comunal para 1997-2001. La ventana de
+      tasas comunales es 2002-2023. Ver docs/05-CALIDAD.md.
+      `Edad` llega a 80 como grupo abierto (80 y más), no como edad exacta.
+      RE-BASE PENDIENTE: el 2026-01-28 el INE publicó las estimaciones base Censo 2024
+      (1992-2070). En esta sesión solo se pudo confirmar en vivo la presentación de
+      resultados en PDF; los tabulados comunales base 2024 no se ubicaron (el listado de
+      cuadros estadísticos se arma por JavaScript y no está en el HTML). Migrar de base
+      recalcula TODAS las tasas retroactivamente: es un cambio versionado, no una
+      actualización silenciosa. Por eso el denominador lleva su propio source_version.
 
   - id: ine_ipc
     nombre: "Índice de precios al consumidor"
