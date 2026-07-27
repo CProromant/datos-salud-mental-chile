@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "obsm"
+version = "0.1.0"
+description = "Observatorio de Salud Mental de Chile: motor de datos públicos"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "pyyaml>=6.0",
+    "requests>=2.31",
+    "pyarrow>=14.0",
+]
+
+[project.optional-dependencies]
+pdf = ["pdfplumber>=0.11", "camelot-py>=0.11"]
+almacen = ["duckdb>=0.10"]
+dev = ["pytest>=8.0", "ruff>=0.5", "mypy>=1.8"]
+
+[project.scripts]
+obsm = "obsm.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q --strict-markers"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "PL"]
+# Ignorados con justificación, no por comodidad:
+#   PLR0913/PLR0917: las funciones de gold reciben muchos parámetros a propósito
+#     (procedencia explícita en la firma en vez de estado global).
+#   PLC0415: hay imports locales deliberados para que el paquete se pueda usar y
+#     testear sin red ni dependencias opcionales, y para cortar ciclos.
+#   PLR2004: los umbrales numéricos de los tests son el contenido del test.
+ignore = ["PLR0913", "PLR0917", "PLC0415", "PLR2004"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true

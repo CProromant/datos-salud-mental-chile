@@ -1,0 +1,16 @@
+# Datos: NUNCA se versionan. Ver CLAUDE.md §2.3.
+data/
+!data/.gitkeep
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.env
+.DS_Store
