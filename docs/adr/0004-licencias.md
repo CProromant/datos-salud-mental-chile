@@ -1,7 +1,18 @@
 # ADR 0004 — Licencias: MIT para el código, CC BY 4.0 para los datos, normas aparte
 
 - Fecha: 2026-07-26
-- Estado: aceptada
+- Estado: **parcialmente superada** por [ADR 0005](0005-licencia-datos-sharealike.md)
+  el 2026-07-27.
+
+> **Qué cambió.** Los datos derivados ya no se publican bajo CC BY 4.0 sino bajo
+> **CC BY-SA 4.0**, porque el INE —fuente del denominador de toda tasa— publica bajo
+> CC BY-SA 4.0 y su cláusula ShareAlike obliga al derivado. Esta ADR razonó sobre lo que el
+> proyecto quería permitir, sin considerar lo que las fuentes obligan; en su momento ninguna
+> estaba verificada.
+>
+> **Qué sigue vigente:** el código bajo MIT, la decisión de no agregar cláusulas de uso a la
+> licencia, y la separación entre licencia y `USO-ACEPTABLE.md`. El punto 2 de la
+> justificación —rechazar CC BY-NC— también sigue en pie: CC BY-SA permite uso comercial.
 
 ## Contexto
 

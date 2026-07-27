@@ -2,9 +2,24 @@
 
 Los conjuntos de datos publicados por este proyecto (todo lo que sale de la capa `gold`:
 archivos CSV y Parquet, manifiestos, tablas de quiebres y reportes de calidad) se
-distribuyen bajo **Creative Commons Atribución 4.0 Internacional (CC BY 4.0)**.
+distribuyen bajo **Creative Commons Atribución-CompartirIgual 4.0 Internacional
+(CC BY-SA 4.0)**.
 
-Texto completo: https://creativecommons.org/licenses/by/4.0/deed.es
+Texto completo: https://creativecommons.org/licenses/by-sa/4.0/deed.es
+
+No es la licencia elegida por preferencia sino por herencia: el INE publica las proyecciones
+de población —denominador de toda tasa del proyecto— bajo CC BY-SA 4.0, y su cláusula
+CompartirIgual obliga al derivado. Se adopta la misma licencia y versión de la fuente para
+que no exista pregunta de compatibilidad. El razonamiento completo está en
+[ADR 0005](docs/adr/0005-licencia-datos-sharealike.md).
+
+**Permite uso comercial.** CompartirIgual no es «no comercial»: se puede usar en prensa,
+consultoría, docencia pagada y productos comerciales. Lo que exige es que el derivado se
+distribuya bajo la misma licencia.
+
+**El código sigue bajo MIT** (ver `LICENSE`) y la documentación narrativa bajo CC BY 4.0. La
+obligación de CompartirIgual nace de incorporar material del INE; la documentación no lo
+incorpora.
 
 ## Qué se pide al reutilizar
 
@@ -13,9 +28,14 @@ versión del dataset y su DOI cuando exista, y señalar si se hicieron modificac
 
 ```
 Datos de Salud Mental de Chile (AAAA). <Nombre del dataset>, versión AAAA.MM.N.
-DOI: 10.xxxx/zenodo.xxxxxxx. Licencia CC BY 4.0.
+DOI: 10.xxxx/zenodo.xxxxxxx. Licencia CC BY-SA 4.0.
 Elaborado a partir de datos de <fuente primaria>.
 ```
+
+**CompartirIgual** (requisito de la licencia): si modificas o construyes sobre estos datos y
+distribuyes el resultado, debe ir bajo CC BY-SA 4.0. Usarlos internamente, citarlos o
+graficarlos en un artículo no obliga a nada de esto: la cláusula se activa al distribuir un
+material adaptado.
 
 **Atribución a la fuente primaria** (requisito del proyecto, no de la licencia): toda
 reutilización debe mencionar también el organismo de origen —DEIS/MINSAL, INE, DIPRES,
@@ -24,7 +44,7 @@ los limpia, los cruza y los documenta.
 
 ## Alcance y límites
 
-- **Las fuentes primarias conservan sus propias condiciones.** La licencia CC BY 4.0 se
+- **Las fuentes primarias conservan sus propias condiciones.** La licencia CC BY-SA 4.0 se
   aplica al trabajo de normalización, agregación y documentación de este proyecto, no a los
   datos originales de terceros. Antes de redistribuir un derivado de una fuente específica,
   revisar los términos del portal correspondiente (tarea registrada en `docs/01-FUENTES.md`).
@@ -34,55 +54,39 @@ los limpia, los cruza y los documenta.
   reconciliación descrito en `docs/05-CALIDAD.md`, pueden contener errores. Las decisiones
   que se tomen a partir de ellos son responsabilidad de quien las toma.
 
-## DECISIÓN ABIERTA — ShareAlike del INE (bloquea la primera publicación)
+## De dónde viene el CompartirIgual
 
-Detectado el 2026-07-27 al verificar `ine_proyecciones`. **No está resuelto y bloquea la
-publicación de cualquier tasa.**
+Resuelto el 2026-07-27 en [ADR 0005](docs/adr/0005-licencia-datos-sharealike.md). Resumen:
 
-Los [términos de datos abiertos del INE](https://www.ine.gob.cl/terminos-de-uso-y-licencia-de-datos-abiertos)
-son **CC BY-SA 4.0**. La buena noticia es que permiten uso comercial de forma explícita
-—«para cualquier finalidad, incluso comercial»—, así que la preocupación anterior sobre una
-cláusula NC era, para esta fuente, infundada. El problema es otro: **ShareAlike**. Quien
-modifica el material «deberá difundir sus contribuciones bajo la misma licencia que el
-original».
+Al verificar `ine_proyecciones` se leyeron los
+[términos de datos abiertos del INE](https://www.ine.gob.cl/terminos-de-uso-y-licencia-de-datos-abiertos).
+Son CC BY-SA 4.0: permiten uso comercial de forma explícita —el temor previo a una cláusula
+no comercial era infundado para esta fuente— pero exigen CompartirIgual.
 
-Las proyecciones de población del INE son el denominador de **toda** tasa del proyecto. Si el
-`gold` derivado cuenta como obra adaptada, debe salir bajo CC BY-SA 4.0, y publicarlo bajo
-CC BY 4.0 —como declara este documento— incumpliría la licencia de la fuente.
+Como las proyecciones de población son el denominador de **toda** tasa del proyecto,
+publicar `gold` bajo CC BY 4.0 arriesgaba incumplir la licencia de origen. Se descartó
+sostener que una tasa no es obra derivada: puede ser cierto —los hechos no son objeto de
+derecho de autor y Chile no tiene un derecho *sui generis* de bases de datos— pero deja el
+cumplimiento apostado a una interpretación no probada, que no es posición para un proyecto
+cuyo argumento central es la trazabilidad.
 
-Que sea o no «obra adaptada» no es evidente y no se resuelve leyendo la licencia:
-
-- Los hechos y datos no son objeto de derecho de autor, y Chile no tiene un derecho *sui
-  generis* de bases de datos como el europeo. Una tasa calculada a partir de una población
-  es un hecho nuevo, no una adaptación del cuadro del INE.
-- Pero si se redistribuye la tabla de población —aunque sea reordenada a formato largo— eso
-  sí es distribuir el material, y ahí SA aplica sin discusión.
-
-Opciones, con recomendación:
-
-1. **Publicar `gold` bajo CC BY-SA 4.0.** Es la salida limpia: compatible con el INE, mantiene
-   el uso comercial y sigue siendo una licencia abierta estándar. Costo: la SA se contagia a
-   quien reutilice, lo que algunos reutilizadores evitan. **Recomendada.**
-2. Mantener CC BY 4.0 y no redistribuir nunca la tabla de población, publicando solo
-   indicadores calculados. Más frágil: depende de sostener que la tasa no es obra derivada.
-3. Licencia mixta: documentación y código bajo sus licencias actuales, datasets bajo
-   CC BY-SA 4.0.
-
-Mientras no se decida, **no publicar datasets `gold` que usen `ine_proyecciones` como
-denominador**. La decisión es del proyecto, no técnica, y conviene tomarla antes de la
-primera publicación: cambiar la licencia después de que alguien reutilizó el dato es mucho
-más caro que elegirla ahora.
+Se adoptó la licencia idéntica a la de la fuente, en vez de otra con CompartirIgual como
+ODbL, para que no haya que argumentar compatibilidad entre licencias distintas.
 
 Pendiente relacionado: `ine_vitales_anuario` está registrado como CC BY-NC 2.0, lo que
 contradice los términos generales CC BY-SA 4.0 del mismo organismo. No se pudo determinar
 cuál rige para ese PDF. El riesgo práctico es bajo —de ahí solo se usan dos cifras como
 ancla de verificación y no se redistribuye el documento—, pero conviene aclararlo con el INE.
+Las licencias de DEIS y SUBDERE siguen sin confirmar; fuentes bajo CC BY o dominio público
+no dan problema, porque se pueden incorporar a una obra CC BY-SA.
 
-## Por qué CC BY y no una licencia con restricciones
+## Por qué no una licencia con restricciones de uso
 
 El proyecto rechaza ciertos usos (puntuación de riesgo individual, focalización comercial:
 ver `USO-ACEPTABLE.md`). Esas restricciones **no están incorporadas a la licencia**, por
-decisión consciente:
+decisión consciente. Vale tanto para la CC BY 4.0 original como para la CC BY-SA 4.0 actual:
+lo que cambió con ADR 0005 fue la obligación heredada del INE, no la postura sobre agregar
+cláusulas propias.
 
 1. Agregar cláusulas a una licencia Creative Commons produce una licencia que ya no es CC y
    no puede llamarse así; el resultado es un texto ambiguo, difícil de cumplir y que ningún

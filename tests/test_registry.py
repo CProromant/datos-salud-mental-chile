@@ -162,3 +162,76 @@ class TestFuentesCriticas:
         assert "base 2017" in (f.source_version or ""), (
             "el denominador debe declarar su base: cambiarla recalcula todas las tasas"
         )
+
+
+class TestCompatibilidadDeLicencias:
+    """La salida `gold` es CC BY-SA 4.0 (ADR 0005). No todo se puede mezclar ahí.
+
+    El problema que motiva estos tests se descubrió tarde: la licencia de la fuente del
+    denominador se leyó recién al verificarla, cuando el proyecto ya declaraba CC BY 4.0.
+    Una cláusula no comercial en una fuente que alimenta gold es incompatible con una
+    salida abierta, y es el tipo de defecto que no rompe ningún cálculo: solo hace que lo
+    publicado incumpla la licencia de origen.
+    """
+
+    #: Marcas de licencia que impiden incorporar la fuente a una salida CC BY-SA 4.0.
+    INCOMPATIBLES = ("NC", "NoDerivat", "-ND")
+
+    def _licencia(self, f) -> str:
+        return str(f.extra.get("licencia") or "")
+
+    def _incompatibles(self, reg) -> list[str]:
+        malas = []
+        for f in reg:
+            if not f.verificada or f.extra.get("alimenta_gold") is False:
+                continue
+            lic = self._licencia(f)
+            if any(m.lower() in lic.lower() for m in self.INCOMPATIBLES):
+                malas.append(f"{f.id} ({lic})")
+        return malas
+
+    @pytest.mark.parametrize(
+        "extra,detecta",
+        [
+            ({"licencia": "CC BY-NC 4.0"}, True),
+            ({"licencia": "CC BY-ND 4.0"}, True),
+            ({"licencia": "CC BY-SA 4.0"}, False),
+            # La excepción explícita: el ancla de reconciliación no entra a gold.
+            ({"licencia": "CC BY-NC 4.0", "alimenta_gold": False}, False),
+        ],
+    )
+    def test_el_guard_detecta_de_verdad(self, tmp_path, extra, detecta):
+        """Sin esto, el test del catálogo real podría estar pasando por no mirar nada."""
+        ruta = _escribir(tmp_path, [{
+            "id": "x", "nombre": "X", "estado": "verificada",
+            "fecha_verificacion": "2026-01-01", **extra,
+        }])
+        assert bool(self._incompatibles(cargar_registro(ruta))) is detecta
+
+    def test_una_fuente_no_verificada_no_dispara_el_guard(self, tmp_path):
+        # El catálogo puede contener hipótesis; lo que no puede es publicarlas.
+        ruta = _escribir(tmp_path, [{
+            "id": "x", "nombre": "X", "estado": "no_verificada", "licencia": "CC BY-NC 4.0",
+        }])
+        assert self._incompatibles(cargar_registro(ruta)) == []
+
+    def test_ninguna_fuente_que_alimenta_gold_tiene_clausula_incompatible(self):
+        culpables = self._incompatibles(cargar_registro())
+        assert not culpables, (
+            f"fuentes incompatibles con la salida CC BY-SA 4.0: {culpables}. "
+            f"Revisar ADR 0005 antes de publicar gold."
+        )
+
+    def test_el_denominador_declara_su_licencia_verificada(self):
+        f = cargar_registro().get("ine_proyecciones")
+        assert self._licencia(f) == "CC BY-SA 4.0"
+        assert f.extra.get("licencia_verificada"), (
+            "una licencia sin fecha de verificación caduca sin que nadie lo note"
+        )
+
+    def test_el_ancla_nc_esta_marcada_como_fuera_de_gold(self):
+        # Es la excepción que hace pasar al test anterior: si alguien la ingiere de verdad,
+        # tiene que quitar esta marca y ahí el test de arriba falla, que es el punto.
+        f = cargar_registro().get("ine_vitales_anuario")
+        assert "NC" in self._licencia(f)
+        assert f.extra.get("alimenta_gold") is False

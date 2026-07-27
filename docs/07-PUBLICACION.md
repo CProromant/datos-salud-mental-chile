@@ -32,8 +32,10 @@ citó la cifra.
 ## Licencias
 
 - **Código:** MIT.
-- **Datos derivados:** CC BY 4.0, sin cláusulas añadidas. Los usos que el proyecto rechaza
-  están en `USO-ACEPTABLE.md` como **norma del proyecto, no como condición de licencia**:
+- **Datos derivados:** CC BY-SA 4.0, sin cláusulas añadidas. El CompartirIgual viene
+  heredado del INE, no es una restricción del proyecto (`docs/adr/0005`). Los usos que el
+  proyecto rechaza están en `USO-ACEPTABLE.md` como **norma del proyecto, no como condición
+  de licencia**:
   agregar restricciones a una licencia Creative Commons produce un texto que ya no es CC,
   que nadie sabe cumplir y que excluye al dataset de los estándares de datos abiertos que
   este mismo proyecto le exige al Estado. Donde la restricción sí es exigible es en el
