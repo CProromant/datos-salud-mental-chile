@@ -44,7 +44,7 @@ from pathlib import Path
 import pandas as pd
 
 from ..errors import SchemaDriftError
-from ..io import detectar_separador, leer_texto
+from ..io import detectar_separador, leer_primera_linea
 from .base import Ingestor, renombrar_columnas
 
 #: Mapeo {nombre_en_la_fuente: nombre_canonico}. La coincidencia es laxa (sin tildes ni
@@ -132,8 +132,9 @@ class DeisDefunciones(Ingestor):
     )
 
     def _leer(self, ruta: Path) -> pd.DataFrame:
-        texto, encoding = leer_texto(ruta)
-        primera = texto.split("\n", 1)[0]
+        # Solo el encabezado: el archivo real pesa 869 MB y aquí únicamente se necesita
+        # la primera línea para decidir el separador.
+        primera, encoding = leer_primera_linea(ruta)
         sep = detectar_separador(primera)
         df = pd.read_csv(ruta, sep=sep, encoding=encoding, dtype=str, low_memory=False)
         df.attrs["encoding"] = encoding

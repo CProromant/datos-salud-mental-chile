@@ -175,6 +175,54 @@ izquierda (`8304` por `08304`, Laja). Es el problema que `CLAUDE.md §5` anticip
 `territorio.formatear_cut_comuna`. Hay un test que verifica que el problema siga presente
 en el fixture, para que nadie «arregle» la fuente por el lado equivocado.
 
+### A-005 · reconciliación · 2026-07-27
+
+**Qué se observó:** al contrastar los totales anuales del archivo de causas contra la serie
+«Defunciones por Semana Epidemiológica» del propio DEIS, 4 de 14 años caen fuera del ±0,5 %.
+
+| año | causas | semanal | dif % |
+|---|---|---|---|
+| 2012 | 98.711 | 98.211 | +0,51 % |
+| **2014** | 101.960 | 103.431 | **−1,42 %** |
+| 2016 | 104.026 | 103.417 | +0,59 % |
+| **2020** | 126.169 | 127.734 | **−1,23 %** |
+| resto | — | — | +0,23 % a +0,32 % |
+
+**Hipótesis:** las dos diferencias grandes son negativas y las demás positivas y estables.
+Eso no parece error de dato sino de unidad de tiempo.
+
+**Verificación:** contando semanas distintas por año en la serie semanal, **2014 y 2020 son
+los únicos años de 53 semanas** del período (también 2025). Son exactamente los dos que
+salen negativos. Un año epidemiológico de 53 semanas cubre ~7 días más que uno calendario,
+y ~7/365 = 1,9 % acota bien las diferencias observadas.
+
+**Decisión:** **la serie semanal no sirve como ancla de reconciliación al ±0,5 %.** No está
+en año calendario sino en año epidemiológico, y comparar ambas es comparar períodos
+distintos. El sesgo positivo estable de +0,28 % en los años de 52 semanas es el residuo del
+mismo desfase de bordes.
+
+Queda pendiente conseguir un ancla en año calendario —el total anual de defunciones que
+publica DEIS o INE en sus anuarios— antes de dar por reconciliada ninguna serie. Hasta
+entonces, `ancla_reconciliacion` de `deis_defunciones` no está satisfecha.
+
+**Lección:** un ancla de reconciliación es tan buena como su definición temporal. Dos
+productos del mismo organismo pueden no ser comparables entre sí.
+
+### A-006 · deis_defunciones · 2026-07-27
+
+**Qué se observó:** al ingerir el archivo real (869 MB) el proceso no llegaba a arrancar.
+
+**Verificación:** `detectar_encoding` declara `muestra_bytes: int = 200_000` pero hacía
+`ruta.read_bytes()[:muestra_bytes]`: cargaba el archivo completo y recién después recortaba.
+`leer_texto` cargaba otra copia entera, y el ingestor solo usaba de ella la primera línea.
+Entre ambas, ~1,7 GB antes de que pandas empezara.
+
+**Decisión:** `detectar_encoding` lee solo la muestra; se agrega `leer_primera_linea` para
+los ingestores. Corrida completa: 3.182.446 filas en 11 min 12 s.
+
+**Lección:** ningún fixture de 15 filas puede exponer esto. Hay defectos que solo existen a
+escala real, y por eso la ingesta contra la fuente real es parte de verificar, no un extra.
+
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.

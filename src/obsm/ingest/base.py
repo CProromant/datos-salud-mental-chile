@@ -67,6 +67,7 @@ class Ingestor(ABC):
         manifiesto = Manifiesto(
             source_id=self.source_id,
             url=(self.fuente.url_principal if self.fuente else None),
+            source_version=(self.fuente.source_version if self.fuente else None),
             fecha_extraccion=ahora_iso(),
             sha256=sha256_archivo(ruta_local),
             bytes=ruta_local.stat().st_size,

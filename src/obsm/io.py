@@ -80,7 +80,14 @@ def detectar_encoding(ruta: Path, muestra_bytes: int = 200_000) -> str:
     comuna, que es peor porque falla silenciosamente en el join.
     """
     ruta = Path(ruta)
-    datos = ruta.read_bytes()[:muestra_bytes]
+    # Se lee SOLO la muestra. `read_bytes()[:muestra_bytes]` cargaba el archivo entero
+    # antes de recortar: con las defunciones DEIS eso son 869 MB para mirar 200 KB, y el
+    # ingestor no llegaba a arrancar. Un fixture de 15 filas no puede exponer esto.
+    with ruta.open("rb") as fh:
+        datos = fh.read(muestra_bytes)
+    # Un corte a mitad de carácter multibyte haría fallar a UTF-8 por el final del buffer
+    # y no por el contenido, que es justo el falso negativo que llevaría a latin-1.
+    datos = datos.rsplit(b"\n", 1)[0] if b"\n" in datos else datos
     for enc in ENCODINGS_CANDIDATOS:
         try:
             texto = datos.decode(enc)
@@ -95,9 +102,24 @@ def detectar_encoding(ruta: Path, muestra_bytes: int = 200_000) -> str:
 
 
 def leer_texto(ruta: Path) -> tuple[str, str]:
-    """Devuelve (contenido, encoding_usado)."""
+    """Devuelve (contenido, encoding_usado).
+
+    Carga el archivo completo en memoria: úsala solo cuando de verdad se necesite todo
+    el texto. Para leer el encabezado de un CSV grande está `leer_primera_linea`.
+    """
     enc = detectar_encoding(ruta)
     return Path(ruta).read_text(encoding=enc), enc
+
+
+def leer_primera_linea(ruta: Path) -> tuple[str, str]:
+    """Devuelve (primera_linea, encoding_usado) sin cargar el resto del archivo.
+
+    Los ingestores necesitan el encabezado para detectar el separador, no el contenido.
+    Leerlo con `leer_texto` cuesta un archivo entero en RAM por cada ingesta.
+    """
+    enc = detectar_encoding(ruta)
+    with Path(ruta).open("r", encoding=enc) as fh:
+        return fh.readline().rstrip("\r\n"), enc
 
 
 def detectar_separador(primera_linea: str) -> str:

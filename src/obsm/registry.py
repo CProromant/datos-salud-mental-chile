@@ -30,9 +30,16 @@ class Fuente:
     estado: str = "no_verificada"
     origen_url: str | None = None
     url_indice: str | None = None
+    url_archivo: str | None = None
     url_espejo: str | None = None
     ejemplos_url_observados: list[str] = field(default_factory=list)
     fecha_verificacion: str | None = None
+    sha256: str | None = None
+    #: Versión de la fuente tal como la publica el organismo. Viaja al manifiesto y de
+    #: ahí a cada fila de gold: sin esto, un número publicado no tiene procedencia
+    #: (CLAUDE.md §2.2). Que quedara fuera del dataclass lo dejaba silenciosamente en
+    #: `extra` y el manifiesto lo escribía como null.
+    source_version: str | None = None
     formato: Any = None
     granularidad: str | None = None
     periodicidad: str | None = None
@@ -52,6 +59,10 @@ class Fuente:
 
     @property
     def url_principal(self) -> str | None:
+        # El archivo manda sobre el índice: es lo que se descarga y lo que debe quedar
+        # en el manifiesto. Al revés, la procedencia apuntaba a una página de portada.
+        if self.url_archivo:
+            return self.url_archivo
         if self.url_indice:
             return self.url_indice
         if self.ejemplos_url_observados:
