@@ -321,6 +321,14 @@ Las 64 filas se mantienen —no se borran— mapeadas a `COMUNA_DESCONOCIDA` y c
 que el total nacional siga cuadrando con el ancla de reconciliación. Quedan excluidas de
 todo indicador comunal por no tener denominador.
 
+**Seguimiento (2026-07-27).** Al construir la cadena completa sobre fixtures se vio que un
+caso ocurrido en una comuna sin denominador **desaparece de `gold` sin dejar rastro**: el
+join es contra la población, así que el centinela `99999` se cae y el total publicado deja
+de cuadrar con el de la fuente. `gold` declara ahora `casos_sin_denominador` y
+`areas_sin_denominador` en su metadato. Sobre el archivo real el valor es 0 —las 64 filas
+con `99999` no incluyen ningún suicidio, comprobado— pero el cero ahora está medido en vez
+de supuesto.
+
 **Lección:** un indicador de calidad que sale perfecto a la primera hay que auditarlo antes
 que celebrarlo. Acá el `0` no medía lo que su nombre decía que medía.
 

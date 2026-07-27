@@ -64,6 +64,20 @@ def _unir_en_ventana(
         recorte["anios_efectivos"] = [ef_desde, ef_hasta]
         fuera = conteos[~conteos["anio"].between(ef_desde, ef_hasta)]
         recorte["casos_fuera_de_ventana"] = int(fuera["casos"].sum()) if len(fuera) else 0
+
+    # Un caso puede caerse por no tener denominador aunque su año esté cubierto: pasa con
+    # el centinela 99999 de «comuna ignorada» (A-007) y con cualquier código que la fuente
+    # traiga y la DPA no reconozca. El join es sobre la población, así que esos casos
+    # desaparecen sin dejar rastro. Publicar un total que no cuadra con el de la fuente y
+    # no decir por qué es la forma más barata de perder la confianza en toda la serie.
+    en_ventana = conteos[conteos["anio"].between(*recorte["anios_efectivos"])] if (
+        recorte.get("anios_efectivos")
+    ) else conteos
+    perdidos = int(en_ventana["casos"].sum()) - int(df["casos"].sum())
+    recorte["casos_sin_denominador"] = perdidos
+    if perdidos:
+        sin_pob = set(en_ventana[dimensiones[0]]) - set(df[dimensiones[0]])
+        recorte["areas_sin_denominador"] = sorted(str(a) for a in sin_pob)[:20]
     return df, recorte
 
 
