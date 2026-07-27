@@ -154,3 +154,57 @@ class TestSMR:
 
     def test_esperados_cero(self):
         assert np.isnan(razon_estandarizada([5], [0])[0])
+
+
+class TestColapsarEstandar:
+    """El denominador del INE termina en `80+`; la estándar OMS separa 80-84 y 85+.
+
+    Estandarizar exige la misma grilla en ambos lados. `tasa_estandarizada_directa`
+    descarta los grupos que no encuentra en el estándar, así que la falla no sería un
+    error sino una tasa calculada sin adultos mayores: no se ve rota, se ve baja.
+    """
+
+    def test_suma_los_pesos_de_la_cola(self):
+        from obsm.indicators.tasas import POBLACION_ESTANDAR_OMS_80
+
+        # 0,910 (80-84) + 0,635 (85+)
+        assert POBLACION_ESTANDAR_OMS_80["80+"] == pytest.approx(1.545)
+        assert "80-84" not in POBLACION_ESTANDAR_OMS_80
+        assert "85+" not in POBLACION_ESTANDAR_OMS_80
+
+    def test_no_pierde_peso_total(self):
+        from obsm.indicators.tasas import POBLACION_ESTANDAR_OMS, POBLACION_ESTANDAR_OMS_80
+
+        # Colapsar reagrupa, no descarta: si el total cambiara, la tasa se movería.
+        assert sum(POBLACION_ESTANDAR_OMS_80.values()) == pytest.approx(
+            sum(POBLACION_ESTANDAR_OMS.values())
+        )
+
+    def test_no_toca_los_grupos_bajo_el_tope(self):
+        from obsm.indicators.tasas import POBLACION_ESTANDAR_OMS, POBLACION_ESTANDAR_OMS_80
+
+        for g in ("00-04", "40-44", "75-79"):
+            assert POBLACION_ESTANDAR_OMS_80[g] == POBLACION_ESTANDAR_OMS[g]
+
+    def test_es_idempotente(self):
+        from obsm.indicators.tasas import POBLACION_ESTANDAR_OMS_80, colapsar_estandar
+
+        assert colapsar_estandar(POBLACION_ESTANDAR_OMS_80, tope=80) == POBLACION_ESTANDAR_OMS_80
+
+    def test_un_estandar_sin_cola_queda_igual(self):
+        from obsm.indicators.tasas import colapsar_estandar
+
+        chico = {"00-04": 1.0, "05-09": 2.0}
+        assert colapsar_estandar(chico, tope=80) == chico
+
+    def test_la_estandarizacion_no_descarta_el_grupo_abierto(self):
+        """La prueba que importa: con la estándar colapsada, `80+` se usa."""
+        import pandas as pd
+
+        from obsm.indicators.tasas import POBLACION_ESTANDAR_OMS_80, tasa_estandarizada_directa
+
+        casos = pd.Series({"40-44": 10, "80+": 5})
+        pob = pd.Series({"40-44": 100_000, "80+": 10_000})
+        r = tasa_estandarizada_directa(casos, pob, poblacion_estandar=POBLACION_ESTANDAR_OMS_80)
+        assert r["grupos_descartados"] == []
+        assert r["grupos_usados"] == 2

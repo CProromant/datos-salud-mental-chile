@@ -173,3 +173,85 @@ def test_esta_registrado_en_la_cli():
     from obsm.ingest import INGESTORES
 
     assert INGESTORES["ine_proyecciones"] is IneProyecciones
+
+
+class TestNormalizacionASilver:
+    """bronze → silver: acá sí se resuelve territorio y se agrupa la edad."""
+
+    @pytest.fixture()
+    def silver(self, bronze):
+        from obsm.transform.silver import normalizar_poblacion
+
+        return normalizar_poblacion(bronze)
+
+    def test_aqui_si_se_rellena_el_cut(self, silver):
+        df, _ = silver
+        assert "01101" in set(df["comuna_cut"]), "silver es quien completa el cero"
+        assert all(len(c) == 5 for c in df["comuna_cut"])
+
+    def test_la_region_sale_del_cut_completo(self, silver):
+        df, _ = silver
+        # Sin el zfill previo, Iquique daría region "11" en vez de "01".
+        iquique = df[df["comuna_cut"] == "01101"]
+        assert set(iquique["region_cut"]) == {"01"}
+
+    def test_usa_el_tope_del_pipeline_y_no_el_general(self, silver):
+        from obsm.indicators.tasas import TOPE_EDAD_PIPELINE
+
+        df, rep = silver
+        assert rep["tope_edad"] == TOPE_EDAD_PIPELINE == 80
+        assert "80+" in set(df["grupo_edad"])
+        assert "85+" not in set(df["grupo_edad"])
+
+    def test_no_pierde_ni_inventa_poblacion(self, bronze, silver):
+        df, rep = silver
+        assert int(df["poblacion"].sum()) == int(bronze["poblacion"].sum())
+        assert rep["poblacion_total"] == int(bronze["poblacion"].sum())
+
+    def test_conserva_las_celdas_en_cero(self, silver):
+        # A-009: un cero es «no vive nadie», no un faltante. Filtrarlas cambiaría el
+        # denominador de las comunas diminutas justo donde más frágil es la tasa.
+        df, rep = silver
+        assert rep["celdas_poblacion_cero"] > 0
+        assert (df["poblacion"] == 0).any()
+
+    def test_la_grilla_es_unica_por_dimension(self, silver):
+        df, _ = silver
+        clave = ["comuna_cut", "anio", "sexo", "grupo_edad"]
+        assert not df.duplicated(subset=clave).any(), (
+            "una clave repetida en el denominador multiplica población al unir"
+        )
+
+    def test_el_territorio_queda_validado_contra_la_dpa(self, silver):
+        _, rep = silver
+        assert rep["cut_invalidos"] == 0
+        assert rep["cut_fuera_de_dpa"] == 0
+
+
+class TestGrillaCompartidaConElNumerador:
+    """Numerador y denominador tienen que caer en la misma grilla o la tasa miente."""
+
+    def test_defunciones_y_poblacion_usan_los_mismos_grupos_de_edad(self):
+        from obsm.ingest.deis_defunciones import DeisDefunciones
+        from obsm.transform.silver import normalizar_defunciones, normalizar_poblacion
+
+        muestra = Path(__file__).parent / "fixtures" / "deis_defunciones" / "muestra_latin1.csv"
+        defs, rep_d = normalizar_defunciones(DeisDefunciones().preparar(muestra))
+        pob, rep_p = normalizar_poblacion(IneProyecciones().preparar(FIXTURE))
+
+        assert rep_d["tope_edad"] == rep_p["tope_edad"], (
+            "si los topes divergen, la estandarización descarta grupos en silencio"
+        )
+        # Ninguno de los dos puede emitir un grupo por encima del tope. Es lo que rompía
+        # la estandarización: el numerador llegando a 85+ contra un denominador que
+        # termina en 80+.
+        for lado, df in (("defunciones", defs), ("poblacion", pob)):
+            assert "85+" not in set(df["grupo_edad"]), f"{lado} se pasó del tope"
+
+        # Y para una misma edad, ambos lados tienen que dar exactamente la misma etiqueta.
+        from obsm.indicators.tasas import grupo_quinquenal
+
+        for edad in (0, 4, 5, 39, 79, 80, 84, 97):
+            etiqueta = grupo_quinquenal(edad, tope=rep_p["tope_edad"])
+            assert grupo_quinquenal(edad, tope=rep_d["tope_edad"]) == etiqueta
+        assert grupo_quinquenal(97, tope=rep_p["tope_edad"]) == "80+"

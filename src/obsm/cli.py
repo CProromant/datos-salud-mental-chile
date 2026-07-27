@@ -6,6 +6,7 @@ import argparse
 import json
 import logging
 import sys
+from collections.abc import Callable
 from pathlib import Path
 
 from . import __version__
@@ -139,7 +140,20 @@ def cmd_build_silver(args) -> int:
     import pandas as pd
 
     from .io import ruta_capa
-    from .transform.silver import normalizar_defunciones
+    from .transform.silver import normalizar_defunciones, normalizar_poblacion
+
+    # Cada fuente tiene su normalizador. Un dict y no un if: agregar una fuente no debe
+    # obligar a editar el flujo de control, y una fuente sin normalizador tiene que
+    # fallar diciendo eso, no caer por defecto en el de defunciones.
+    normalizadores: dict[str, Callable[..., tuple[pd.DataFrame, dict]]] = {
+        "deis_defunciones": normalizar_defunciones,
+        "ine_proyecciones": normalizar_poblacion,
+    }
+    if args.source not in normalizadores:
+        print(f"ERROR: no hay normalizador para {args.source!r}. "
+              f"Disponibles: {sorted(normalizadores)}", file=sys.stderr)
+        return 1
+    normalizar = normalizadores[args.source]
 
     entrada = Path(args.entrada) if args.entrada else None
     if entrada is None:
@@ -151,7 +165,7 @@ def cmd_build_silver(args) -> int:
             return 1
         entrada = candidatos[-1]
     bronze = pd.read_parquet(entrada)
-    silver, reporte = normalizar_defunciones(bronze)
+    silver, reporte = normalizar(bronze)
     destino = ruta_capa("silver", args.source, f"{entrada.stem}.parquet")
     destino.parent.mkdir(parents=True, exist_ok=True)
     silver.to_parquet(destino, index=False)
@@ -176,7 +190,21 @@ def cmd_build_gold(args) -> int:
         print(f"ERROR: no hay silver para {args.source}.", file=sys.stderr)
         return 1
     silver = pd.read_parquet(candidatos[-1])
-    poblacion = pd.read_csv(args.poblacion, dtype={"comuna_cut": str})
+
+    # El denominador sale del silver de población, no de un CSV suelto: así arrastra
+    # el mismo territorio validado y el mismo tope etario que el numerador. Se admite
+    # --poblacion para pruebas y para comparar contra otra base de proyección.
+    if args.poblacion:
+        poblacion = pd.read_csv(args.poblacion, dtype={"comuna_cut": str})
+    else:
+        dir_pob = ruta_capa("silver", "ine_proyecciones", "x").parent
+        cand_pob = sorted(dir_pob.glob("*.parquet"))
+        if not cand_pob:
+            print("ERROR: no hay silver de ine_proyecciones y no se pasó --poblacion. "
+                  "Corre `obsm ingest ine_proyecciones` y luego "
+                  "`obsm build silver --source ine_proyecciones`.", file=sys.stderr)
+            return 1
+        poblacion = pd.read_parquet(cand_pob[-1])
     agregado = agregar_defunciones(silver, args.agrupador, dimensiones=["comuna_cut", "anio"])
     gold, meta = tasas_comunales(
         agregado, poblacion, args.agrupador, source_id=args.source, k=args.k
@@ -235,7 +263,8 @@ def construir_parser() -> argparse.ArgumentParser:
     bs.set_defaults(func=cmd_build_silver)
     bg = b.add_parser("gold")
     bg.add_argument("--source", default="deis_defunciones")
-    bg.add_argument("--poblacion", required=True, help="CSV con comuna_cut, anio, poblacion")
+    bg.add_argument("--poblacion", default=None,
+                    help="CSV de población. Por defecto usa el silver de ine_proyecciones.")
     bg.add_argument("--agrupador", default="SUICIDIO")
     bg.add_argument("--k", type=int, default=10)
     bg.set_defaults(func=cmd_build_gold)
