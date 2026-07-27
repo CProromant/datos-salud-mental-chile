@@ -26,14 +26,15 @@ profesional. Estos límites son de diseño, no de alcance temporal.
 
 ## Estado
 
-**Fase 1 completa salvo el comando único** (2026-07-27). El primer indicador existe, corre
-de punta a punta sobre datos reales y está verificado contra referencias externas.
+**Fase 1 completa** (2026-07-27). El primer indicador existe, corre de punta a punta
+sobre datos reales con un solo comando, y está verificado contra referencias externas.
 
 | Verificación | Estado |
 |---|---|
 | Tests (`pytest`) | 323 pasando |
 | Lint y tipos (`ruff`, `mypy`) | limpios |
 | Fuentes verificadas con descarga real | 4 de 17 |
+| Pipeline reproducible | `obsm run`, un comando |
 | Anclas de reconciliación automáticas | 5 de 5 cuadrando |
 | Indicadores activos con ficha y verificación externa | 2 (I-01, I-02) |
 | Anomalías documentadas con reproducción y decisión | 9 |
@@ -113,27 +114,38 @@ python ejemplos/practica.py 8      # experimentos para romper cosas a propósito
 ### Reproducir la serie completa
 
 ```bash
+obsm run
+```
+
+Eso es todo. Descarga los archivos de DEIS y del INE, verifica cada uno contra el
+SHA-256 declarado en [`config/sources.yml`](config/sources.yml), descomprime, ingiere,
+normaliza, reconcilia contra cinco cifras oficiales y escribe `data/gold/`. Se detiene en
+el primer error: encadenar sobre una etapa fallida produce basura con buen aspecto.
+
+Los archivos ya descargados se reutilizan, así que reintentar cuesta segundos y no
+minutos. Para volver a bajarlos: `obsm run --forzar-descarga`.
+
+Si prefieres correr las etapas por separado —para depurar, o para ingerir un archivo que
+descargaste a mano:
+
+```bash
 obsm sources list                       # catálogo y estado de verificación
-obsm sources verify                     # comprobar que las URLs siguen vivas
-
-obsm ingest deis_defunciones --archivo <ruta al CSV de DEIS>
-obsm ingest ine_proyecciones --archivo <ruta al CSV del INE>
-
-obsm build silver --source deis_defunciones
+obsm ingest ine_proyecciones --archivo <ruta al CSV>
 obsm build silver --source ine_proyecciones
 obsm build gold   --source deis_defunciones --agrupador SUICIDIO
-
 obsm qa                                 # validaciones y reconciliación
 ```
 
-Las URLs y los hashes SHA-256 de cada archivo están en
-[`config/sources.yml`](config/sources.yml). Descargar desde dominios de gobierno de Chile
-requiere `--ssl-no-revoke` y un user-agent de navegador; la receta exacta está en
-[`CLAUDE.md`](CLAUDE.md) §4.
+> **Nota sobre TLS.** Varios servidores de gobierno de Chile sirven una cadena de
+> certificados incompleta, y `requests` falla contra ellos con
+> `CERTIFICATE_VERIFY_FAILED`. No es un certificado inválido ni un bloqueo de red: el
+> servidor no envía la CA intermedia. El proyecto usa `truststore` para validar con el
+> almacén del sistema operativo, que es lo mismo que hace un navegador. **Nunca**
+> `verify=False`. Detalle en [`CLAUDE.md`](CLAUDE.md) §4.
 
 > La corrida completa toma unos 20 minutos y deja ~1,1 GB en `data/`, dominados por los
 > 3,18 millones de registros de defunciones (940 MB en `raw/`, el resto en las capas
-> derivadas). Unificar esto en un solo comando es lo único que falta para cerrar la Fase 1.
+> derivadas).
 
 ## Cómo leer estos datos sin equivocarse
 

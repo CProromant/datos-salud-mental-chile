@@ -14,6 +14,8 @@ from .errors import ObsmError
 from .registry import cargar_registro, verificar_urls
 from .territorio import N_COMUNAS_ESPERADO, cargar_dpa, validar_dpa
 
+log = logging.getLogger(__name__)
+
 
 def _log(verbose: bool) -> None:
     logging.basicConfig(
@@ -177,6 +179,115 @@ def cmd_ingest(args) -> int:
     sha = manifiesto.sha256 or "sin-hash"
     print(f"bronze escrito: {len(df)} filas | sha256={sha[:12]}… "
           f"| encoding={manifiesto.encoding}")
+    return 0
+
+
+#: Orden del pipeline de Fase 1. El denominador va primero porque `build gold` lo necesita
+#: y porque si falla, no tiene sentido gastar once minutos ingiriendo el numerador.
+PIPELINE_FASE_1 = ["ine_proyecciones", "deis_defunciones"]
+
+
+def _asegurar_raw(fuente, forzar: bool = False) -> Path:
+    """Devuelve la ruta al archivo crudo, descargándolo y descomprimiéndolo si hace falta.
+
+    Verifica el hash declarado en `config/sources.yml`. Una descarga que completó no es una
+    descarga correcta: el servidor pudo servir una página de error con código 200.
+    """
+    import zipfile
+
+    from .io import DIR_DATOS, descargar, sha256_archivo
+
+    dir_raw = DIR_DATOS / "raw" / fuente.id
+    dir_raw.mkdir(parents=True, exist_ok=True)
+
+    # El nombre del miembro extraído manda: es lo que ingiere el pipeline. Si ya está,
+    # no se vuelve a bajar el ZIP de 93 MB para sacar el mismo CSV.
+    extraido = fuente.extra.get("archivo_extraido")
+    if extraido and (dir_raw / extraido).exists() and not forzar:
+        log.info("[%s] usando el archivo ya extraído: %s", fuente.id, extraido)
+        return dir_raw / extraido
+
+    url = fuente.url_archivo or fuente.url_principal
+    if not url:
+        raise ObsmError(f"[{fuente.id}] no hay url_archivo en el catálogo")
+    destino = dir_raw / Path(url.split("?")[0]).name
+
+    if destino.exists() and not forzar:
+        log.info("[%s] usando el archivo en caché: %s", fuente.id, destino.name)
+    else:
+        log.info("[%s] descargando %s", fuente.id, url)
+        descargar(url, destino, fuente.id, forzar=forzar, sha256_esperado=fuente.sha256)
+
+    if not zipfile.is_zipfile(destino):
+        return destino
+
+    if not extraido:
+        raise ObsmError(
+            f"[{fuente.id}] el archivo es un ZIP pero el catálogo no declara "
+            f"`archivo_extraido`. Sin eso no se sabe qué miembro ingerir."
+        )
+    with zipfile.ZipFile(destino) as z:
+        miembros = z.namelist()
+        if extraido not in miembros:
+            raise ObsmError(
+                f"[{fuente.id}] el ZIP no contiene {extraido!r}. Miembros: {miembros[:10]}. "
+                f"La fuente cambió el nombre del archivo: revisar y actualizar el catálogo."
+            )
+        log.info("[%s] extrayendo %s", fuente.id, extraido)
+        z.extract(extraido, dir_raw)
+
+    csv = dir_raw / extraido
+    esperado = fuente.extra.get("sha256_extraido")
+    if esperado and sha256_archivo(csv) != esperado:
+        raise ObsmError(
+            f"[{fuente.id}] el archivo extraído no coincide con `sha256_extraido`. "
+            f"El ZIP publicado cambió de contenido sin cambiar de URL."
+        )
+    return csv
+
+
+def cmd_run(args) -> int:
+    """Pipeline de Fase 1 completo, en un comando.
+
+    Reutiliza los mismos `cmd_*` que se invocan por separado en vez de reimplementarlos:
+    si mañana cambia la ingesta, este comando cambia con ella. Se detiene en el primer
+    error, porque encadenar sobre una etapa fallida produce basura con buen aspecto.
+    """
+    from types import SimpleNamespace
+
+    reg = cargar_registro(args.config)
+    pasos: list[tuple[str, str]] = []
+
+    def paso(nombre: str, fn, **kwargs) -> bool:
+        print(f"\n>>> {nombre}")
+        codigo = fn(SimpleNamespace(config=args.config, dpa=args.dpa, **kwargs))
+        pasos.append((nombre, "ok" if codigo == 0 else "FALLA"))
+        return codigo == 0
+
+    for source_id in PIPELINE_FASE_1:
+        fuente = reg.exigir_verificada(source_id)
+        try:
+            ruta = _asegurar_raw(fuente, forzar=args.forzar_descarga)
+        except (ObsmError, Exception) as exc:  # noqa: BLE001
+            print(f"ERROR obteniendo el archivo de {source_id}: {exc}", file=sys.stderr)
+            return 1
+
+        if not paso(f"ingest {source_id}", cmd_ingest,
+                    id=source_id, archivo=str(ruta), permitir_no_verificada=False):
+            return 1
+        if not paso(f"build silver {source_id}", cmd_build_silver,
+                    source=source_id, entrada=None):
+            return 1
+
+    if not paso(f"build gold ({args.agrupador})", cmd_build_gold,
+                source="deis_defunciones", agrupador=args.agrupador,
+                poblacion=None, k=args.k, sin_reconciliar=False):
+        return 1
+
+    print(f"\n{'=' * 70}\n  RESUMEN\n{'=' * 70}")
+    for nombre, estado in pasos:
+        print(f"  {estado:6} {nombre}")
+    print("\nLa salida está en data/gold/ con su manifiesto y su reporte de calidad.")
     return 0
 
 
@@ -350,6 +461,13 @@ def construir_parser() -> argparse.ArgumentParser:
                     help="Salta la reconciliación. Solo para depurar: la salida NO es "
                          "publicable y el metadato lo declara.")
     bg.set_defaults(func=cmd_build_gold)
+
+    r = sub.add_parser("run", help="pipeline de Fase 1 completo, en un comando")
+    r.add_argument("--agrupador", default="SUICIDIO")
+    r.add_argument("--k", type=int, default=10)
+    r.add_argument("--forzar-descarga", action="store_true",
+                   help="vuelve a bajar los archivos aunque estén en caché")
+    r.set_defaults(func=cmd_run)
 
     q = sub.add_parser("qa", help="comprobaciones sin red")
     q.set_defaults(func=cmd_qa)
