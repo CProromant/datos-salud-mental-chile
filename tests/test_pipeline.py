@@ -414,3 +414,111 @@ class TestVentanaDeCobertura:
         )
         assert sorted(gold["anio"].unique()) == [2020, 2021, 2022, 2023]
         assert meta["cobertura"]["anios_cobertura"] == [2020, 2023]
+
+
+MUESTRA_POBLACION_CADENA = FIXTURES / "ine_proyecciones" / "muestra_cadena.csv"
+
+
+class TestCadenaCompleta:
+    """ingest → silver → gold con AMBAS fuentes reales, sin sustitutos.
+
+    Hasta ahora los tests de gold usaban un CSV de población escrito a mano con tres
+    columnas, cuando `normalizar_poblacion` produce seis. Todo el tramo silver-población →
+    gold quedaba sin proteger: si el normalizador renombrara una columna o cambiara el
+    tipo de `comuna_cut`, estos tests habrían seguido verdes. Es la misma familia de
+    A-004 y A-009 — el test confirmando el supuesto del autor en vez de la realidad.
+
+    Los dos fixtures tampoco se podían encadenar: no compartían un solo año. Por eso
+    `muestra_cadena.csv` existe y está hecho para calzar con `muestra_latin1.csv`.
+    """
+
+    @pytest.fixture()
+    def cadena(self):
+        from obsm.ingest.ine_proyecciones import IneProyecciones
+        from obsm.transform.silver import normalizar_poblacion
+
+        defs, rep_d = normalizar_defunciones(DeisDefunciones().preparar(MUESTRA))
+        pob, rep_p = normalizar_poblacion(
+            IneProyecciones().preparar(MUESTRA_POBLACION_CADENA)
+        )
+        agregado = agregar_defunciones(defs, "SUICIDIO", dimensiones=["comuna_cut", "anio"])
+        gold, meta = tasas_comunales(agregado, pob, "SUICIDIO", k=1)
+        return {"defs": defs, "pob": pob, "agregado": agregado,
+                "gold": gold, "meta": meta, "rep_d": rep_d, "rep_p": rep_p}
+
+    def test_numerador_y_denominador_comparten_la_grilla(self, cadena):
+        assert cadena["rep_d"]["tope_edad"] == cadena["rep_p"]["tope_edad"]
+        assert set(cadena["defs"]["comuna_cut"]) - {"99999"} <= set(cadena["pob"]["comuna_cut"])
+
+    def test_no_se_pierde_ningun_caso_sin_declararlo(self, cadena):
+        # La suma tiene que cerrar: lo que entra es lo que sale más lo declarado perdido.
+        entran = int(cadena["agregado"]["casos"].sum())
+        salen = int(cadena["gold"]["casos"].sum())
+        perdidos = cadena["meta"]["cobertura"]["casos_sin_denominador"]
+        assert entran == salen + perdidos, "hay casos evaporándose en el join"
+
+    def test_el_centinela_sin_denominador_se_declara(self, cadena):
+        cob = cadena["meta"]["cobertura"]
+        assert cob["casos_sin_denominador"] == 1
+        assert cob["areas_sin_denominador"] == ["99999"]
+
+    def test_la_tasa_sale_del_calculo_a_mano(self, cadena):
+        # Santiago 2022: 3 suicidios sobre 84.000 habitantes (3.000 x 2 sexos x 14 edades).
+        fila = cadena["gold"].query("comuna_cut == '13101' and anio == 2022").iloc[0]
+        assert int(fila["casos"]) == 3
+        assert int(fila["poblacion"]) == 84_000
+        assert fila["tasa_cruda"] == pytest.approx(3 / 84_000 * 100_000)
+
+    def test_poblacion_cero_da_tasa_indefinida_y_no_cero(self, cadena):
+        # A-009 dentro de la cadena: Antártica no tiene habitantes en el fixture.
+        # Un 0,0 se leería como «no hubo muertes»; lo correcto es «no se puede dividir».
+        ant = cadena["gold"].query("comuna_cut == '12202'")
+        assert len(ant) > 0
+        assert ant["tasa_cruda"].isna().all()
+
+    def test_una_comuna_sin_muertes_aparece_con_cero_y_no_desaparece(self, cadena):
+        # Distinto del caso anterior: acá sí hay gente, y no hubo muertes.
+        iquique = cadena["gold"].query("comuna_cut == '01101' and anio == 2022").iloc[0]
+        assert int(iquique["casos"]) == 0
+        assert iquique["tasa_cruda"] == 0.0
+
+    def test_la_procedencia_llega_hasta_gold(self, cadena):
+        for col in ("source_id", "pipeline_version", "fecha_calculo", "agrupador"):
+            assert col in cadena["gold"].columns
+
+    def test_el_suavizado_encoge_mas_a_la_comuna_chica(self, cadena):
+        # Coyhaique (8.400 hab) tiene 2 casos: tasa cruda enorme y poco peso local.
+        # Santiago (84.000 hab) tiene 3: menos ruido, más peso local.
+        g = cadena["gold"].query("anio == 2022").set_index("comuna_cut")
+        assert g.loc["11101", "peso_local_eb"] < g.loc["13101", "peso_local_eb"]
+        assert g.loc["11101", "tasa_suavizada_eb"] < g.loc["11101", "tasa_cruda"]
+
+
+class TestContratoDelFixtureDePoblacion:
+    """El CSV de población escrito a mano no puede divergir del artefacto real."""
+
+    def test_sus_columnas_existen_en_la_salida_real(self):
+        from obsm.ingest.ine_proyecciones import IneProyecciones
+        from obsm.transform.silver import normalizar_poblacion
+
+        a_mano = pd.read_csv(POBLACION, dtype={"comuna_cut": str})
+        real, _ = normalizar_poblacion(
+            IneProyecciones().preparar(MUESTRA_POBLACION_CADENA)
+        )
+        faltan = set(a_mano.columns) - set(real.columns)
+        assert not faltan, (
+            f"el fixture a mano usa columnas que `normalizar_poblacion` ya no produce: "
+            f"{faltan}. O se corrige el fixture, o los tests que lo usan están validando "
+            f"contra algo que no existe."
+        )
+
+    def test_el_cut_es_string_de_cinco_digitos_en_ambos(self):
+        from obsm.ingest.ine_proyecciones import IneProyecciones
+        from obsm.transform.silver import normalizar_poblacion
+
+        a_mano = pd.read_csv(POBLACION, dtype={"comuna_cut": str})
+        real, _ = normalizar_poblacion(
+            IneProyecciones().preparar(MUESTRA_POBLACION_CADENA)
+        )
+        assert a_mano["comuna_cut"].str.len().eq(5).all()
+        assert real["comuna_cut"].str.len().eq(5).all()
