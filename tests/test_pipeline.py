@@ -98,6 +98,49 @@ class TestEstructuraRealDeis:
         assert len(sin_unidad) > 0
         assert sin_unidad["edad_anios"].isna().all()
 
+    def test_el_suicidio_vive_en_la_causa_externa_no_en_la_basica(self, bronze_real):
+        """Regresión del error más caro de esta fuente.
+
+        En el archivo real, X60-X84 aparece 0 veces en DIAG1 y 46.805 en DIAG2: la causa
+        básica trae la naturaleza de la lesión (`T71X`) y la externa el código `X`. Un
+        agrupador aplicado solo a la básica devuelve cero en veintisiete años sin lanzar
+        ningún error, con la forma de un hallazgo epidemiológico.
+        """
+        def es_x60_x84(s):
+            return s.str.match(r"^X([6-7]\d|8[0-4])").fillna(False)
+
+        assert not es_x60_x84(bronze_real["causa_basica"]).any()
+        assert es_x60_x84(bronze_real["causa_externa"]).any()
+
+    def test_causa_cie10_toma_la_externa_cuando_existe(self, bronze_real):
+        con_externa = bronze_real[bronze_real["causa_externa"] != ""]
+        assert (con_externa["causa_cie10"] == con_externa["causa_externa"]).all()
+        assert (con_externa["origen_causa_cie10"] == "externa").all()
+
+    def test_causa_cie10_cae_a_la_basica_en_muertes_por_enfermedad(self, bronze_real):
+        """F32 (depresión) va en la causa básica y DIAG2 viene vacío. Si `causa_cie10`
+        fuera siempre la externa, las muertes por enfermedad quedarían sin código."""
+        sin_externa = bronze_real[bronze_real["causa_externa"] == ""]
+        assert len(sin_externa) > 0
+        assert (sin_externa["causa_cie10"] == sin_externa["causa_basica"]).all()
+        assert "F32" in set(sin_externa["causa_cie10"])
+
+    def test_el_agrupador_de_suicidio_no_devuelve_cero(self):
+        """La prueba que importa: de punta a punta, silver debe contar los suicidios."""
+        bronze = DeisDefunciones().preparar(MUESTRA_REAL)
+        df, _ = normalizar_defunciones(bronze)
+        assert df["es_suicidio"].sum() == 7
+
+    def test_columnas_que_mapean_al_mismo_destino_fallan_ruidosamente(self, tmp_path):
+        """`renombrar_columnas` no resuelve colisiones: dos columnas homónimas hacen que
+        `df["anio"]` devuelva un DataFrame, y el error aparece mucho después."""
+        from obsm.errors import SchemaDriftError
+
+        ruta = tmp_path / "colision.csv"
+        ruta.write_text("AÑO;ANO_DEF;SEXO;DIAG1\n2022;2022;1;X700\n", encoding="latin-1")
+        with pytest.raises(SchemaDriftError, match="mismo destino"):
+            DeisDefunciones().preparar(ruta)
+
     def test_cod_comuna_llega_sin_cero_a_la_izquierda(self, bronze_real):
         """El ingestor no normaliza territorio: solo se verifica que el problema exista,
         para que `silver` esté obligado a resolverlo con formatear_cut_comuna."""

@@ -55,10 +55,17 @@ fuentes:
       Prohibida la publicación desagregada por subcódigo X60-X84 (ver docs/06).
       VERIFICADO 2026-07-27 sobre el archivo real: 3.182.446 filas, 27 columnas,
       separador `;`, encoding latin-1, sin campos identificatorios.
-      TRAMPA MAYOR: 1990-1996 está en CIE-9, no en CIE-10. El corte es limpio en 1997.
-      Los agrupadores de cie10.py sobre esos años no fallan: devuelven cero. Ver la
-      anomalía A-002 en docs/05-CALIDAD.md. El ingestor marca `clasificacion_causa`.
-      `COD_COMUNA` viene sin el cero a la izquierda en las regiones 01-09.
+      TRAMPA MAYOR (A-004): el suicidio NO está en DIAG1 sino en DIAG2. X60-X84 aparece
+      0 veces en DIAG1 y 46.805 en DIAG2; DIAG1 trae la naturaleza de la lesión (T71X).
+      Leer solo DIAG1 da cero suicidios en 27 años sin lanzar error.
+      TRAMPA MAYOR (A-002): 1990-1996 está en CIE-9, no en CIE-10; el corte es limpio en
+      1997 y los agrupadores de cie10.py sobre esos años también devuelven cero. Además
+      no se sabe cómo se codifica el suicidio en ese período: E95x aparece 0 veces.
+      La serie de suicidio no puede empezar antes de 1997.
+      COD_COMUNA viene sin el cero a la izquierda en las regiones 01-09 (A-003); es la
+      comuna de RESIDENCIA, que es la correcta para tasas.
+      El diccionario que viene en el ZIP describe bien la semántica pero sus nombres de
+      columna NO corresponden a los del CSV: dice ANO_DEF donde el archivo trae AÑO.
       El nombre del archivo preliminar rota con cada publicación; el índice se arma por
       JavaScript, así que la URL no se puede raspar del HTML. El servidor responde 403
       sin user-agent de navegador y 404 a las peticiones HEAD.

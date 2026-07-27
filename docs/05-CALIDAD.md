@@ -124,6 +124,46 @@ queda documentado en `obsm.ingest.deis_defunciones`.
 **Control heredado:** ninguna serie que use agrupadores CIE-10 puede incluir filas con
 `clasificacion_causa != "cie10"` sin advertencia explícita.
 
+**Pendiente abierto:** no se sabe cómo se codifica el suicidio en 1990–1996. `E95x`, la
+clase habitual de CIE-9 para lesiones autoinfligidas, aparece **0 veces** en las 536.746
+filas del período, tanto en `DIAG1` como en `DIAG2`. Hasta resolverlo, **la serie de
+suicidio no puede empezar antes de 1997**. Una versión anterior de este documento afirmaba
+que `E950` se publicaba como `9509`: era una conjetura no verificada y se retiró.
+
+### A-004 · deis_defunciones · 2026-07-27
+
+**Qué se observó:** el código de suicidio no está en la columna de causa básica.
+
+**Reproducción:** conteo de `X60`–`X84` sobre las 2.645.700 filas CIE-10 (1997–2023).
+
+| columna | significado según el diccionario | X60–X84 |
+|---|---|---|
+| `DIAG1` | causa básica de defunción | **0** |
+| `DIAG2` | causa externa de defunción | **46.805** |
+
+Los ejemplos son inequívocos: `DIAG1 = T71X` (asfixia) con `DIAG2 = X704` (ahorcamiento
+autoinfligido). `DIAG1` trae la naturaleza de la lesión; el código que define el hecho
+está en `DIAG2`.
+
+**Por qué importa:** `transform/silver.py` aplica todos los agrupadores a una sola columna.
+Con `causa_cie10 = DIAG1`, el agrupador `SUICIDIO` habría devuelto **cero suicidios en
+veintisiete años**, sin lanzar ninguna excepción. 46.805 muertes en 27 años son ~1.730 al
+año, que es el orden de magnitud correcto para Chile: la cifra correcta era comprobable y
+la incorrecta también lo era, porque un cero absoluto es imposible.
+
+Este es el mismo modo de falla de A-002 y se cometió en el mismo commit que lo documentaba.
+Escribir la advertencia no basta: hay que ejecutarla contra el dato.
+
+**Decisión:** conservar ambas columnas con su nombre y significado —`causa_basica` y
+`causa_externa`— y derivar `causa_cie10` como la externa cuando existe y la básica cuando
+no. Así los agrupadores de lesiones (X60-X84) y los de enfermedad (F30-F39, que van en la
+básica con `DIAG2` vacío) leen ambos la columna correcta. La procedencia queda en
+`origen_causa_cie10`.
+
+**Control heredado:** `test_el_agrupador_de_suicidio_no_devuelve_cero` corre el fixture de
+estructura real de punta a punta por `silver` y exige un conteo distinto de cero. Ningún
+indicador de mortalidad por causa externa debe darse por bueno sin un test que cuente.
+
 ### A-003 · deis_defunciones · 2026-07-27
 
 **Qué se observó:** `COD_COMUNA` trae 4 caracteres en 1.551.470 filas y 5 en 1.630.976.
