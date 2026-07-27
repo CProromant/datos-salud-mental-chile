@@ -201,9 +201,21 @@ en año calendario sino en año epidemiológico, y comparar ambas es comparar pe
 distintos. El sesgo positivo estable de +0,28 % en los años de 52 semanas es el residuo del
 mismo desfase de bordes.
 
-Queda pendiente conseguir un ancla en año calendario —el total anual de defunciones que
-publica DEIS o INE en sus anuarios— antes de dar por reconciliada ninguna serie. Hasta
-entonces, `ancla_reconciliacion` de `deis_defunciones` no está satisfecha.
+**RESUELTO el mismo día.** Se obtuvo el ancla en año calendario: el *Anuario de Estadísticas
+Vitales 2023* del INE (fuente `ine_vitales_anuario`, p.38). La reconciliación es **exacta a
+la unidad**, no dentro de tolerancia:
+
+| año | archivo de causas | Anuario INE |
+|---|---|---|
+| 2023 | 122.218 | **122.218** |
+| 2020 | 126.169 | **126.169** |
+
+Eso confirma tres cosas de una: el archivo de causas se lee completo y sin pérdida, está en
+año calendario, y el desvío de esta anomalía era de la serie semanal y no de los datos.
+
+Cuidado al releer el anuario: la Tabla 3 (p.45) dice 122.217 porque desagrega por grupo de
+edad y deja fuera un registro sin edad; y 63.710 hombres + 58.495 mujeres = 122.205, con 12
+registros de sexo no asignado. La cifra comparable es la de titular, 122.218.
 
 **Lección:** un ancla de reconciliación es tan buena como su definición temporal. Dos
 productos del mismo organismo pueden no ser comparables entre sí.

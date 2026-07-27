@@ -182,6 +182,35 @@ fuentes:
       El gasto en salud mental no es una línea única. El indicador se publica como rango
       con supuestos explícitos y lista de exclusiones.
 
+  - id: ine_vitales_anuario
+    nombre: "Anuario de Estadísticas Vitales (ancla de reconciliación)"
+    organismo: "INE"
+    dominio: "ine.gob.cl"
+    url_indice: "https://www.ine.cl/estadisticas/sociales/demografia-y-vitales/nacimientos-matrimonios-y-defunciones"
+    url_archivo: "https://www.ine.gob.cl/docs/default-source/nacimientos-matrimonios-y-defunciones/publicaciones-y-anuarios/anuarios-de-estad%C3%ADsticas-vitales/anuario-de-estad%C3%ADsticas-vitales-2023-nacimientos-y-defunciones.pdf?sfvrsn=63d4438_2"
+    origen_url: busqueda_web
+    fecha_origen_url: "2026-07-27"
+    estado: verificada
+    fecha_verificacion: "2026-07-27"
+    sha256: "645a122f41a8a0abb7563c32275c099bc616f66cf4f4832b6e9011fa8547e54c"
+    source_version: "Anuario 2023 (nacimientos y defunciones)"
+    formato: pdf
+    granularidad: agregado_nacional
+    periodicidad: anual
+    licencia: "CC BY-NC 2.0"
+    prioridad: 1
+    fase: 1
+    depende_de: []
+    notas: >
+      No es una fuente de datos del pipeline: es el ANCLA en año calendario contra la que
+      se reconcilia `deis_defunciones`. Cifras oficiales verificadas en el PDF:
+      2023 = 122.218 y 2020 = 126.169 defunciones (p.38). Ambas coinciden EXACTO con el
+      conteo del archivo de causas, no dentro de tolerancia.
+      Ojo con la Tabla 3 (p.45): dice 122.217 porque desagrega por grupo de edad y excluye
+      un registro sin edad; además 63.710 hombres + 58.495 mujeres = 122.205, y los 12
+      restantes son sexo no asignado. La cifra comparable es la de titular, 122.218.
+      Licencia NC: revisar antes de redistribuir cualquier derivado (pendiente 5 de docs/01).
+
   - id: subdere_cut
     nombre: "Códigos Únicos Territoriales (maestro de la DPA)"
     organismo: "SUBDERE"
