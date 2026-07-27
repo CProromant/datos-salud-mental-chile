@@ -161,6 +161,39 @@ fuentes:
       El gasto en salud mental no es una línea única. El indicador se publica como rango
       con supuestos explícitos y lista de exclusiones.
 
+  - id: subdere_cut
+    nombre: "Códigos Únicos Territoriales (maestro de la DPA)"
+    organismo: "SUBDERE"
+    dominio: "subdere.gov.cl"
+    url_indice: "https://www.subdere.gov.cl/documentacion/c%C3%B3digos-%C3%BAnicos-territoriales-actualizados-al-06-de-septiembre-2018"
+    url_archivo: "https://www.subdere.gov.cl/sites/default/files/documentos/CUT_2018_v04.xls"
+    url_espejo: "https://geoportal.cl/geoportal/catalog/35342/Planilla%20C%C3%B3digos%20%C3%9Anicos%20Territoriales%20(CUT)"
+    origen_url: busqueda_web
+    fecha_origen_url: "2026-07-26"
+    estado: verificada
+    fecha_verificacion: "2026-07-27"
+    sha256: "d1b7fc3abb93cea3d115861579297d8bbdc9a7c762c958e646cd01b804df1ea0"
+    source_version: "CUT_2018_v04 (vigente desde 2018-09-06)"
+    formato: xls
+    granularidad: comuna
+    unidad_territorial: comuna
+    periodicidad: irregular
+    licencia: por_confirmar
+    prioridad: 1
+    fase: 1
+    critico: true
+    variables_esperadas:
+      ["Código Región", "Nombre Región", "Abreviatura Región", "Código Provincia",
+       "Nombre Provincia", "Código Comuna 2018", "Nombre Comuna"]
+    ancla_reconciliacion: "346 comunas en 16 regiones"
+    notas: >
+      Maestro territorial del que deriva config/territorio_comunas.csv. Trae los CUT como
+      texto con ceros a la izquierda. Es POSTERIOR a la creación de Ñuble (2018), lo que
+      importa: las capas cartográficas que circulan como "DPA" suelen arrastrar la
+      codificación anterior a 2007 (sin Los Ríos, Arica y Parinacota ni Ñuble) y producen
+      joins vacíos sin error visible. Control de vigencia: Chillán debe ser 16101, no 8401.
+      El servidor responde 403 sin user-agent de navegador.
+
   - id: ine_proyecciones
     nombre: "Proyecciones de población por comuna, sexo y edad"
     organismo: "INE"

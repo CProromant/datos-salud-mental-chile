@@ -60,12 +60,47 @@ Verificación:
 Decisión: [conservar | marcar | excluir con nota]
 ```
 
-*(Sin entradas todavía: no se ha ingerido ninguna fuente real.)*
+### A-001 · capas cartográficas de comunas · 2026-07-27
+
+**Qué se observó:** la capa «Comunas de Chile» del Centro de Datos OCUC (ArcGIS Hub,
+`e3a1f8c4aa014429847c2944e3d92406_0`), publicada bajo el título «División Político
+Administrativa de Chile 2026», entrega 341 comunas y 13 regiones.
+
+**Reproducción:**
+
+```
+curl --ssl-no-revoke "https://services9.arcgis.com/kKJR3Qt68ohAWuet/arcgis/rest/services/\
+Comunas_de_Chile/FeatureServer/0/query?where=1%3D1&outFields=cut&returnDistinctValues=true\
+&returnGeometry=false&returnCountOnly=true&f=json"
+```
+
+**Hipótesis:** no faltan cinco comunas; la capa arrastra la codificación CUT anterior a 2007.
+
+**Verificación:** ningún CUT empieza en 14, 15 ni 16. Chillán figura como `8401` (debería
+ser `16101`) con `provincia = NUBLE` dentro de la región 8; Valdivia como `10501` (debería
+ser `14101`); Arica como `1201` (debería ser `15101`). Hay además contradicción interna: el
+campo `region_1` da `XV` para Arica y `I` para Camarones, ambas de la misma provincia. El
+título «2026» corresponde a la fecha de publicación del recurso, no a la vigencia de los datos.
+
+**Por qué importa más de lo que parece:** DEIS, REM e INE usan el CUT vigente. Un maestro con
+códigos antiguos no rompe el join: lo deja vacío. Las 21 comunas de Ñuble, las 12 de Los Ríos
+y las 4 de Arica y Parinacota —37 en total— quedarían con cero eventos y aparecerían como las
+más sanas del país, sin un solo error en pantalla.
+
+**Decisión:** excluida como fuente territorial. Se adoptó el maestro `subdere_cut`.
+
+**Control heredado:** toda capa o tabla territorial candidata debe verificar que Chillán sea
+`16101`. Es un solo dato y detecta ocho años de desfase.
+
+
 
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.
 2. Verificar los pesos de la población estándar OMS contra la publicación original.
-3. Confirmar el número oficial de comunas (`N_COMUNAS_ESPERADO`) contra la DPA vigente.
+3. ~~Confirmar el número oficial de comunas (`N_COMUNAS_ESPERADO`) contra la DPA vigente.~~
+   **Resuelto 2026-07-27.** 346 comunas en 16 regiones, contra el maestro `CUT_2018_v04`
+   de SUBDERE (fuente `subdere_cut`, sha256 `d1b7fc3a…`). `config/territorio_comunas.csv`
+   quedó completo. Ver la anomalía «capas cartográficas con CUT obsoleto» más abajo.
 4. Completar `config/territorio_comunas.csv` desde la fuente oficial.
 5. Verificar todas las URLs del catálogo y promover estados.

@@ -62,7 +62,8 @@ ANIO_CREACION_NUBLE = 2018
 
 #: Número oficial de comunas del país. Si `cargar_dpa` devuelve menos, la tabla
 #: está incompleta y el pipeline no debe publicar agregados territoriales.
-#: (Valor a confirmar contra la DPA vigente del INE en Fase 1.)
+#: Confirmado contra el maestro CUT_2018_v04 de SUBDERE (fuente `subdere_cut`,
+#: verificada 2026-07-27): 346 comunas en 16 regiones.
 N_COMUNAS_ESPERADO = 346
 
 

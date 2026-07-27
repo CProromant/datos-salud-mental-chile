@@ -159,6 +159,46 @@ class TestDPA:
         assert cargar_dpa().nombres_ambiguos() == []
 
 
+class TestVigenciaDeLaDPA:
+    """Regresión A-001 (`docs/05-CALIDAD.md#anomalias`).
+
+    Las capas que circulan como «DPA» suelen arrastrar la codificación anterior a 2007,
+    sin Los Ríos ni Arica y Parinacota, y sin Ñuble (2018). Un maestro así no rompe el
+    join contra DEIS o REM: lo deja vacío, y 37 comunas quedan con cero eventos sin que
+    aparezca un solo error. Estos códigos solo existen en la codificación vigente.
+    """
+
+    @pytest.mark.parametrize(
+        ("cut", "nombre", "region_cut", "codigo_antiguo"),
+        [
+            ("16101", "Chillán", "16", "8401"),
+            ("16102", "Cobquecura", "16", "8403"),
+            ("14101", "Valdivia", "14", "10501"),
+            ("15101", "Arica", "15", "1201"),
+            ("15102", "Camarones", "15", "1202"),
+        ],
+    )
+    def test_regiones_creadas_despues_de_2007(self, cut, nombre, region_cut, codigo_antiguo):
+        dpa = cargar_dpa()
+        comuna = dpa.por_cut.get(cut)
+        assert comuna is not None, (
+            f"{nombre} debería tener CUT {cut}. Si la tabla trae {codigo_antiguo}, "
+            f"la fuente es anterior a 2007: ver anomalía A-001."
+        )
+        assert comuna.region_cut == region_cut
+        assert codigo_antiguo not in dpa.por_cut, (
+            f"{codigo_antiguo} es el CUT de {nombre} en la codificación derogada. "
+            f"Su presencia significa que la tabla mezcla dos marcos territoriales."
+        )
+
+    def test_las_tres_regiones_nuevas_tienen_comunas(self):
+        """Ñuble, Los Ríos y Arica y Parinacota existen como región, no como provincia."""
+        dpa = cargar_dpa()
+        for region_cut in ("14", "15", "16"):
+            comunas = [c for c in dpa.comunas if c.region_cut == region_cut]
+            assert comunas, f"la región {region_cut} no tiene ninguna comuna"
+
+
 class TestSerieConGeneradores:
     """Regresión: medir el largo de un generador lo consume. La versión anterior
     devolvía cero filas sin lanzar ningún error."""
