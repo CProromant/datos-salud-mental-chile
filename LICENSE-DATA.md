@@ -34,6 +34,50 @@ los limpia, los cruza y los documenta.
   reconciliación descrito en `docs/05-CALIDAD.md`, pueden contener errores. Las decisiones
   que se tomen a partir de ellos son responsabilidad de quien las toma.
 
+## DECISIÓN ABIERTA — ShareAlike del INE (bloquea la primera publicación)
+
+Detectado el 2026-07-27 al verificar `ine_proyecciones`. **No está resuelto y bloquea la
+publicación de cualquier tasa.**
+
+Los [términos de datos abiertos del INE](https://www.ine.gob.cl/terminos-de-uso-y-licencia-de-datos-abiertos)
+son **CC BY-SA 4.0**. La buena noticia es que permiten uso comercial de forma explícita
+—«para cualquier finalidad, incluso comercial»—, así que la preocupación anterior sobre una
+cláusula NC era, para esta fuente, infundada. El problema es otro: **ShareAlike**. Quien
+modifica el material «deberá difundir sus contribuciones bajo la misma licencia que el
+original».
+
+Las proyecciones de población del INE son el denominador de **toda** tasa del proyecto. Si el
+`gold` derivado cuenta como obra adaptada, debe salir bajo CC BY-SA 4.0, y publicarlo bajo
+CC BY 4.0 —como declara este documento— incumpliría la licencia de la fuente.
+
+Que sea o no «obra adaptada» no es evidente y no se resuelve leyendo la licencia:
+
+- Los hechos y datos no son objeto de derecho de autor, y Chile no tiene un derecho *sui
+  generis* de bases de datos como el europeo. Una tasa calculada a partir de una población
+  es un hecho nuevo, no una adaptación del cuadro del INE.
+- Pero si se redistribuye la tabla de población —aunque sea reordenada a formato largo— eso
+  sí es distribuir el material, y ahí SA aplica sin discusión.
+
+Opciones, con recomendación:
+
+1. **Publicar `gold` bajo CC BY-SA 4.0.** Es la salida limpia: compatible con el INE, mantiene
+   el uso comercial y sigue siendo una licencia abierta estándar. Costo: la SA se contagia a
+   quien reutilice, lo que algunos reutilizadores evitan. **Recomendada.**
+2. Mantener CC BY 4.0 y no redistribuir nunca la tabla de población, publicando solo
+   indicadores calculados. Más frágil: depende de sostener que la tasa no es obra derivada.
+3. Licencia mixta: documentación y código bajo sus licencias actuales, datasets bajo
+   CC BY-SA 4.0.
+
+Mientras no se decida, **no publicar datasets `gold` que usen `ine_proyecciones` como
+denominador**. La decisión es del proyecto, no técnica, y conviene tomarla antes de la
+primera publicación: cambiar la licencia después de que alguien reutilizó el dato es mucho
+más caro que elegirla ahora.
+
+Pendiente relacionado: `ine_vitales_anuario` está registrado como CC BY-NC 2.0, lo que
+contradice los términos generales CC BY-SA 4.0 del mismo organismo. No se pudo determinar
+cuál rige para ese PDF. El riesgo práctico es bajo —de ahí solo se usan dos cifras como
+ancla de verificación y no se redistribuye el documento—, pero conviene aclararlo con el INE.
+
 ## Por qué CC BY y no una licencia con restricciones
 
 El proyecto rechaza ciertos usos (puntuación de riesgo individual, focalización comercial:

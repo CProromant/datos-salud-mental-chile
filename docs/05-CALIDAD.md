@@ -260,6 +260,30 @@ todo indicador comunal por no tener denominador.
 **Lección:** un indicador de calidad que sale perfecto a la primera hay que auditarlo antes
 que celebrarlo. Acá el `0` no medía lo que su nombre decía que medía.
 
+### A-008 · ine_proyecciones · 2026-07-27
+
+**Qué se observó:** al verificar el denominador se constató que las proyecciones comunales
+del INE (base 2017) empiezan en **2002**, mientras la serie de defunciones va de 1990 a 2023.
+
+**Verificación:** descarga real del archivo comunal (9.768.366 bytes, sha256 `c2a88471…`):
+56.052 filas = 346 comunas × 2 sexos × 81 edades, con una columna `Poblacion <año>` por cada
+año de 2002 a 2035. Cruce contra la DPA: 346 comunas y 16 regiones, **cero diferencias en
+ambas direcciones**. Total nacional 2020 = 19.458.310, idéntico a la cifra publicada.
+
+**Decisión:** la ventana de tasas comunales es **2002-2023**, no 1990-2023. El límite lo fija
+el denominador, no el numerador, y se acumula con el de A-002: las defunciones están en CIE-9
+hasta 1996, así que la serie de suicidio en CIE-10 no puede empezar antes de 1997 y la de
+*tasas comunales* no antes de 2002. Los años 1990-2001 quedan disponibles como conteos, nunca
+como tasas comunales. Ningún indicador debe extrapolar población hacia atrás para rellenar.
+
+**Consecuencia operativa:** el cálculo de tasas debe fallar ruidosamente si se le pide un año
+sin denominador, no devolver `NaN` ni cero. Un cero en una tasa se lee como «no hubo casos»,
+que es exactamente la lectura contraria a «no hay población para dividir».
+
+**Nota de trampa:** `Comuna` viene como entero sin cero a la izquierda (`1101`), igual que
+`COD_COMUNA` en DEIS (A-003). Con `zfill(5)` el join es perfecto; sin él se pierden en
+silencio todas las comunas de las regiones 01 a 09.
+
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.
