@@ -8,7 +8,7 @@ from __future__ import annotations
 import pandas as pd
 
 from ..cie10 import AGRUPADORES
-from ..indicators.tasas import grupo_quinquenal
+from ..indicators.tasas import TOPE_EDAD_PIPELINE, grupo_quinquenal
 from ..quality import detectar_filas_total
 from ..territorio import (
     COMUNA_DESCONOCIDA,
@@ -19,8 +19,98 @@ from ..territorio import (
 )
 
 
+def resolver_cut(
+    codigos: pd.Series, dpa: DPA | None = None
+) -> tuple[list[str], dict]:
+    """Lleva códigos de comuna de la fuente a CUT canónico, validando existencia.
+
+    Devuelve (cuts, reporte). Hay dos formas distintas de estar mal y se cuentan por
+    separado: un código puede estar **bien formado y aun así no existir**. DEIS usa 99999
+    como centinela de «comuna ignorada» y el INE trae el CUT sin el cero a la izquierda.
+    Validar solo el formato dejaba pasar el centinela como comuna real, con `region_cut`
+    99, y reportaba `cut_invalidos: 0` (A-007).
+    """
+    vigentes = (dpa or cargar_dpa()).por_cut
+    cuts: list[str] = []
+    mal_formados = 0
+    fuera_de_dpa = 0
+    for v in codigos:
+        try:
+            cut = formatear_cut_comuna(v)
+        except Exception:  # noqa: BLE001
+            cuts.append(COMUNA_DESCONOCIDA)
+            mal_formados += 1
+            continue
+        if cut not in vigentes:
+            cuts.append(COMUNA_DESCONOCIDA)
+            if cut != COMUNA_DESCONOCIDA:
+                fuera_de_dpa += 1
+            continue
+        cuts.append(cut)
+    reporte = {
+        "cut_mal_formados": mal_formados,
+        "cut_fuera_de_dpa": fuera_de_dpa,
+        "cut_invalidos": mal_formados + fuera_de_dpa,
+        "cut_desconocidos": sum(1 for c in cuts if c == COMUNA_DESCONOCIDA),
+        "fuente_territorio": "codigo",
+    }
+    return cuts, reporte
+
+
+def normalizar_poblacion(
+    df: pd.DataFrame, dpa: DPA | None = None, tope_edad: int = TOPE_EDAD_PIPELINE
+) -> tuple[pd.DataFrame, dict]:
+    """Lleva las proyecciones de población de bronze a la grilla canónica.
+
+    Devuelve (silver, reporte) con una fila por `comuna_cut × anio × sexo × grupo_edad` y
+    la población sumada. Es el denominador de toda tasa: un defecto acá no produce un
+    número raro en una columna, desplaza todas las tasas del proyecto a la vez.
+
+    `tope_edad` debe ser el mismo que usa el numerador. Por eso el valor por defecto es la
+    constante compartida y no un literal: numerador y denominador en grillas distintas
+    hacen que `tasa_estandarizada_directa` descarte los grupos que no calzan, y una tasa
+    calculada sin adultos mayores no se ve rota, se ve baja.
+    """
+    reporte: dict = {"filas_entrada": len(df)}
+    out = df.copy()
+
+    if "_es_fila_total" in out.columns:
+        marca_total = out["_es_fila_total"].fillna(False).astype(bool)
+        reporte["filas_total_descartadas"] = int(marca_total.sum())
+        out = out.loc[~marca_total].copy()
+
+    out["comuna_cut"], rep_cut = resolver_cut(out["comuna_cut_fuente"], dpa=dpa)
+    reporte.update(rep_cut)
+    out["region_cut"] = out["comuna_cut"].str[:2]
+
+    out["grupo_edad"] = [
+        grupo_quinquenal(e, tope=tope_edad) if pd.notna(e) else "desconocido"
+        for e in out["edad_anios"]
+    ]
+    reporte["tope_edad"] = tope_edad
+
+    dimensiones = ["comuna_cut", "region_cut", "anio", "sexo", "grupo_edad"]
+    agregado = (
+        out.groupby(dimensiones, dropna=False)["poblacion"]
+        .sum()
+        .reset_index()
+        .sort_values(dimensiones)
+        .reset_index(drop=True)
+    )
+
+    reporte["filas_salida"] = len(agregado)
+    reporte["poblacion_total"] = int(agregado["poblacion"].sum())
+    # Un cero es un dato («no vive nadie»), no un faltante. Se cuenta, no se filtra: es
+    # legítimo en comunas diminutas (A-009) y `tasa_cruda` ya devuelve NaN al dividir.
+    reporte["celdas_poblacion_cero"] = int((agregado["poblacion"] == 0).sum())
+    return agregado, reporte
+
+
 def normalizar_defunciones(
-    df: pd.DataFrame, dpa: DPA | None = None, agrupadores: list[str] | None = None
+    df: pd.DataFrame,
+    dpa: DPA | None = None,
+    agrupadores: list[str] | None = None,
+    tope_edad: int = TOPE_EDAD_PIPELINE,
 ) -> tuple[pd.DataFrame, dict]:
     """Lleva defunciones de bronze a la grilla canónica.
 
@@ -43,33 +133,8 @@ def normalizar_defunciones(
 
     # 2. Territorio. Se prefiere el código de la fuente; el nombre es respaldo.
     if "comuna_cut_fuente" in out.columns and out["comuna_cut_fuente"].notna().any():
-        # Dos formas distintas de estar mal, y hay que contarlas por separado. Un CUT
-        # puede estar bien formado y aun así no existir: DEIS usa 99999 como centinela
-        # de "comuna ignorada". Validar solo el formato dejaba pasar ese centinela como
-        # si fuera una comuna real, con region_cut 99, y reportaba cut_invalidos=0.
-        vigentes = (dpa or cargar_dpa()).por_cut
-        cuts = []
-        mal_formados = 0
-        fuera_de_dpa = 0
-        for v in out["comuna_cut_fuente"]:
-            try:
-                cut = formatear_cut_comuna(v)
-            except Exception:  # noqa: BLE001
-                cuts.append(COMUNA_DESCONOCIDA)
-                mal_formados += 1
-                continue
-            if cut not in vigentes:
-                cuts.append(COMUNA_DESCONOCIDA)
-                if cut != COMUNA_DESCONOCIDA:
-                    fuera_de_dpa += 1
-                continue
-            cuts.append(cut)
-        out["comuna_cut"] = cuts
-        reporte["cut_mal_formados"] = mal_formados
-        reporte["cut_fuera_de_dpa"] = fuera_de_dpa
-        reporte["cut_invalidos"] = mal_formados + fuera_de_dpa
-        reporte["cut_desconocidos"] = int((out["comuna_cut"] == COMUNA_DESCONOCIDA).sum())
-        reporte["fuente_territorio"] = "codigo"
+        out["comuna_cut"], rep_cut = resolver_cut(out["comuna_cut_fuente"], dpa=dpa)
+        reporte.update(rep_cut)
     elif "comuna_nombre" in out.columns:
         cuts, rep_terr = normalizar_serie_comunas(out["comuna_nombre"], dpa=dpa)
         out["comuna_cut"] = cuts
@@ -83,9 +148,14 @@ def normalizar_defunciones(
 
     # 3. Edad.
     if "edad_anios" in out.columns:
+        # El tope lo fija el denominador (ver TOPE_EDAD_PIPELINE): las defunciones
+        # traen edad exacta y podrían llegar a 85+, pero estandarizar exige que
+        # numerador y denominador estén en la misma grilla.
         out["grupo_edad"] = [
-            grupo_quinquenal(e) if pd.notna(e) else "desconocido" for e in out["edad_anios"]
+            grupo_quinquenal(e, tope=tope_edad) if pd.notna(e) else "desconocido"
+            for e in out["edad_anios"]
         ]
+        reporte["tope_edad"] = tope_edad
     else:
         out["grupo_edad"] = "desconocido"
         reporte["edad_ausente"] = True

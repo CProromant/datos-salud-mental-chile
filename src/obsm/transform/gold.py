@@ -30,6 +30,7 @@ def tasas_comunales(
     dimensiones: list[str] | None = None,
     grupo_suavizado: list[str] | None = None,
     anios_preliminares: tuple[int, ...] = (),
+    anios_cobertura: tuple[int, int] | None = None,
     k: int = K_SUPRESION_MORTALIDAD,
     por: int = POR_DEFECTO,
     source_id: str = "deis_defunciones",
@@ -43,6 +44,11 @@ def tasas_comunales(
     completa: las comunas con cero casos deben aparecer con cero, no desaparecer.
     Una comuna ausente se lee como "sin datos" y una comuna con cero se lee como
     "sin muertes"; confundirlas sesga cualquier comparación territorial.
+
+    `anios_cobertura` es (desde, hasta) inclusive y recorta el denominador a la ventana
+    del numerador. Si se omite se infiere del rango de años del agregado. Importa
+    porque las proyecciones del INE llegan a 2035 y las defunciones a 2023: sin recorte
+    se publicarían años futuros con tasa cero.
     """
     dimensiones = dimensiones or DIMENSIONES_BASE
     faltan = [d for d in dimensiones if d not in poblacion.columns]
@@ -51,8 +57,36 @@ def tasas_comunales(
 
     base = poblacion.groupby(dimensiones, dropna=False)["poblacion"].sum().reset_index()
     conteos = agregado.groupby(dimensiones, dropna=False)["casos"].sum().reset_index()
+
+    # El denominador se recorta a la ventana que cubre el numerador. Las proyecciones del
+    # INE llegan a 2035 y las defunciones a 2023: sin este recorte el `fillna(0)` de más
+    # abajo inventaría doce años de «cero suicidios» con tasa 0,0. Dentro de la ventana un
+    # cero significa «no hubo muertes»; fuera significa «no hay dato», y son cosas opuestas.
+    if "anio" in dimensiones and len(conteos):
+        if anios_cobertura is None:
+            anios_cobertura = (int(conteos["anio"].min()), int(conteos["anio"].max()))
+        desde, hasta = anios_cobertura
+        antes = len(base)
+        base = base[base["anio"].between(desde, hasta)].copy()
+        recorte = {
+            "anios_cobertura": [desde, hasta],
+            "filas_denominador_descartadas": antes - len(base),
+        }
+    else:
+        recorte = {"anios_cobertura": None, "filas_denominador_descartadas": 0}
+
     df = base.merge(conteos, on=dimensiones, how="left")
     df["casos"] = df["casos"].fillna(0).astype("Int64")
+
+    # La ventana pedida y la que queda no son la misma cosa: el numerador empieza en 1997
+    # (primer año CIE-10) y el denominador en 2002, así que 1997-2001 se cae por no tener
+    # población. Los casos de esos años NO están en la salida y hay que decirlo, no dejar
+    # que alguien lo deduzca comparando totales.
+    if "anio" in dimensiones and len(df):
+        ef_desde, ef_hasta = int(df["anio"].min()), int(df["anio"].max())
+        recorte["anios_efectivos"] = [ef_desde, ef_hasta]
+        fuera = conteos[~conteos["anio"].between(ef_desde, ef_hasta)]
+        recorte["casos_fuera_de_ventana"] = int(fuera["casos"].sum()) if len(fuera) else 0
 
     df["tasa_cruda"] = tasa_cruda(df["casos"].astype("float64"), df["poblacion"], por=por)
 
@@ -109,6 +143,7 @@ def tasas_comunales(
         "agrupador": agrupador_id,
         "dimensiones": dimensiones,
         "filas": len(publicable),
+        "cobertura": recorte,
         "suavizado_eb": {"agrupado_por": grupo_suav or "panel completo", "por_grupo": resumen_eb},
         "supresion": {
             "k": reporte_sup.k,

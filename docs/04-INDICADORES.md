@@ -15,7 +15,19 @@ producción con reconciliación pasando.
 - **Numerador:** defunciones con causa básica en el agrupador `SUICIDIO` (X60–X84 + Y87.0),
   por comuna de **residencia**.
 - **Denominador:** población proyectada INE de la misma comuna, año, sexo y grupo etario.
+  Base 2017, comunas 2002-2035 (`ine_proyecciones`, verificada 2026-07-27).
 - **Unidad:** por 100.000 habitantes.
+- **Cobertura temporal: 2002-2023.** No es una elección: el denominador comunal del INE
+  empieza en 2002 (A-008) y las defunciones están en CIE-9 hasta 1996 (A-002). Los años
+  1997-2001 existen como **conteos**, nunca como tasas comunales; extrapolar población hacia
+  atrás para completarlos está prohibido (`docs/02`, «gold no puede inventar población»).
+- **Grupos etarios: quinquenales hasta `80+` abierto**, no hasta `85+`. Lo fija el
+  denominador: el INE publica `80` como grupo abierto y partirlo exigiría inventar
+  población. La población estándar OMS se colapsa en consecuencia, sumando los pesos de
+  `80-84` (0,910) y `85+` (0,635) en `80+` (1,545). Numerador y denominador comparten la
+  constante `TOPE_EDAD_PIPELINE` para que no puedan divergir: si divergieran,
+  `tasa_estandarizada_directa` descartaría los grupos que no calzan y la tasa saldría
+  calculada **sin adultos mayores**, sin que nada falle.
 - **Variantes publicadas:** cruda; estandarizada por edad (estándar OMS); suavizada por
   Bayes empírico. A nivel comunal la variante **principal es la suavizada**.
 - **Desagregaciones:** región, comuna, sexo, grupo etario, año.
@@ -27,7 +39,13 @@ producción con reconciliación pasando.
     multicausal, y una comuna con buena tasa puede tener un sistema pésimo.
   - No permite rankear territorios: en la mayoría de las comunas la diferencia entre una y
     otra es indistinguible del ruido, y por eso se publica el `peso_local_eb`.
-  - No es comparable con series previas a 1998 sin advertencia (CIE-9).
+  - No es comparable con series previas a **1997** sin advertencia: el corte CIE-9/CIE-10 es
+    limpio en ese año (A-002). Además no se sabe cómo se codifica el suicidio en CIE-9 en
+    este archivo —`E95x` aparece 0 veces—, así que antes de 1997 no hay serie, no hay una
+    serie peor.
+  - **No dice nada sobre los 85 y más por separado.** El tramo mayor se publica como `80+`
+    porque el denominador no permite abrirlo. Una comparación con estudios que usan `85+`
+    no es directa.
   - Los últimos dos años son preliminares y típicamente suben al consolidarse.
 
 ---

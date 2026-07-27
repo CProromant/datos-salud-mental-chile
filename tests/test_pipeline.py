@@ -359,3 +359,58 @@ class TestManifiestoDeBronze:
         assert len(m.sha256) == 64
         assert m.encoding in {"cp1252", "latin-1"}
         assert m.filas == 16
+
+
+class TestVentanaDeCobertura:
+    """El denominador llega a 2035 y el numerador a 2023. La diferencia no es cero.
+
+    Sin recortar, el `fillna(0)` del join publica años futuros con «cero suicidios» y
+    tasa 0,0. Un cero dentro de la ventana significa «no hubo muertes»; fuera significa
+    «no hay dato». Publicar lo segundo como lo primero es inventar una serie.
+    """
+
+    def _tablas(self):
+        poblacion = pd.DataFrame({
+            "comuna_cut": ["05101"] * 4,
+            "anio": [2020, 2021, 2022, 2023],
+            "poblacion": [100_000] * 4,
+        })
+        agregado = pd.DataFrame({
+            "comuna_cut": ["05101", "05101"],
+            "anio": [2020, 2021],
+            "casos": [12, 15],
+        })
+        return agregado, poblacion
+
+    def test_descarta_los_anios_sin_numerador(self):
+        agregado, poblacion = self._tablas()
+        gold, meta = tasas_comunales(agregado, poblacion, "SUICIDIO", k=1)
+        assert sorted(gold["anio"].unique()) == [2020, 2021]
+        assert meta["cobertura"]["anios_cobertura"] == [2020, 2021]
+        assert meta["cobertura"]["filas_denominador_descartadas"] == 2
+
+    def test_no_publica_tasa_cero_en_anios_futuros(self):
+        agregado, poblacion = self._tablas()
+        gold, _ = tasas_comunales(agregado, poblacion, "SUICIDIO", k=1)
+        assert not (gold["anio"] > 2021).any(), "2022 y 2023 no tienen numerador"
+
+    def test_dentro_de_la_ventana_el_cero_si_se_conserva(self):
+        # Una comuna sin muertes en un año cubierto debe aparecer con 0, no desaparecer.
+        poblacion = pd.DataFrame({
+            "comuna_cut": ["05101", "05102"],
+            "anio": [2020, 2020],
+            "poblacion": [100_000, 50_000],
+        })
+        agregado = pd.DataFrame({"comuna_cut": ["05101"], "anio": [2020], "casos": [12]})
+        gold, _ = tasas_comunales(agregado, poblacion, "SUICIDIO", k=1)
+        sin_muertes = gold[gold["comuna_cut"] == "05102"]
+        assert len(sin_muertes) == 1
+        assert int(sin_muertes["casos"].iloc[0]) == 0
+
+    def test_la_ventana_se_puede_forzar(self):
+        agregado, poblacion = self._tablas()
+        gold, meta = tasas_comunales(
+            agregado, poblacion, "SUICIDIO", k=1, anios_cobertura=(2020, 2023)
+        )
+        assert sorted(gold["anio"].unique()) == [2020, 2021, 2022, 2023]
+        assert meta["cobertura"]["anios_cobertura"] == [2020, 2023]

@@ -40,6 +40,51 @@ POBLACION_ESTANDAR_OMS: dict[str, float] = {
 
 POR_DEFECTO = 100_000
 
+#: Tope etario del pipeline. **Lo fija el denominador, no una preferencia.** Las
+#: proyecciones comunales del INE publican `80` como grupo abierto («80 y más») y no hay
+#: forma de partirlo en 80-84 y 85+ sin inventar población, que es justo lo que la tabla de
+#: capas de `docs/02-ARQUITECTURA.md` le prohíbe a `gold`.
+#:
+#: Las defunciones sí traen edad exacta y podrían separarse hasta 85+, pero estandarizar
+#: exige numerador y denominador en la misma grilla. Se colapsa al grano común más grueso.
+#: Existe como constante única para que ambos lados no puedan divergir: si un día el INE
+#: publica hasta 85+, se cambia acá y se recalcula todo, en un solo lugar.
+TOPE_EDAD_PIPELINE = 80
+
+
+def colapsar_estandar(
+    estandar: dict[str, float], tope: int = TOPE_EDAD_PIPELINE
+) -> dict[str, float]:
+    """Colapsa los grupos por encima de `tope` en un único grupo abierto `{tope}+`.
+
+    Sumar los pesos es la operación correcta: el peso de un grupo abierto es la suma de
+    los pesos de los grupos que agrupa. No colapsar sería peor que perder resolución —
+    `tasa_estandarizada_directa` descarta los grupos que no encuentra en el estándar, así
+    que un denominador en `80+` contra un estándar en `80-84`/`85+` produciría una tasa
+    calculada **sin adultos mayores**, sin que nada falle.
+
+    >>> pesos = colapsar_estandar({"75-79": 1.5, "80-84": 0.9, "85+": 0.6}, tope=80)
+    >>> pesos == {"75-79": 1.5, "80+": 1.5}
+    True
+    """
+    abierto = f"{tope}+"
+    salida: dict[str, float] = {}
+    acumulado = 0.0
+    for grupo, peso in estandar.items():
+        inicio = grupo.rstrip("+").split("-")[0]
+        if inicio.isdigit() and int(inicio) >= tope:
+            acumulado += peso
+        else:
+            salida[grupo] = peso
+    if acumulado:
+        salida[abierto] = acumulado
+    return salida
+
+
+#: La estándar OMS llevada al tope del pipeline. `80-84` (0,910) y `85+` (0,635) se suman
+#: en `80+` (1,545).
+POBLACION_ESTANDAR_OMS_80: dict[str, float] = colapsar_estandar(POBLACION_ESTANDAR_OMS)
+
 
 def grupo_quinquenal(edad: float | int, tope: int = 85) -> str:
     """Asigna una edad en años a su grupo quinquenal canónico.
