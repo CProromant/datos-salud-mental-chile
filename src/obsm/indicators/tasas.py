@@ -51,6 +51,12 @@ POR_DEFECTO = 100_000
 #: publica hasta 85+, se cambia acá y se recalcula todo, en un solo lugar.
 TOPE_EDAD_PIPELINE = 80
 
+#: Límite de los años de vida potencial perdidos. Es una convención elegida por
+#: comparabilidad, no una afirmación sobre el valor de una vida (ver ficha I-02).
+#: Se prefiere un límite fijo a la esperanza de vida del año porque esta última hace
+#: que la serie cambie por moverse el patrón de referencia y no por moverse la muerte.
+LIMITE_AVPP = 80
+
 
 def colapsar_estandar(
     estandar: dict[str, float], tope: int = TOPE_EDAD_PIPELINE
@@ -147,13 +153,33 @@ def tasa_estandarizada_directa(
         var_terms = np.where(pob > 0, (pesos**2) * casos / (pob**2), np.nan)
 
     validos = ~np.isnan(tasas_esp)
+    if not validos.any():
+        # Ningún grupo con población: la tasa es indefinida, no cero. `nansum` de un
+        # conjunto vacío devuelve 0.0, y ese 0.0 se leería como «no hubo muertes» cuando
+        # significa «no hay a quién dividir». Es el mismo error que `tasa_cruda` ya evita.
+        return {
+            "tasa_estandarizada": float("nan"),
+            "error_estandar": float("nan"),
+            "ic95_inferior": float("nan"),
+            "ic95_superior": float("nan"),
+            "casos_totales": float(np.nansum(casos)),
+            "poblacion_total": 0.0,
+            "grupos_usados": len(grupos),
+            "grupos_descartados": descartados,
+        }
+
     tasa = float(np.nansum(pesos[validos] * tasas_esp[validos]) * por)
     ee = float(np.sqrt(np.nansum(var_terms[validos])) * por)
 
     return {
         "tasa_estandarizada": tasa,
         "error_estandar": ee,
-        "ic95_inferior": tasa - 1.96 * ee,
+        # El límite inferior se trunca en 0: una tasa negativa no existe. La aproximación
+        # normal sobre la varianza de Poisson lo produce con conteos pequeños, y publicar
+        # «−11,9 por 100.000» es peor que perder la simetría del intervalo. Que el
+        # truncamiento haya sido necesario es señal de que el conteo es demasiado bajo
+        # para este método: por eso se devuelve `casos_totales` junto a la tasa.
+        "ic95_inferior": max(0.0, tasa - 1.96 * ee),
         "ic95_superior": tasa + 1.96 * ee,
         "casos_totales": float(np.nansum(casos)),
         "poblacion_total": float(np.nansum(pob)),
@@ -222,7 +248,7 @@ def suavizado_eb_poisson_gamma(
     }
 
 
-def avpp(edades, limite: int = 80) -> float:
+def avpp(edades, limite: int = LIMITE_AVPP) -> float:
     """Años de vida potencial perdidos, con límite fijo (por defecto 80 años).
 
     Cada defunción aporta max(0, limite - edad). El límite fijo se prefiere a la

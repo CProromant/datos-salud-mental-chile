@@ -8,7 +8,7 @@ from __future__ import annotations
 import pandas as pd
 
 from ..cie10 import AGRUPADORES
-from ..indicators.tasas import TOPE_EDAD_PIPELINE, grupo_quinquenal
+from ..indicators.tasas import LIMITE_AVPP, TOPE_EDAD_PIPELINE, grupo_quinquenal
 from ..quality import detectar_filas_total
 from ..territorio import (
     COMUNA_DESCONOCIDA,
@@ -170,6 +170,39 @@ def normalizar_defunciones(
 
     reporte["filas_salida"] = len(out)
     return out, reporte
+
+
+def agregar_avpp(
+    silver: pd.DataFrame,
+    agrupador_id: str,
+    dimensiones: list[str] | None = None,
+    limite: int = LIMITE_AVPP,
+) -> pd.DataFrame:
+    """Años de vida potencial perdidos por área, sumando max(0, límite − edad).
+
+    Se calcula acá y no en `gold` porque necesita la **edad de cada defunción**, que solo
+    existe antes de agregar. Es también la razón por la que el resultado es sensible:
+    el AVPP de un área con una sola muerte revela la edad exacta de esa persona. Quien lo
+    publique debe suprimirlo con el mismo umbral que el conteo, no después (ver `gold`).
+
+    Las defunciones sin edad no aportan y se cuentan aparte: tratarlas como cero sería
+    afirmar que murieron a los `limite` años.
+    """
+    col = f"es_{agrupador_id.lower()}"
+    if col not in silver.columns:
+        raise KeyError(f"El silver no tiene la columna {col}; ¿se clasificó con ese agrupador?")
+    dimensiones = dimensiones or ["comuna_cut", "anio"]
+    sub = silver.loc[silver[col]].copy()
+    sub["_aporte"] = (limite - pd.to_numeric(sub["edad_anios"], errors="coerce")).clip(lower=0)
+    g = (
+        sub.groupby(dimensiones, dropna=False)
+        .agg(avpp=("_aporte", "sum"), casos_sin_edad=("_aporte", lambda s: int(s.isna().sum())))
+        .reset_index()
+        .sort_values(dimensiones)
+        .reset_index(drop=True)
+    )
+    g["avpp"] = g["avpp"].astype("float64")
+    return g
 
 
 def agregar_defunciones(

@@ -12,7 +12,13 @@ from __future__ import annotations
 import pandas as pd
 
 from .. import PIPELINE_VERSION
-from ..indicators.tasas import POR_DEFECTO, suavizado_eb_poisson_gamma, tasa_cruda
+from ..indicators.tasas import (
+    POBLACION_ESTANDAR_OMS_80,
+    POR_DEFECTO,
+    suavizado_eb_poisson_gamma,
+    tasa_cruda,
+    tasa_estandarizada_directa,
+)
 from ..io import ahora_iso
 from ..quality import (
     K_SUPRESION_MORTALIDAD,
@@ -81,6 +87,54 @@ def _unir_en_ventana(
     return df, recorte
 
 
+def estandarizar_por_edad(
+    agregado: pd.DataFrame,
+    poblacion: pd.DataFrame,
+    dimensiones: list[str],
+    col_edad: str = "grupo_edad",
+    poblacion_estandar: dict[str, float] | None = None,
+    por: int = POR_DEFECTO,
+) -> pd.DataFrame:
+    """Tasa estandarizada por edad (método directo) para cada área de `dimensiones`.
+
+    Existe porque la tasa cruda no permite comparar territorios con estructuras etarias
+    distintas: una comuna envejecida tiene más muertes por razones demográficas antes que
+    sanitarias. La estandarización responde «cuánto moriría esta comuna si tuviera la
+    estructura de edad de la población estándar».
+
+    Ambas tablas deben traer `col_edad` con **la misma grilla**. Se usa por defecto el
+    estándar OMS colapsado a `80+`, que es lo que permite el denominador del INE: con el
+    estándar sin colapsar, `tasa_estandarizada_directa` descartaría el grupo abierto y
+    devolvería una tasa calculada sin adultos mayores (ver `colapsar_estandar`).
+    """
+    estandar = poblacion_estandar or POBLACION_ESTANDAR_OMS_80
+    faltan = [c for c in (*dimensiones, col_edad) if c not in poblacion.columns]
+    if faltan:
+        raise KeyError(f"La población no tiene las columnas {faltan} para estandarizar")
+
+    llave = [*dimensiones, col_edad]
+    pob = poblacion.groupby(llave, dropna=False)["poblacion"].sum()
+    cas = agregado.groupby(llave, dropna=False)["casos"].sum()
+
+    filas = []
+    for clave, pob_area in pob.groupby(dimensiones, sort=False):
+        idx = pob_area.reset_index().set_index(col_edad)["poblacion"]
+        casos_area = cas.reindex(pob_area.index, fill_value=0).reset_index()
+        casos_idx = casos_area.set_index(col_edad)["casos"].astype("float64")
+        r = tasa_estandarizada_directa(casos_idx, idx, poblacion_estandar=estandar, por=por)
+        valores = clave if isinstance(clave, tuple) else (clave,)
+        fila = dict(zip(dimensiones, valores, strict=True))
+        fila.update({
+            "tasa_estandarizada": r["tasa_estandarizada"],
+            "ee_estandarizada": r["error_estandar"],
+            "ic95_inferior": r["ic95_inferior"],
+            "ic95_superior": r["ic95_superior"],
+            "grupos_edad_descartados": len(r["grupos_descartados"]),
+        })
+        filas.append(fila)
+    return pd.DataFrame(filas)
+
+
 def tasas_comunales(
     agregado: pd.DataFrame,
     poblacion: pd.DataFrame,
@@ -89,6 +143,9 @@ def tasas_comunales(
     grupo_suavizado: list[str] | None = None,
     anios_preliminares: tuple[int, ...] = (),
     anios_cobertura: tuple[int, int] | None = None,
+    avpp: pd.DataFrame | None = None,
+    estandarizar: bool = True,
+    poblacion_estandar: dict[str, float] | None = None,
     k: int = K_SUPRESION_MORTALIDAD,
     por: int = POR_DEFECTO,
     source_id: str = "deis_defunciones",
@@ -118,6 +175,27 @@ def tasas_comunales(
     df, recorte = _unir_en_ventana(base, conteos, dimensiones, anios_cobertura)
 
     df["tasa_cruda"] = tasa_cruda(df["casos"].astype("float64"), df["poblacion"], por=por)
+
+    # Estandarización por edad. Solo es posible si numerador y denominador conservan la
+    # estructura etaria; si el agregado ya viene colapsado, no hay nada que estandarizar
+    # y se dice en el reporte en vez de devolver una columna vacía sin explicación.
+    puede_estandarizar = (
+        estandarizar and "grupo_edad" in agregado.columns and "grupo_edad" in poblacion.columns
+        and "grupo_edad" not in dimensiones
+    )
+    if puede_estandarizar:
+        est = estandarizar_por_edad(
+            agregado, poblacion, dimensiones, poblacion_estandar=poblacion_estandar, por=por
+        )
+        df = df.merge(est, on=dimensiones, how="left")
+
+    if avpp is not None:
+        cols = [*dimensiones, "avpp"]
+        faltan_avpp = [c for c in cols if c not in avpp.columns]
+        if faltan_avpp:
+            raise KeyError(f"La tabla de AVPP no tiene las columnas {faltan_avpp}")
+        df = df.merge(avpp[cols], on=dimensiones, how="left")
+        df["avpp"] = df["avpp"].fillna(0.0)
 
     # El suavizado se calcula DENTRO de cada grupo temporal, no sobre el panel completo.
     # Mezclar años haría que la media hacia la que se encoge una comuna incluya sus
@@ -164,9 +242,19 @@ def tasas_comunales(
     publicable, reporte_sup = suprimir_celdas_pequenas(
         df, "casos", k=k, grupo=[d for d in dimensiones if d != "comuna_cut"]
     )
-    # Si el conteo se suprime, la tasa cruda derivada también debe suprimirse:
-    # dejarla permite reconstruir el conteo multiplicando por la población.
-    publicable.loc[publicable["suprimido"], "tasa_cruda"] = pd.NA
+    # Todo lo derivado del conteo se suprime con él. Dejar cualquiera de estas columnas
+    # permite reconstruir el número suprimido:
+    #   - `tasa_cruda`, multiplicando por la población;
+    #   - `tasa_estandarizada` y su intervalo, que dependen del mismo numerador;
+    #   - `avpp`, que es peor: con un solo caso revela la EDAD EXACTA del fallecido,
+    #     porque el aporte es 80 − edad. Es el dato más identificable de toda la salida.
+    derivadas = [
+        "tasa_cruda", "tasa_estandarizada", "ee_estandarizada",
+        "ic95_inferior", "ic95_superior", "avpp",
+    ]
+    for col in derivadas:
+        if col in publicable.columns:
+            publicable.loc[publicable["suprimido"], col] = pd.NA
 
     meta = {
         "agrupador": agrupador_id,

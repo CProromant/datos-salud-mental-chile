@@ -228,7 +228,7 @@ def cmd_build_gold(args) -> int:
     from .io import ruta_capa
     from .reconciliacion import reconciliar
     from .transform.gold import tasas_comunales
-    from .transform.silver import agregar_defunciones
+    from .transform.silver import agregar_avpp, agregar_defunciones
 
     dir_silver = ruta_capa("silver", args.source, "x").parent
     candidatos = sorted(dir_silver.glob("*.parquet"))
@@ -276,9 +276,16 @@ def cmd_build_gold(args) -> int:
         resultados = [{"estado": "omitida", "motivo": "--sin-reconciliar"}]
         print("AVISO: reconciliación desactivada. La salida NO es publicable.")
 
-    agregado = agregar_defunciones(silver, args.agrupador, dimensiones=["comuna_cut", "anio"])
+    # El agregado conserva `grupo_edad`: es lo que permite estandarizar. `tasas_comunales`
+    # colapsa por su cuenta para la tasa cruda, así que pasarlo detallado no cambia esa
+    # salida y habilita la otra.
+    agregado = agregar_defunciones(
+        silver, args.agrupador, dimensiones=["comuna_cut", "anio", "grupo_edad"]
+    )
+    avpp = agregar_avpp(silver, args.agrupador, dimensiones=["comuna_cut", "anio"])
     gold, meta = tasas_comunales(
-        agregado, poblacion, args.agrupador, source_id=args.source, k=args.k
+        agregado, poblacion, args.agrupador, avpp=avpp,
+        source_id=args.source, k=args.k,
     )
     meta["reconciliacion"] = resultados
     destino = ruta_capa("gold", args.source, f"{args.agrupador.lower()}_comunal.csv")
