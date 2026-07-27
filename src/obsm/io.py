@@ -201,16 +201,56 @@ def a_numero(valor, decimal: str | None = None) -> float:
 # Descarga
 # --------------------------------------------------------------------------------------
 
+#: User-agent de navegador. **No es cosmético.** `repositoriodeis.minsal.cl` y los
+#: servidores de SUBDERE responden 403 a cualquier agente que no parezca un navegador, así
+#: que el user-agent honesto `obsm/x.y` no puede descargar nada de las fuentes reales.
+USER_AGENT_NAVEGADOR = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+)
+
+
+def _usar_almacen_de_certificados_del_sistema() -> bool:
+    """Hace que `requests` valide con el almacén de certificados del sistema operativo.
+
+    Varios servidores de gobierno de Chile —`repositoriodeis.minsal.cl` entre ellos— sirven
+    una **cadena de certificados incompleta**: no envían la CA intermedia. El almacén del
+    sistema la resuelve solo (Windows la busca por AIA); el bundle de `certifi` que usa
+    `requests` por defecto no puede, y falla con
+    `CERTIFICATE_VERIFY_FAILED: unable to get local issuer certificate`.
+
+    Es un defecto del servidor, no un certificado inválido ni un bloqueo de red, y **la
+    solución no es desactivar la verificación**: eso aceptaría cualquier certificado,
+    incluido el de un atacante. `truststore` delega la validación al sistema operativo, que
+    es lo mismo que hace el navegador con el que un humano descargaría el archivo.
+
+    Devuelve False si `truststore` no está disponible, para que el llamador lo diga en vez
+    de fallar con un SSLError que parece otra cosa.
+    """
+    try:
+        import truststore  # noqa: PLC0415
+    except ImportError:
+        return False
+    truststore.inject_into_ssl()
+    return True
+
+
 def descargar(
     url: str,
     destino: Path,
     source_id: str,
     timeout: int = 60,
     reintentos: int = 3,
-    user_agent: str = f"obsm/{PIPELINE_VERSION}",
+    user_agent: str = USER_AGENT_NAVEGADOR,
     forzar: bool = False,
+    sha256_esperado: str | None = None,
 ) -> Manifiesto:
     """Descarga con reintentos y devuelve el manifiesto. No reescribe si ya existe.
+
+    Si se pasa `sha256_esperado`, verifica el archivo descargado contra él y lanza
+    `SourceUnavailableError` si no coincide. Una descarga que completó no es una descarga
+    correcta: el servidor pudo servir una página de error con código 200, o la fuente pudo
+    republicar otro archivo bajo la misma URL.
 
     `requests` se importa dentro de la función a propósito: el resto del paquete
     debe poder usarse (y testearse) sin red ni dependencia HTTP.
@@ -223,6 +263,12 @@ def descargar(
     if destino.exists() and not forzar:
         log.info("Ya existe en caché: %s", destino)
     else:
+        if not _usar_almacen_de_certificados_del_sistema():
+            log.warning(
+                "truststore no está instalado: la validación TLS usará el bundle de "
+                "certifi y fallará contra los servidores que sirven cadena incompleta. "
+                "Instalar con `pip install truststore` o descargar el archivo a mano."
+            )
         ultimo_error: Exception | None = None
         for intento in range(1, reintentos + 1):
             try:
@@ -240,11 +286,24 @@ def descargar(
         else:
             raise SourceUnavailableError(f"No se pudo descargar {url}: {ultimo_error}")
 
+    obtenido = sha256_archivo(destino)
+    if sha256_esperado and obtenido != sha256_esperado:
+        raise SourceUnavailableError(
+            f"[{source_id}] el archivo descargado no coincide con el hash declarado.\n"
+            f"  esperado: {sha256_esperado}\n"
+            f"  obtenido: {obtenido}\n"
+            f"  url:      {url}\n"
+            f"Puede ser una descarga corrupta, una página de error servida con código 200, "
+            f"o que el organismo republicó otro archivo bajo la misma URL. En el último "
+            f"caso hay que verificar el contenido nuevo y actualizar `config/sources.yml` "
+            f"a mano: NO se acepta un hash distinto en silencio."
+        )
+
     return Manifiesto(
         source_id=source_id,
         url=url,
         fecha_extraccion=ahora_iso(),
-        sha256=sha256_archivo(destino),
+        sha256=obtenido,
         bytes=destino.stat().st_size,
         encoding=detectar_encoding(destino),
     )

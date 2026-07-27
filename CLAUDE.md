@@ -93,9 +93,31 @@ curl --ssl-no-revoke -L -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ..." -o de
   responden `403` sin él. Algunos además responden `404` a `HEAD` aunque el `GET` funcione:
   verifica con `-r 0-3` y mirando los magic bytes, no con `HEAD`.
 
+**Desde Python el problema es OTRO y hay que no confundirlos** (verificado 2026-07-27).
+`requests` contra `repositoriodeis.minsal.cl` falla con:
+
+```
+SSLError: CERTIFICATE_VERIFY_FAILED: unable to get local issuer certificate
+```
+
+No es revocación: **el servidor sirve una cadena de certificados incompleta**, sin la CA
+intermedia. `curl` en Windows usa schannel y la resuelve solo; `requests` usa el bundle de
+`certifi` y no puede. La solución es `truststore`, que delega la validación al almacén del
+sistema operativo —lo mismo que hace el navegador con el que un humano bajaría el archivo—:
+
+```python
+import truststore; truststore.inject_into_ssl()
+```
+
+Ya está cableado en `obsm.io.descargar`, junto con el user-agent de navegador. **Nunca**
+`verify=False`: eso aceptaría cualquier certificado, incluido el de un atacante, y es una
+respuesta distinta a un problema distinto.
+
 Corolario: **verifica las URLs de verdad antes de decir que no se puede.** Esta sección
 afirmaba lo contrario hasta el 2026-07-27 y estaba equivocada; el costo de creerle fue
-pedirle al usuario descargas que la sesión podía hacer sola.
+pedirle al usuario descargas que la sesión podía hacer sola. La segunda lección, del mismo
+día: dos herramientas pueden fallar contra el mismo servidor por causas distintas, y
+aplicar el arreglo de una a la otra no funciona.
 
 Lo que sigue vigente sin excepción: **no simules una descarga exitosa que no ocurrió**, y
 no escribas en `sources.yml` una URL que no comprobaste en esta sesión.

@@ -59,8 +59,9 @@ de publicación.
       cuadra, `obsm build gold` aborta y no escribe nada.
 - [x] **6. Supresión k** y prohibición de desagregar por método. 63,8 % de celdas
       suprimidas con k=10 y cero celdas visibles con conteo 1..9.
-- [ ] **7. Un solo comando.** Hoy son cinco pasos encadenados a mano. Es lo único que falta
-      para cumplir el criterio de término tal como está escrito.
+- [x] **7. Un solo comando.** `obsm run` descarga, verifica hashes, descomprime, ingiere,
+      normaliza, reconcilia y escribe gold. Se detiene en el primer error y reutiliza lo
+      ya descargado.
 
 **Término:** un CSV comunal **2002**–último año oficial, reproducible con un comando, con
 manifiesto de procedencia, que cuadra con el total oficial y pasa la revisión de `docs/06`.
@@ -75,7 +76,7 @@ manifiesto de procedencia, que cuadra con el total oficial y pasa la revisión d
 tasas. Mitigación: el denominador es un dataset versionado aparte y las tasas se recalculan,
 no se corrigen a mano.
 
-> **Estado al 2026-07-27.** La primera tasa existe y está verificada contra referencias
+> **Estado al 2026-07-27. Fase 1 cerrada.** La primera tasa existe y está verificada contra referencias
 > externas: 8,0–10,6 por 100.000 entre 2015 y 2023, dentro del rango publicado para Chile,
 > con 38,8 años de vida perdidos por muerte. La conservación de casos cierra exacto
 > (46.810 = 40.730 en ventana + 6.080 fuera). Falta solo el comando único.
