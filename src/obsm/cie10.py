@@ -220,6 +220,11 @@ DIMENSIONES_PROHIBIDAS_PUBLICACION = {
 }
 
 
+#: Niveles de detalle que `es_publicable` sabe evaluar. Cualquier otro valor es un error
+#: del llamador, no un caso permitido: ver por qué en `es_publicable`.
+NIVELES_DETALLE = frozenset({"agrupador", "codigo"})
+
+
 def es_publicable(agrupador_id: str, nivel_detalle: str = "agrupador") -> bool:
     """¿Se puede publicar esta salida?
 
@@ -227,7 +232,19 @@ def es_publicable(agrupador_id: str, nivel_detalle: str = "agrupador") -> bool:
       - "agrupador": el conteo del grupo completo. Permitido.
       - "codigo": desglose código a código. Prohibido para SUICIDIO y
         LESION_AUTOINFLIGIDA_MORBILIDAD, porque equivale a publicar métodos.
+
+    Un `nivel_detalle` desconocido **lanza** en vez de devolver un booleano. Esta función
+    hace cumplir una regla no negociable de `docs/06`, y antes fallaba abierto: un typo
+    como `"subcodigo"` no coincidía con la condición, se saltaba la prohibición y devolvía
+    True. Un guarda que un error de tipeo convierte en permiso no es un guarda. Ante un
+    nivel que no se sabe evaluar, la respuesta correcta no es «sí» ni «no», es detenerse.
     """
+    if nivel_detalle not in NIVELES_DETALLE:
+        raise ValueError(
+            f"nivel_detalle desconocido: {nivel_detalle!r}. Válidos: "
+            f"{sorted(NIVELES_DETALLE)}. No se asume un nivel por defecto porque esta "
+            f"función decide si algo se publica o no."
+        )
     if nivel_detalle == "codigo" and agrupador_id in {
         "SUICIDIO",
         "LESION_AUTOINFLIGIDA_MORBILIDAD",

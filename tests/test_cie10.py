@@ -97,3 +97,28 @@ class TestPoliticaPublicacion:
     def test_todos_los_agrupadores_tienen_id_consistente(self):
         for k, v in AGRUPADORES.items():
             assert k == v.id
+
+
+class TestElGuardDePublicacionNoFallaAbierto:
+    """`es_publicable` hace cumplir una regla no negociable de docs/06.
+
+    Antes devolvía True para cualquier `nivel_detalle` que no reconociera: un typo
+    como "subcodigo" no coincidía con la condición, se saltaba la prohibición y
+    autorizaba la publicación. Se descubrió escribiendo el archivo de práctica, que
+    usó justamente ese literal equivocado.
+    """
+
+    @pytest.mark.parametrize("nivel", ["subcodigo", "sub_codigo", "CODIGO", "", "detalle"])
+    def test_un_nivel_desconocido_se_detiene_en_vez_de_autorizar(self, nivel):
+        with pytest.raises(ValueError, match="nivel_detalle"):
+            es_publicable("SUICIDIO", nivel_detalle=nivel)
+
+    def test_los_niveles_validos_siguen_funcionando(self):
+        assert es_publicable("SUICIDIO", nivel_detalle="agrupador")
+        assert not es_publicable("SUICIDIO", nivel_detalle="codigo")
+
+    def test_el_error_nombra_los_niveles_validos(self):
+        # Quien se equivoca tiene que poder arreglarlo sin leer el código fuente.
+        with pytest.raises(ValueError) as exc:
+            es_publicable("SUICIDIO", nivel_detalle="subcodigo")
+        assert "agrupador" in str(exc.value) and "codigo" in str(exc.value)
