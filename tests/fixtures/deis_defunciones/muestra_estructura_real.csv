@@ -1,0 +1,14 @@
+AÑO;FECHA_DEF;SEXO_NOMBRE;EDAD_TIPO;EDAD_CANT;COD_COMUNA;COMUNA;NOMBRE_REGION;DIAG1;CAPITULO_DIAG1;GLOSA_CAPITULO_DIAG1;CODIGO_GRUPO_DIAG1;GLOSA_GRUPO_DIAG1;CODIGO_CATEGORIA_DIAG1;GLOSA_CATEGORIA_DIAG1;CODIGO_SUBCATEGORIA_DIAG1;GLOSA_SUBCATEGORIA_DIAG1;DIAG2;CAPITULO_DIAG2;GLOSA_CAPITULO_DIAG2;CODIGO_GRUPO_DIAG2;GLOSA_GRUPO_DIAG2;CODIGO_CATEGORIA_DIAG2;GLOSA_CATEGORIA_DIAG2;CODIGO_SUBCATEGORIA_DIAG2;GLOSA_SUBCATEGORIA_DIAG2;LUGAR_DEFUNCION
+2022;2022-03-14;Hombre;1;34;13101;Santiago;Metropolitana de Santiago;X700;;;;;;;;;;;;;;;;;;Hospital
+2022;2022-07-02;Mujer;1;19;13101;Santiago;Metropolitana de Santiago;X610;;;;;;;;;;;;;;;;;;Otro
+2022;2022-05-20;Hombre;1;67;5101;Valparaíso;De Valparaíso;X700;;;;;;;;;;;;;;;;;;Otro
+2021;2021-11-08;Mujer;1;55;8304;Laja;Del Bíobío;X840;;;;;;;;;;;;;;;;;;Otro
+2022;2022-01-30;Hombre;1;23;11101;Coihaique;Aysén del General Carlos Ibáñez del Campo;X700;;;;;;;;;;;;;;;;;;Otro
+2022;2022-02-11;Mujer;1;41;11101;COYHAIQUE;Aysén;Y870;;;;;;;;;;;;;;;;;;Otro
+1994;1994-10-22;Hombre;1;17;8304;Laja;Del Bíobío;9509;;;;;;;;;;;;;;;;;;Otro
+1996;1996-04-15;Mujer;1;50;6115;Rengo;Del Libertador B. O'Higgins;9941;;;;;;;;;;;;;;;;;;Otro
+2022;2022-06-01;Mujer;2;3;13101;Santiago;Metropolitana de Santiago;P219;;;;;;;;;;;;;;;;;;Otro
+2022;2022-06-02;Hombre;3;12;13101;Santiago;Metropolitana de Santiago;P219;;;;;;;;;;;;;;;;;;Otro
+2022;2022-08-19;Hombre;;3;13101;Santiago;Metropolitana de Santiago;X700;;;;;;;;;;;;;;;;;;Otro
+2022;2022-09-05;Indeterminado;4;6;13101;Santiago;Metropolitana de Santiago;P219;;;;;;;;;;;;;;;;;;Otro
+TOTAL PAÍS;;;;;;;;;;;;;;;;;;;;;;;;;;

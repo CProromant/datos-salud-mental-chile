@@ -94,6 +94,47 @@ más sanas del país, sin un solo error en pantalla.
 
 
 
+### A-002 · deis_defunciones · 2026-07-27
+
+**Qué se observó:** la serie oficial de defunciones DEIS cubre 1990–2023, pero los códigos
+de causa de los primeros años no son CIE-10.
+
+**Reproducción:** barrido sobre las 3.182.446 filas de
+`DEFUNCIONES_FUENTE_DEIS_1990_2023_CIFRAS_OFICIALES.zip`, contando por año qué forma tiene
+`DIAG1`.
+
+**Verificación:** el corte es limpio, sin años mezclados.
+
+| años | filas | forma de `DIAG1` | clasificación |
+|---|---|---|---|
+| 1990–1996 | 536.746 | 100 % empieza en dígito (`9509`, `9941`) | CIE-9 |
+| 1997–2023 | 2.645.700 | 100 % empieza en letra (`X70`, `P219`) | CIE-10 |
+
+**Por qué importa:** los agrupadores de `cie10.py` buscan rangos tipo `X60`–`X84`. Contra
+códigos CIE-9 no lanzan ninguna excepción: **devuelven cero**. Una serie de suicidio que
+arrancara en 1990 mostraría siete años planos en cero, con la forma de un hallazgo
+epidemiológico y no de un error de software. Es el modo de falla más caro del proyecto:
+silencioso y con apariencia de dato.
+
+**Decisión:** conservar. El ingestor agrega `clasificacion_causa` (`cie10` / `cie9` /
+`desconocido`) derivada de la forma del código, no del año, porque el año también puede
+venir mal. Filtrar es decisión de `transform/`, no del ingestor. `ANIO_INICIO_CIE10 = 1997`
+queda documentado en `obsm.ingest.deis_defunciones`.
+
+**Control heredado:** ninguna serie que use agrupadores CIE-10 puede incluir filas con
+`clasificacion_causa != "cie10"` sin advertencia explícita.
+
+### A-003 · deis_defunciones · 2026-07-27
+
+**Qué se observó:** `COD_COMUNA` trae 4 caracteres en 1.551.470 filas y 5 en 1.630.976.
+
+**Verificación:** las de 4 corresponden a las regiones 01–09, que perdieron el cero a la
+izquierda (`8304` por `08304`, Laja). Es el problema que `CLAUDE.md §5` anticipa.
+
+**Decisión:** conservar tal cual en `bronze`; `silver` está obligado a pasarlo por
+`territorio.formatear_cut_comuna`. Hay un test que verifica que el problema siga presente
+en el fixture, para que nadie «arregle» la fuente por el lado equivocado.
+
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.

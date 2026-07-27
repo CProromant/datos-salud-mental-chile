@@ -77,9 +77,28 @@ obsm build gold      # calcula indicadores → gold + manifiesto
 obsm qa              # corre todas las validaciones y reconciliaciones
 ```
 
-En este entorno **no hay red hacia dominios de gobierno de Chile**. `obsm ingest` contra
-fuentes reales solo corre en la máquina del usuario o en CI. Acá se trabaja contra
-`tests/fixtures/`. No simules una descarga exitosa que no ocurrió.
+**Sí hay red hacia dominios de gobierno de Chile**, pero con dos condiciones que hay que
+poner explícitamente o todo falla con errores que parecen de conectividad:
+
+```bash
+curl --ssl-no-revoke -L -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ..." -o destino URL
+```
+
+- `--ssl-no-revoke`: sin esto sale `CRYPT_E_NO_REVOCATION_CHECK`. **No es interceptación de
+  TLS ni un certificado inválido**: es que no se alcanza el servidor de revocación. Nunca
+  lo confundas con un bloqueo de red ni lo «arregles» desactivando la verificación del
+  certificado. Para `git`, el equivalente es `http.sslBackend=schannel` +
+  `http.schannelCheckRevoke=false`.
+- User-agent de navegador: varios servidores (SUBDERE, `repositoriodeis.minsal.cl`)
+  responden `403` sin él. Algunos además responden `404` a `HEAD` aunque el `GET` funcione:
+  verifica con `-r 0-3` y mirando los magic bytes, no con `HEAD`.
+
+Corolario: **verifica las URLs de verdad antes de decir que no se puede.** Esta sección
+afirmaba lo contrario hasta el 2026-07-27 y estaba equivocada; el costo de creerle fue
+pedirle al usuario descargas que la sesión podía hacer sola.
+
+Lo que sigue vigente sin excepción: **no simules una descarga exitosa que no ocurrió**, y
+no escribas en `sources.yml` una URL que no comprobaste en esta sesión.
 
 ## 5. Convenciones de datos
 

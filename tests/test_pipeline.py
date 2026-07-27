@@ -15,6 +15,7 @@ from obsm.transform.silver import agregar_defunciones, normalizar_defunciones
 
 FIXTURES = Path(__file__).parent / "fixtures"
 MUESTRA = FIXTURES / "deis_defunciones" / "muestra_latin1.csv"
+MUESTRA_REAL = FIXTURES / "deis_defunciones" / "muestra_estructura_real.csv"
 POBLACION = FIXTURES / "poblacion" / "poblacion_muestra.csv"
 
 
@@ -47,6 +48,61 @@ class TestIngesta:
         from obsm.errors import SchemaDriftError
         with pytest.raises(SchemaDriftError):
             ing.validar_esquema(pd.DataFrame({"otra_cosa": [1]}))
+
+
+class TestEstructuraRealDeis:
+    """Regresión contra la estructura publicada por DEIS, verificada el 2026-07-27.
+
+    El mapa de columnas anterior era una hipótesis y fallaba: la columna de año es `AÑO`
+    y no `ANO_DEF`, y no existe `SEXO`, solo `SEXO_NOMBRE`. Estos tests fijan la
+    estructura real para que un cambio de la fuente se note acá y no en un indicador.
+    """
+
+    @pytest.fixture()
+    def bronze_real(self):
+        return DeisDefunciones().preparar(MUESTRA_REAL)
+
+    def test_el_encabezado_real_satisface_el_contrato(self, bronze_real):
+        for col in ("anio", "sexo", "causa_cie10"):
+            assert col in bronze_real.columns
+
+    def test_la_columna_de_anio_se_llama_ano_a_secas(self, bronze_real):
+        # La fila "TOTAL PAÍS" del fixture no trae año, y debe quedar nula en vez de
+        # colarse como un año cualquiera. Se excluye con la marca del propio ingestor.
+        datos = bronze_real[~bronze_real[DeisDefunciones.COL_FILA_TOTAL]]
+        assert datos["anio"].notna().all()
+        assert datos["anio"].min() == 1994
+
+    def test_sexo_se_deriva_de_sexo_nombre(self, bronze_real):
+        """La fuente no publica `SEXO`. Si `sexo` quedara vacío, el contrato pasaría
+        igual y el indicador saldría todo 'desconocido'."""
+        assert "sexo_nombre" in bronze_real.columns
+        assert not (bronze_real["sexo"] == "desconocido").all()
+        assert {"hombre", "mujer"} <= set(bronze_real["sexo"])
+
+    def test_indeterminado_no_se_confunde_con_faltante(self, bronze_real):
+        assert "indeterminado" in set(bronze_real["sexo"])
+
+    def test_los_codigos_anteriores_a_1997_se_marcan_como_cie9(self, bronze_real):
+        """Trampa central: los agrupadores de cie10.py sobre CIE-9 no fallan, dan cero."""
+        viejos = bronze_real[bronze_real["anio"] < 1997]
+        assert len(viejos) > 0
+        assert (viejos["clasificacion_causa"] == "cie9").all()
+
+        nuevos = bronze_real[bronze_real["anio"] >= 1997]
+        assert (nuevos["clasificacion_causa"] == "cie10").all()
+
+    def test_edad_sin_unidad_no_se_lee_como_anios(self, bronze_real):
+        """EDAD_TIPO vacío con EDAD_CANT=3 no es «3 años»: es una edad desconocida."""
+        sin_unidad = bronze_real[bronze_real["edad_unidad_original"] == "desconocido"]
+        assert len(sin_unidad) > 0
+        assert sin_unidad["edad_anios"].isna().all()
+
+    def test_cod_comuna_llega_sin_cero_a_la_izquierda(self, bronze_real):
+        """El ingestor no normaliza territorio: solo se verifica que el problema exista,
+        para que `silver` esté obligado a resolverlo con formatear_cut_comuna."""
+        largos = set(bronze_real["comuna_cut_fuente"].dropna().astype(str).str.len())
+        assert 4 in largos and 5 in largos
 
 
 class TestSilver:

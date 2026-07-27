@@ -44,15 +44,36 @@ class TestCatalogoReal:
 
 
 class TestReglas:
+    """La fuente de ejemplo se elige por su estado, no por su nombre.
+
+    Antes estos tests fijaban `deis_defunciones` como ejemplo de fuente sin verificar, y
+    se cayeron el día que se verificó. Lo que se prueba es la regla, no qué fuente está
+    en qué estado hoy.
+    """
+
+    @staticmethod
+    def _una(reg, verificada: bool) -> str:
+        ids = [f.id for f in reg if (f.estado == "verificada") is verificada]
+        if not ids:
+            pytest.skip(
+                f"el catálogo no tiene ninguna fuente {'verificada' if verificada else 'sin verificar'}"
+            )
+        return sorted(ids)[0]
+
     def test_exige_verificada(self):
         reg = cargar_registro()
         with pytest.raises(SourceNotVerifiedError):
-            reg.exigir_verificada("deis_defunciones")
+            reg.exigir_verificada(self._una(reg, verificada=False))
 
     def test_permite_saltarse_la_regla_explicitamente(self):
         reg = cargar_registro()
-        f = reg.exigir_verificada("deis_defunciones", permitir_no_verificada=True)
-        assert f.id == "deis_defunciones"
+        fid = self._una(reg, verificada=False)
+        assert reg.exigir_verificada(fid, permitir_no_verificada=True).id == fid
+
+    def test_una_fuente_verificada_pasa_sin_permiso_especial(self):
+        reg = cargar_registro()
+        fid = self._una(reg, verificada=True)
+        assert reg.exigir_verificada(fid).id == fid
 
     def test_fuente_desconocida(self):
         with pytest.raises(ObsmError):
