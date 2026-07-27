@@ -1,0 +1,98 @@
+# Anclas de reconciliación. Cifras oficiales publicadas contra las que el pipeline se
+# compara antes de dejar publicar nada.
+#
+# La regla es de CLAUDE.md §7 y no es negociable: si un total calculado no cuadra con su
+# ancla dentro de la tolerancia, NO SE PUBLICA. Sin esto el pipeline puede estar
+# perfectamente ordenado y perfectamente equivocado.
+#
+# Un ancla sin procedencia no es un ancla, es un número inventado con más pasos. Cada una
+# declara de dónde salió, en qué página, y cuándo se leyó. Si no se puede llenar
+# `referencia`, el ancla no entra acá.
+#
+# TRAMPA (A-005): un ancla es tan buena como su definición temporal. La serie «Defunciones
+# por Semana Epidemiológica» del propio DEIS NO sirve, porque está en año epidemiológico y
+# 2014 y 2020 tienen 53 semanas. Dos productos del mismo organismo pueden no ser
+# comparables entre sí.
+
+version: 1
+
+anclas:
+
+  - id: defunciones_totales_2023
+    descripcion: "Defunciones totales, todas las causas, año calendario 2023"
+    source_id: deis_defunciones
+    metrica:
+      tipo: conteo_filas
+    filtro:
+      anio: 2023
+    valor: 122218
+    unidad: personas
+    tolerancia_relativa: 0.005
+    fuente_ancla: ine_vitales_anuario
+    referencia: "Anuario de Estadísticas Vitales 2023 (INE), p.38, cifra de titular"
+    fecha_verificacion: "2026-07-27"
+    nota: >
+      NO usar la Tabla 3 (p.45): dice 122.217 porque desagrega por grupo de edad y deja
+      fuera un registro sin edad. Tampoco la suma por sexo (63.710 + 58.495 = 122.205),
+      que omite 12 registros de sexo no asignado. La cifra comparable es la de titular.
+      La reconciliación observada fue EXACTA a la unidad, no dentro de tolerancia.
+
+  - id: defunciones_totales_2020
+    descripcion: "Defunciones totales, todas las causas, año calendario 2020"
+    source_id: deis_defunciones
+    metrica:
+      tipo: conteo_filas
+    filtro:
+      anio: 2020
+    valor: 126169
+    unidad: personas
+    tolerancia_relativa: 0.005
+    fuente_ancla: ine_vitales_anuario
+    referencia: "Anuario de Estadísticas Vitales 2023 (INE), p.38, cifra de titular"
+    fecha_verificacion: "2026-07-27"
+    nota: >
+      2020 es uno de los dos años de 53 semanas epidemiológicas del período (el otro es
+      2014). Es justamente el año donde la serie semanal difería −1,23 %: contra el anuario
+      en año calendario la reconciliación es exacta.
+
+  - id: poblacion_nacional_2020
+    descripcion: "Población nacional proyectada a junio de 2020, base 2017"
+    source_id: ine_proyecciones
+    metrica:
+      tipo: suma_columna
+      columna: poblacion
+    filtro:
+      anio: 2020
+    valor: 19458310
+    unidad: personas
+    tolerancia_relativa: 0.0001
+    fuente_ancla: ine_proyecciones
+    referencia: "INE, Estimaciones y proyecciones 2002-2035 base 2017, total país"
+    fecha_verificacion: "2026-07-27"
+    nota: >
+      Valida el denominador, no el numerador. Un error acá desplaza TODAS las tasas del
+      proyecto a la vez y en la misma dirección, que es la clase de error que no se nota
+      mirando el resultado. La tolerancia es más estricta que la de los numeradores porque
+      esta cifra sale de sumar el mismo archivo: cualquier desvío es un defecto de lectura,
+      no una diferencia metodológica entre organismos.
+
+  - id: poblacion_nacional_2023
+    descripcion: "Población nacional proyectada a junio de 2023, base 2017"
+    source_id: ine_proyecciones
+    metrica:
+      tipo: suma_columna
+      columna: poblacion
+    filtro:
+      anio: 2023
+    valor: 19960889
+    unidad: personas
+    tolerancia_relativa: 0.0001
+    fuente_ancla: ine_proyecciones
+    referencia: "INE, Estimaciones y proyecciones 2002-2035 base 2017, total país"
+    fecha_verificacion: "2026-07-27"
+
+# Pendientes: no hay ancla para el conteo de suicidios en sí. Los totales del archivo de
+# causas se reconcilian contra el anuario, pero el subconjunto X60-X84 no tiene una cifra
+# oficial publicada que se haya verificado en sesión. Mientras no la haya, lo que está
+# validado es la ingesta completa y el denominador, no el numerador específico del
+# indicador. Decirlo importa: es la diferencia entre «el total cuadra» y «la tasa cuadra».

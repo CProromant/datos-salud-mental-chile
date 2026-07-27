@@ -30,6 +30,47 @@ Regla: **si no cuadra, no se publica.** Se abre issue con la diferencia y su hip
 **4. Verificación manual por muestreo.** Tres registros al azar por corte, contrastados a
 mano contra la publicación original. Se documenta quién y cuándo.
 
+## Anclas de reconciliación {#anclas}
+
+Las anclas viven en `config/anclas.yml`, no en el código. Cada una declara de dónde salió,
+en qué página y cuándo se leyó; un ancla sin `referencia` ni `fecha_verificacion` **no se
+carga**, porque un número sin origen comprobable no valida nada: solo traslada la fe de un
+lugar a otro.
+
+| ancla | qué valida | valor | tolerancia | origen |
+|---|---|---|---|---|
+| `defunciones_totales_2023` | ingesta completa del numerador | 122.218 | 0,5 % | Anuario Vitales 2023 (INE), p.38 |
+| `defunciones_totales_2020` | ídem, año de 53 semanas | 126.169 | 0,5 % | ídem |
+| `poblacion_nacional_2020` | denominador | 19.458.310 | 0,01 % | INE, proyecciones base 2017 |
+| `poblacion_nacional_2023` | denominador | 19.960.889 | 0,01 % | ídem |
+
+Las cuatro reconcilian **exacto**, con diferencia 0,000000 %.
+
+**Por qué el denominador tiene tolerancia veinte veces más estricta.** Las anclas de
+defunciones comparan productos de dos organismos distintos, donde un desvío pequeño puede
+ser metodológico. Las de población salen de sumar el mismo archivo que el pipeline lee: ahí
+cualquier diferencia es un defecto de lectura, no una discrepancia legítima.
+
+**Dónde se hacen cumplir.** `obsm build gold` reconcilia en modo estricto **antes** de
+calcular: una sola ancla fuera de tolerancia aborta y no se escribe archivo. Verificado
+alterando un ancla a propósito — el CSV anterior quedó intacto y el proceso salió con
+código 1. `obsm qa` corre las mismas anclas en modo diagnóstico, sin bloquear, para ver
+todas las caídas de una vez.
+
+Existe `--sin-reconciliar` para depurar. La salida que produce **no es publicable** y el
+metadato lo declara.
+
+**Lo que estas anclas NO validan.** No hay ancla para el conteo de suicidios en sí. Lo
+verificado es que la ingesta completa y el denominador cuadran; el subconjunto X60-X84 no
+tiene una cifra oficial publicada que se haya comprobado en sesión. La diferencia importa:
+es «el total cuadra», no «la tasa cuadra».
+
+**Historia de por qué esto existe.** `quality.verificar_reconciliacion` sabía comparar dos
+números desde el primer día y pasaba sus tests, pero **ninguna parte del pipeline la
+llamaba**. La regla «si no cuadra, no se publica» dependía de que una persona se acordara de
+correr la comprobación a mano; la reconciliación de A-005 se hizo en un script desechable
+que después se perdió. Un pipeline que valida solo cuando alguien se acuerda no valida.
+
 ## Quiebres de serie
 
 Una tabla `quiebres` acompaña a todo dataset publicado: fecha, fuente, descripción y efecto
