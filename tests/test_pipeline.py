@@ -325,3 +325,37 @@ class TestCutValidadoContraLaDPA:
         assert rep["cut_invalidos"] == 0
         assert rep["cut_desconocidos"] == 0
         assert df["comuna_cut"].tolist() == ["05101", "16101", "13101"]
+
+
+class TestManifiestoDeBronze:
+    """El manifiesto es el único lugar donde bronze dice de dónde vino.
+
+    Escribía `source_version: null` y la URL de la portada del sitio. Con eso, una fila
+    de gold es trazable a "el sitio de DEIS", no al archivo que se ingirió.
+    """
+
+    def _ingerir(self, tmp_path, monkeypatch):
+        from obsm.ingest import base
+        from obsm.registry import Fuente
+
+        monkeypatch.setattr(base, "ruta_capa", lambda *a, **k: tmp_path / a[-1])
+        fuente = Fuente(
+            id="deis_defunciones", nombre="Defunciones",
+            url_indice="https://deis.minsal.cl/#datosabiertos",
+            url_archivo="https://ejemplo.cl/DEFUNCIONES.zip",
+            source_version="CIFRAS_OFICIALES 1990-2023",
+        )
+        _, manifiesto = DeisDefunciones(fuente).ingerir(MUESTRA)
+        return manifiesto
+
+    def test_arrastra_source_version(self, tmp_path, monkeypatch):
+        assert self._ingerir(tmp_path, monkeypatch).source_version == "CIFRAS_OFICIALES 1990-2023"
+
+    def test_apunta_al_archivo_y_no_a_la_portada(self, tmp_path, monkeypatch):
+        assert self._ingerir(tmp_path, monkeypatch).url == "https://ejemplo.cl/DEFUNCIONES.zip"
+
+    def test_registra_hash_y_encoding_del_archivo_leido(self, tmp_path, monkeypatch):
+        m = self._ingerir(tmp_path, monkeypatch)
+        assert len(m.sha256) == 64
+        assert m.encoding in {"cp1252", "latin-1"}
+        assert m.filas == 16

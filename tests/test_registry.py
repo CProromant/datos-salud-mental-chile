@@ -101,3 +101,41 @@ class TestReglas:
         ruta = _escribir(tmp_path, [{"id": "x", "nombre": "X"}, {"id": "x", "nombre": "Y"}])
         with pytest.raises(ObsmError, match="duplicados"):
             cargar_registro(ruta)
+
+
+class TestProcedencia:
+    """La cadena source_version/url_archivo se rompió una vez en silencio.
+
+    `source_version` no estaba en el dataclass, así que caía en `extra` y el manifiesto
+    lo escribía como null; y `url_principal` devolvía la página de índice en vez del
+    archivo descargado. Ambas cosas dejan un número de gold sin procedencia real
+    (CLAUDE.md §2.2) sin que nada falle.
+    """
+
+    def test_source_version_es_campo_y_no_cae_en_extra(self, tmp_path):
+        ruta = _escribir(tmp_path, [{
+            "id": "x", "nombre": "X", "source_version": "CIFRAS_OFICIALES 1990-2023",
+        }])
+        f = cargar_registro(ruta).get("x")
+        assert f.source_version == "CIFRAS_OFICIALES 1990-2023"
+        assert "source_version" not in f.extra
+
+    def test_url_principal_prefiere_el_archivo_sobre_el_indice(self, tmp_path):
+        ruta = _escribir(tmp_path, [{
+            "id": "x", "nombre": "X",
+            "url_indice": "https://ejemplo.cl/#datosabiertos",
+            "url_archivo": "https://ejemplo.cl/datos/archivo.zip",
+        }])
+        assert cargar_registro(ruta).get("x").url_principal.endswith("archivo.zip")
+
+    def test_url_principal_cae_al_indice_si_no_hay_archivo(self, tmp_path):
+        ruta = _escribir(tmp_path, [{
+            "id": "x", "nombre": "X", "url_indice": "https://ejemplo.cl/indice",
+        }])
+        assert cargar_registro(ruta).get("x").url_principal == "https://ejemplo.cl/indice"
+
+    def test_la_fuente_real_de_defunciones_tiene_procedencia_completa(self):
+        f = cargar_registro().get("deis_defunciones")
+        assert f.source_version, "sin source_version no hay procedencia en gold"
+        assert f.sha256, "sin hash no se puede saber qué archivo se ingirió"
+        assert f.url_principal.endswith(".zip")
