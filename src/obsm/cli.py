@@ -109,8 +109,52 @@ def cmd_qa(args) -> int:
     except ObsmError as exc:
         print(f"[FALLA] DPA: {exc}")
         fallos += 1
+
+    fallos += _qa_reconciliacion()
+
     print("\nNota: `obsm qa` no reemplaza `make test`. Corre ambos antes de publicar.")
     return 1 if fallos else 0
+
+
+def _qa_reconciliacion() -> int:
+    """Reconcilia contra las anclas si hay silver en disco. Devuelve el número de fallas.
+
+    En modo NO estricto a propósito: `obsm qa` es diagnóstico y conviene ver todas las
+    anclas caídas de una, no solo la primera. El modo que bloquea vive en `build gold`.
+    """
+    import pandas as pd
+
+    from .io import ruta_capa
+    from .reconciliacion import cargar_anclas, reconciliar
+
+    try:
+        anclas = cargar_anclas()
+    except ObsmError as exc:
+        print(f"[FALLA] catálogo de anclas: {exc}")
+        return 1
+
+    tablas = {}
+    for source_id in sorted({a.source_id for a in anclas}):
+        candidatos = sorted(ruta_capa("silver", source_id, "x").parent.glob("*.parquet"))
+        if candidatos:
+            tablas[source_id] = pd.read_parquet(candidatos[-1])
+
+    if not tablas:
+        print(f"[--] reconciliación: {len(anclas)} anclas declaradas, sin silver para "
+              f"contrastar. Correr `obsm build silver` primero.")
+        return 0
+
+    resultados = reconciliar(tablas, anclas, estricto=False)
+    fallas = [r for r in resultados if r["estado"] == "FALLA"]
+    omitidas = [r for r in resultados if r["estado"] == "omitida"]
+    ok = len(resultados) - len(fallas) - len(omitidas)
+    estado = "ok" if not fallas else "FALLA"
+    print(f"[{estado}] reconciliación: {ok}/{len(resultados)} anclas cuadran"
+          + (f", {len(omitidas)} sin datos" if omitidas else ""))
+    for r in fallas:
+        print(f"     - {r['ancla']}: calculado={r['observado']:,.0f} "
+              f"oficial={r['oficial']:,.0f} dif={r['diferencia_relativa']:.2%}")
+    return 1 if fallas else 0
 
 
 # -- ingest / build ---------------------------------------------------------------------
@@ -180,7 +224,9 @@ def cmd_build_silver(args) -> int:
 def cmd_build_gold(args) -> int:
     import pandas as pd
 
+    from .errors import ReconciliationError
     from .io import ruta_capa
+    from .reconciliacion import reconciliar
     from .transform.gold import tasas_comunales
     from .transform.silver import agregar_defunciones
 
@@ -205,10 +251,36 @@ def cmd_build_gold(args) -> int:
                   "`obsm build silver --source ine_proyecciones`.", file=sys.stderr)
             return 1
         poblacion = pd.read_parquet(cand_pob[-1])
+
+    # Reconciliación ANTES de calcular nada. La regla de CLAUDE.md §7 es «si no cuadra, no
+    # se publica», así que la comprobación tiene que estar en el camino de la publicación y
+    # no en un script que alguien recuerde correr. En modo estricto una sola ancla fuera de
+    # tolerancia aborta y no se escribe archivo: es preferible no publicar a publicar una
+    # serie rota con aspecto correcto.
+    if not args.sin_reconciliar:
+        try:
+            resultados = reconciliar(
+                {args.source: silver, "ine_proyecciones": poblacion}, estricto=True
+            )
+        except ReconciliationError as exc:
+            print(f"ERROR de reconciliación, no se publica nada:\n  {exc}", file=sys.stderr)
+            print("\nSi la diferencia es esperable (cambio de base, revisión de la fuente), "
+                  "actualiza `config/anclas.yml` con la nueva cifra y su procedencia. "
+                  "No uses --sin-reconciliar para publicar.", file=sys.stderr)
+            return 1
+        ok = sum(1 for r in resultados if r["estado"] == "ok")
+        omitidas = [r["ancla"] for r in resultados if r["estado"] == "omitida"]
+        print(f"reconciliación: {ok}/{len(resultados)} anclas cuadran"
+              + (f" ({len(omitidas)} omitidas: {omitidas})" if omitidas else ""))
+    else:
+        resultados = [{"estado": "omitida", "motivo": "--sin-reconciliar"}]
+        print("AVISO: reconciliación desactivada. La salida NO es publicable.")
+
     agregado = agregar_defunciones(silver, args.agrupador, dimensiones=["comuna_cut", "anio"])
     gold, meta = tasas_comunales(
         agregado, poblacion, args.agrupador, source_id=args.source, k=args.k
     )
+    meta["reconciliacion"] = resultados
     destino = ruta_capa("gold", args.source, f"{args.agrupador.lower()}_comunal.csv")
     destino.parent.mkdir(parents=True, exist_ok=True)
     gold.to_csv(destino, index=False)
@@ -267,6 +339,9 @@ def construir_parser() -> argparse.ArgumentParser:
                     help="CSV de población. Por defecto usa el silver de ine_proyecciones.")
     bg.add_argument("--agrupador", default="SUICIDIO")
     bg.add_argument("--k", type=int, default=10)
+    bg.add_argument("--sin-reconciliar", action="store_true",
+                    help="Salta la reconciliación. Solo para depurar: la salida NO es "
+                         "publicable y el metadato lo declara.")
     bg.set_defaults(func=cmd_build_gold)
 
     q = sub.add_parser("qa", help="comprobaciones sin red")
