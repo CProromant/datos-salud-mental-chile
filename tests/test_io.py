@@ -5,7 +5,14 @@ from pathlib import Path
 
 import pytest
 
-from obsm.io import Manifiesto, a_numero, detectar_encoding, detectar_separador, leer_texto
+from obsm.io import (
+    Manifiesto,
+    a_numero,
+    detectar_encoding,
+    detectar_separador,
+    leer_primera_linea,
+    leer_texto,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -88,3 +95,56 @@ class TestManifiesto:
         contenido = destino.read_text(encoding="utf-8")
         assert '"source_id": "x"' in contenido
         assert '"pipeline_version"' in contenido
+
+
+class TestLeerPrimeraLinea:
+    """Se agregó para no cargar 869 MB en RAM y leer solo el encabezado.
+
+    Estaba sin tests, que es exactamente como una optimización de memoria se convierte
+    en un bug de encoding: la función decide sola con qué encoding abrir el archivo.
+    """
+
+    def test_devuelve_encabezado_y_encoding_en_latin1(self, tmp_path):
+        f = tmp_path / "latin1.csv"
+        f.write_bytes("AÑO;COMUNA;DIAG2\n2020;Ñuñoa;X700\n".encode("latin-1"))
+        linea, enc = leer_primera_linea(f)
+        assert linea == "AÑO;COMUNA;DIAG2"
+        assert enc.lower().replace("_", "-") in {"latin-1", "iso-8859-1", "cp1252"}
+
+    def test_devuelve_encabezado_y_encoding_en_utf8(self, tmp_path):
+        f = tmp_path / "utf8.csv"
+        f.write_bytes("AÑO;COMUNA\n2020;Ñuñoa\n".encode())
+        linea, enc = leer_primera_linea(f)
+        assert linea == "AÑO;COMUNA"
+        # utf-8-sig es la respuesta correcta aunque no haya BOM: ese códec lo quita si
+        # está y decodifica utf-8 plano si no. Por eso encabeza ENCODINGS_CANDIDATOS.
+        assert enc.lower().replace("_", "-") in {"utf-8", "utf8", "utf-8-sig"}
+
+    def test_no_deja_el_retorno_de_carro_de_windows(self, tmp_path):
+        f = tmp_path / "crlf.csv"
+        f.write_bytes(b"a;b;c\r\n1;2;3\r\n")
+        linea, _ = leer_primera_linea(f)
+        assert linea == "a;b;c"  # un \r pegado rompe el nombre de la última columna
+
+    def test_no_lee_el_resto_del_archivo(self, tmp_path):
+        f = tmp_path / "grande.csv"
+        with f.open("w", encoding="utf-8") as fh:
+            fh.write("a;b\n")
+            for i in range(200_000):
+                fh.write(f"{i};{i}\n")
+        linea, _ = leer_primera_linea(f)
+        assert linea == "a;b"
+
+    def test_archivo_de_una_sola_linea_sin_salto_final(self, tmp_path):
+        f = tmp_path / "sola.csv"
+        f.write_bytes(b"a;b;c")
+        linea, _ = leer_primera_linea(f)
+        assert linea == "a;b;c"
+
+    def test_el_encoding_devuelto_sirve_para_leer_el_archivo(self, tmp_path):
+        # El contrato real: quien recibe `enc` lo usa para abrir el archivo completo.
+        f = tmp_path / "mixto.csv"
+        f.write_bytes("comuna;valor\nAysén;1\nÑuñoa;2\n".encode("latin-1"))
+        linea, enc = leer_primera_linea(f)
+        assert linea == "comuna;valor"
+        assert "Aysén" in f.read_text(encoding=enc)

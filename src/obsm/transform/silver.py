@@ -10,7 +10,13 @@ import pandas as pd
 from ..cie10 import AGRUPADORES
 from ..indicators.tasas import grupo_quinquenal
 from ..quality import detectar_filas_total
-from ..territorio import COMUNA_DESCONOCIDA, DPA, formatear_cut_comuna, normalizar_serie_comunas
+from ..territorio import (
+    COMUNA_DESCONOCIDA,
+    DPA,
+    cargar_dpa,
+    formatear_cut_comuna,
+    normalizar_serie_comunas,
+)
 
 
 def normalizar_defunciones(
@@ -37,16 +43,32 @@ def normalizar_defunciones(
 
     # 2. Territorio. Se prefiere el código de la fuente; el nombre es respaldo.
     if "comuna_cut_fuente" in out.columns and out["comuna_cut_fuente"].notna().any():
+        # Dos formas distintas de estar mal, y hay que contarlas por separado. Un CUT
+        # puede estar bien formado y aun así no existir: DEIS usa 99999 como centinela
+        # de "comuna ignorada". Validar solo el formato dejaba pasar ese centinela como
+        # si fuera una comuna real, con region_cut 99, y reportaba cut_invalidos=0.
+        vigentes = (dpa or cargar_dpa()).por_cut
         cuts = []
-        fallidos = 0
+        mal_formados = 0
+        fuera_de_dpa = 0
         for v in out["comuna_cut_fuente"]:
             try:
-                cuts.append(formatear_cut_comuna(v))
+                cut = formatear_cut_comuna(v)
             except Exception:  # noqa: BLE001
                 cuts.append(COMUNA_DESCONOCIDA)
-                fallidos += 1
+                mal_formados += 1
+                continue
+            if cut not in vigentes:
+                cuts.append(COMUNA_DESCONOCIDA)
+                if cut != COMUNA_DESCONOCIDA:
+                    fuera_de_dpa += 1
+                continue
+            cuts.append(cut)
         out["comuna_cut"] = cuts
-        reporte["cut_invalidos"] = fallidos
+        reporte["cut_mal_formados"] = mal_formados
+        reporte["cut_fuera_de_dpa"] = fuera_de_dpa
+        reporte["cut_invalidos"] = mal_formados + fuera_de_dpa
+        reporte["cut_desconocidos"] = int((out["comuna_cut"] == COMUNA_DESCONOCIDA).sum())
         reporte["fuente_territorio"] = "codigo"
     elif "comuna_nombre" in out.columns:
         cuts, rep_terr = normalizar_serie_comunas(out["comuna_nombre"], dpa=dpa)
