@@ -1,0 +1,23 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest
+      - run: ruff check src tests
+      - name: Sin datos descargados en el repo
+        run: |
+          if git ls-files data | grep -v '\.gitkeep$' | grep -q .; then
+            echo "Hay archivos de datos versionados. Ver CLAUDE.md 2.3."; exit 1
+          fi
+      - name: Catálogo de fuentes coherente
+        run: python -m obsm.cli qa || true

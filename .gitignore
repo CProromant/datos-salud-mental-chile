@@ -1,0 +1,21 @@
+# Datos: NUNCA se versionan. Ver CLAUDE.md §2.3.
+# Se ignora el CONTENIDO (`data/**`), no el directorio: con `data/` git no puede
+# volver a incluir nada de adentro, la negación de .gitkeep no surte efecto y un
+# clon nuevo se queda sin el árbol de capas.
+data/**
+!data/**/
+!data/**/.gitkeep
+!data/.gitkeep
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.env
+.DS_Store

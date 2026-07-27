@@ -1,0 +1,228 @@
+# Catálogo de fuentes. Fuente de verdad del pipeline.
+# Ver docs/01-FUENTES.md para las fichas narrativas y las trampas de cada fuente.
+#
+# estado:
+#   no_verificada  -> la URL NO fue comprobada con una descarga real. El pipeline se niega
+#                     a ingerirla salvo con --permitir-no-verificada (solo desarrollo).
+#   verificada     -> comprobada con `obsm sources verify`; requiere fecha_verificacion.
+#   rota           -> antes verificada, ahora falla. Requiere issue abierto.
+#
+# origen_url:
+#   busqueda_web   -> la URL apareció textualmente en una búsqueda web (fecha en el campo).
+#   por_confirmar  -> se sabe que el organismo publica esto; la URL exacta NO está confirmada.
+#
+# NUNCA promover a `verificada` sin una comprobación real. Ver CLAUDE.md §2.1.
+
+version: 1
+actualizado: "2026-07-26"
+
+defaults:
+  timeout_s: 60
+  reintentos: 3
+  user_agent: "obsm/0.1 (observatorio de salud mental; contacto pendiente)"
+
+fuentes:
+
+  - id: deis_defunciones
+    nombre: "Defunciones con causa básica CIE-10"
+    organismo: "DEIS / MINSAL"
+    dominio: "deis.minsal.cl"
+    url_indice: "https://deis.minsal.cl/#datosabiertos"
+    url_espejo: "https://datos.gob.cl/organization/ministerio_de_salud"
+    origen_url: busqueda_web
+    fecha_origen_url: "2026-07-26"
+    estado: no_verificada
+    formato: csv
+    granularidad: registro_individual
+    unidad_territorial: comuna_residencia
+    periodicidad: anual
+    latencia_esperada_dias: 400
+    anios_preliminares: 2
+    licencia: por_confirmar
+    prioridad: 1
+    fase: 1
+    variables_esperadas:
+      [anio, fecha_defuncion, sexo, edad, comuna_residencia, comuna_defuncion, causa_cie10]
+    ancla_reconciliacion: "total nacional de defunciones por año publicado por DEIS"
+    tolerancia_reconciliacion: 0.005
+    notas: >
+      Usar comuna de RESIDENCIA para tasas. Y10-Y34 solo como sensibilidad.
+      Prohibida la publicación desagregada por subcódigo X60-X84 (ver docs/06).
+
+  - id: deis_egresos
+    nombre: "Egresos hospitalarios"
+    organismo: "DEIS / MINSAL"
+    dominio: "deis.minsal.cl"
+    url_indice: "https://deis.minsal.cl/#datosabiertos"
+    origen_url: busqueda_web
+    fecha_origen_url: "2026-07-26"
+    estado: no_verificada
+    formato: csv
+    granularidad: registro_egreso
+    unidad_territorial: comuna_residencia
+    periodicidad: anual
+    prioridad: 2
+    fase: 2
+    variables_esperadas:
+      [anio, establecimiento_deis, sexo, edad, comuna_residencia, diagnostico_cie10, dias_estada, condicion_egreso]
+    notas: "Un egreso no es una persona. No usar como prevalencia."
+
+  - id: deis_urgencias
+    nombre: "Atenciones de urgencia por causa agrupada"
+    organismo: "DEIS / MINSAL"
+    dominio: "deis.minsal.cl"
+    url_indice: "https://deis.minsal.cl/#datosabiertos"
+    origen_url: por_confirmar
+    estado: no_verificada
+    formato: csv
+    granularidad: establecimiento_semana
+    periodicidad: semanal
+    prioridad: 3
+    fase: 5
+    bloqueante: "confirmar si la agrupación permite aislar lesión autoinfligida"
+
+  - id: rem_salud_mental
+    nombre: "Resúmenes Estadísticos Mensuales, secciones de salud mental"
+    organismo: "DEIS / MINSAL"
+    dominio: "repositoriodeis.minsal.cl"
+    url_indice: "https://repositoriodeis.minsal.cl/"
+    origen_url: busqueda_web
+    fecha_origen_url: "2026-07-26"
+    estado: no_verificada
+    formato: [xlsx, csv, pdf_manual]
+    granularidad: establecimiento_mes
+    periodicidad: mensual
+    prioridad: 1
+    fase: 2
+    depende_de: [maestro_establecimientos]
+    mapeo_secciones: "config/rem_secciones.yml"
+    notas: >
+      Las secciones se renumeran entre manuales anuales. Mapear por nombre normalizado,
+      nunca por número. Serie A (actividad) y Serie P (población en control) tienen
+      periodicidad distinta: no mezclar.
+
+  - id: maestro_establecimientos
+    nombre: "Maestro de establecimientos de salud"
+    organismo: "DEIS / MINSAL"
+    dominio: "deis.minsal.cl"
+    origen_url: por_confirmar
+    estado: no_verificada
+    formato: csv
+    prioridad: 1
+    fase: 2
+    notas: "Se publica como corte actual. Construir versión con vigencias o las series se rompen."
+
+  - id: glosa06
+    nombre: "Lista de espera No GES y garantías GES retrasadas (Glosa 06, Partida 16)"
+    organismo: "MINSAL, Subsecretaría de Redes Asistenciales"
+    dominio: "minsal.cl"
+    url_indice: "https://www.minsal.cl/eje-tiempos-de-espera/"
+    ejemplos_url_observados:
+      - "https://www.minsal.cl/wp-content/uploads/2025/11/1764018133827_Glosa-06-LE-III-trimestre-2025.pdf"
+      - "https://www.minsal.cl/wp-content/uploads/2026/07/Glosa-06-letra-a-b-c-i-j-k-comun-a-la-partida-1er-trimestre-1.pdf"
+    origen_url: busqueda_web
+    fecha_origen_url: "2026-07-26"
+    estado: no_verificada
+    formato: pdf
+    granularidad: servicio_salud_trimestre
+    periodicidad: trimestral
+    prioridad: 1
+    fase: 3
+    estrategia: "scrapear el índice; NO construir URLs por patrón (los nombres de archivo varían)"
+    notas: "Casos != personas. La espera se cuenta desde la emisión de la interconsulta."
+
+  - id: prestadores_individuales
+    nombre: "Registro Nacional de Prestadores Individuales"
+    organismo: "Superintendencia de Salud"
+    dominio: "superdesalud.gob.cl"
+    origen_url: por_confirmar
+    estado: no_verificada
+    formato: [csv, web]
+    granularidad: profesional
+    prioridad: 2
+    fase: 4
+    nivel_maximo_publicable: region
+    notas: >
+      Indica inscripción, no lugar de ejercicio ni jornada. Prohibido publicar densidad
+      comunal a partir de esta fuente. Solo regional y con advertencia.
+
+  - id: dipres_ejecucion
+    nombre: "Ejecución presupuestaria Partida 16 (Salud)"
+    organismo: "DIPRES"
+    dominio: "dipres.gob.cl"
+    origen_url: por_confirmar
+    estado: no_verificada
+    formato: [xlsx, csv]
+    granularidad: programa_mes
+    periodicidad: mensual
+    prioridad: 2
+    fase: 4
+    notas: >
+      El gasto en salud mental no es una línea única. El indicador se publica como rango
+      con supuestos explícitos y lista de exclusiones.
+
+  - id: ine_proyecciones
+    nombre: "Proyecciones de población por comuna, sexo y edad"
+    organismo: "INE"
+    dominio: "ine.gob.cl"
+    origen_url: por_confirmar
+    estado: no_verificada
+    formato: [xlsx, csv]
+    prioridad: 1
+    fase: 1
+    critico: true
+    notas: "Denominador de toda tasa. Re-base tras Censo 2024 cambia tasas retroactivamente."
+
+  - id: ine_ipc
+    nombre: "Índice de precios al consumidor"
+    organismo: "INE"
+    dominio: "ine.gob.cl"
+    origen_url: por_confirmar
+    estado: no_verificada
+    prioridad: 3
+    fase: 4
+
+  - id: fonasa_inscritos
+    nombre: "Población inscrita validada en APS"
+    organismo: "FONASA / MINSAL"
+    origen_url: por_confirmar
+    estado: no_verificada
+    prioridad: 2
+    fase: 2
+    notas: "Denominador correcto para cobertura de APS."
+
+  - id: encavi
+    nombre: "Encuesta Nacional de Calidad de Vida y Salud 2023-2024"
+    organismo: "MINSAL"
+    dominio: "datos.gob.cl"
+    origen_url: busqueda_web
+    fecha_origen_url: "2026-07-26"
+    estado: no_verificada
+    formato: [csv, sav]
+    prioridad: 3
+    fase: 5
+
+  - id: casen
+    nombre: "Encuesta CASEN"
+    organismo: "Ministerio de Desarrollo Social y Familia"
+    origen_url: por_confirmar
+    estado: no_verificada
+    prioridad: 3
+    fase: 5
+
+  - id: senda_estudios
+    nombre: "Estudios nacionales de drogas (población general y escolar)"
+    organismo: "SENDA"
+    origen_url: por_confirmar
+    estado: no_verificada
+    prioridad: 3
+    fase: 5
+
+  - id: suseso_licencias
+    nombre: "Licencias médicas por trastornos mentales"
+    organismo: "Superintendencia de Seguridad Social"
+    origen_url: por_confirmar
+    estado: no_verificada
+    prioridad: 3
+    fase: 5
+    notas: "Mide licencias tramitadas, no morbilidad. Sensible a criterios de rechazo."

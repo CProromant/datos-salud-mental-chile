@@ -1,0 +1,99 @@
+# Definiciones de indicadores. Cada entrada debe tener su ficha en docs/04-INDICADORES.md.
+# `estado`: definido (ficha lista, sin datos) | activo (en producción, reconciliación ok)
+version: 1
+
+indicadores:
+  - id: I-01
+    nombre: "Tasa de mortalidad por suicidio"
+    estado: definido
+    fase: 1
+    agrupador: SUICIDIO
+    fuente: deis_defunciones
+    denominador: ine_proyecciones
+    unidad: por_100000
+    variantes: [cruda, estandarizada_edad, suavizada_eb]
+    variante_principal_comunal: suavizada_eb
+    desagregaciones: [region, comuna, sexo, grupo_edad, anio]
+    k_supresion: 10
+    nivel_maximo_publicable: comuna
+    prohibido: [desglose_por_metodo, ranking_comunal]
+    sensibilidad: INTENCION_INDETERMINADA
+
+  - id: I-02
+    nombre: "Años de vida potencial perdidos por suicidio"
+    estado: definido
+    fase: 1
+    agrupador: SUICIDIO
+    fuente: deis_defunciones
+    parametros: {limite_edad: 80}
+    unidad: anios
+    k_supresion: 10
+
+  - id: I-03
+    nombre: "Cobertura del programa de salud mental en APS"
+    estado: definido
+    fase: 2
+    fuente: rem_salud_mental
+    denominador: fonasa_inscritos
+    unidad: porcentaje
+    k_supresion: 5
+    advertencia: "Mide oferta usada, no necesidad atendida."
+
+  - id: I-04
+    nombre: "Intensidad de tratamiento"
+    estado: definido
+    fase: 2
+    fuente: rem_salud_mental
+    unidad: razon
+    k_supresion: 5
+
+  - id: I-05
+    nombre: "Ingresos por ideación e intento suicida"
+    estado: definido
+    fase: 2
+    fuente: rem_salud_mental
+    unidad: conteo
+    k_supresion: 10
+    publicar_con: establecimientos_reportantes
+
+  - id: I-06
+    nombre: "Espera en psiquiatría adulto e infanto-adolescente"
+    estado: definido
+    fase: 3
+    fuente: glosa06
+    unidad: [casos, dias]
+    nivel_maximo_publicable: servicio_salud
+
+  - id: I-07
+    nombre: "Gasto real per cápita en salud mental por Servicio de Salud"
+    estado: definido
+    fase: 4
+    fuente: dipres_ejecucion
+    deflactor: ine_ipc
+    unidad: clp_reales
+    formato_publicacion: rango
+    exclusiones_declaradas: [ppi_no_desagregable, aporte_senda, gasto_municipal, gasto_bolsillo, sector_privado]
+
+  - id: I-08
+    nombre: "Densidad de psiquiatras por 100.000"
+    estado: definido
+    fase: 4
+    fuente: prestadores_individuales
+    unidad: por_100000
+    nivel_maximo_publicable: region
+
+  - id: I-09
+    nombre: "Índice de brecha demanda-oferta"
+    estado: definido
+    fase: 5
+    fuentes: [rem_salud_mental, ine_proyecciones, encavi]
+    unidad: indice
+    publicar_con: intervalo_incertidumbre
+
+  - id: I-10
+    nombre: "Alerta de desviación de serie"
+    estado: definido
+    fase: 5
+    metodo: cusum
+    salida: issue_interno
+    prohibido: [publicacion_automatica, notificacion_publica]

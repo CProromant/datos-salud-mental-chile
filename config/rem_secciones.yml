@@ -1,0 +1,40 @@
+# Mapeo de secciones REM de salud mental, por año de manual.
+#
+# POR QUÉ ESTE ARCHIVO EXISTE: las secciones del REM se renumeran entre manuales.
+# Un ingestor que referencie "Sección A05" queda mal apuntado al año siguiente sin
+# error visible. Acá se mapea por NOMBRE NORMALIZADO de sección y se registra el
+# número observado por año, que sirve solo para auditoría.
+#
+# ESTADO: esqueleto. Ninguna entrada verificada contra un manual real todavía.
+# Tarea bloqueante de Fase 2: abrir los manuales publicados en repositoriodeis.minsal.cl
+# y completar, un año a la vez, registrando la versión del manual.
+version: 1
+
+conceptos:
+  poblacion_bajo_control_salud_mental:
+    descripcion: "Personas bajo control en el programa de salud mental, por diagnóstico y grupo etario"
+    serie: P
+    periodicidad: semestral
+    nombre_normalizado_esperado: "poblacion en control programa de salud mental"
+  ingresos_programa_salud_mental:
+    descripcion: "Ingresos al programa, incluye ideación e intento suicida"
+    serie: A
+    periodicidad: mensual
+    nombre_normalizado_esperado: "ingresos al programa de salud mental"
+  egresos_por_alta_clinica:
+    descripcion: "Egresos del programa por alta clínica en APS y especialidad"
+    serie: A
+    periodicidad: mensual
+    nombre_normalizado_esperado: "egresos del programa de salud mental por altas clinicas"
+  rehabilitacion_psiquiatrica:
+    descripcion: "Programa de rehabilitación para personas con trastornos psiquiátricos"
+    serie: A
+    periodicidad: mensual
+    nombre_normalizado_esperado: "programa de rehabilitacion personas con trastornos psiquiatricos"
+
+# manual:
+#   2025:
+#     version_manual: "Series REM 2025-2026 A-BS-BM v1.2"
+#     url: "PENDIENTE DE VERIFICAR"
+#     secciones:
+#       egresos_por_alta_clinica: {seccion: "O", pagina: 146, verificado: false}
