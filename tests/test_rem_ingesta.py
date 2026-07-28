@@ -285,3 +285,64 @@ class TestGoldDelRem:
         assert meta["supresion"]["k"] == K_SUPRESION_ACTIVIDAD == 5
         visibles = df[~df["suprimido"]]
         assert not visibles["personas"].between(1, 4).any()
+
+
+class TestAislamientoEntreAnios:
+    """Un año que falla no puede costar el trabajo de los otros once.
+
+    La primera corrida de los doce años murió en 2014 con un TypeError y perdió todo
+    lo demás: el comando guardaba año por año para poder reintentar barato, pero
+    atrapaba solo `ObsmError`, así que cualquier otra excepción se llevaba la corrida
+    entera. El diseño era correcto y la implementación lo contradecía (A-010).
+    """
+
+    def _argumentos(self, tmp_path, desde, hasta):
+        from types import SimpleNamespace
+
+        return SimpleNamespace(config=None, dpa=None, desde=desde, hasta=hasta,
+                               forzar=False)
+
+    def test_un_typeerror_en_un_anio_no_aborta_los_demas(self, tmp_path, monkeypatch):
+        from obsm import cli
+
+        procesados: list[int] = []
+
+        def falso_procesar(fuente, url, miembro, anio, dir_raw, destino, forzar):
+            if anio == 2015:
+                raise TypeError("cannot safely cast non-equivalent float64 to int64")
+            procesados.append(anio)
+            return 1000
+
+        def falso_listar(url, **kw):
+            from obsm.io import MiembroZip
+
+            return [MiembroZip("Datos/SerieP.txt", 0, 10, 100)]
+
+        monkeypatch.setattr(cli, "_procesar_anio_rem", falso_procesar)
+        monkeypatch.setattr("obsm.io.listar_zip_remoto", falso_listar)
+        monkeypatch.setattr("obsm.io.DIR_DATOS", tmp_path)
+
+        codigo = cli.cmd_rem_ingerir(self._argumentos(tmp_path, 2014, 2016))
+
+        assert procesados == [2014, 2016], (
+            "el año que falló se llevó por delante a los otros"
+        )
+        assert codigo == 0, "hubo años exitosos: el comando no debe reportar fracaso total"
+
+    def test_si_fallan_todos_el_comando_reporta_error(self, tmp_path, monkeypatch):
+        from obsm import cli
+
+        def siempre_falla(*a, **kw):
+            raise RuntimeError("lo que sea")
+
+        def falso_listar(url, **kw):
+            from obsm.io import MiembroZip
+
+            return [MiembroZip("Datos/SerieP.txt", 0, 10, 100)]
+
+        monkeypatch.setattr(cli, "_procesar_anio_rem", siempre_falla)
+        monkeypatch.setattr("obsm.io.listar_zip_remoto", falso_listar)
+        monkeypatch.setattr("obsm.io.DIR_DATOS", tmp_path)
+
+        # Sin un solo año procesado, salir con 0 haría que un CI lo diera por bueno.
+        assert cli.cmd_rem_ingerir(self._argumentos(tmp_path, 2014, 2015)) == 1
