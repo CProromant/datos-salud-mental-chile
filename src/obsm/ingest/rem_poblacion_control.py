@@ -192,7 +192,24 @@ class RemPoblacionControl(Ingestor):
         out = df.copy()
         for col in ("anio", "mes"):
             out[col] = pd.to_numeric(out[col], errors="coerce").astype("Int64")
-        out["valor"] = pd.to_numeric(out["valor"], errors="coerce").astype("Int64")
+
+        # `valor` queda en float, no en entero, y no es un descuido. El archivo trae unos
+        # pocos valores fraccionarios —«123.55 personas» en 2014— que son errores de
+        # digitación del formulario. Forzarlos a entero haría una de dos cosas malas:
+        # reventar la ingesta del año completo, o redondear en silencio y alterar el dato.
+        # Se conservan tal cual y se cuentan; redondear es decisión de la capa que publica,
+        # que además puede declararlo. Ver CLAUDE.md §7: un dato raro se documenta, no se
+        # arregla.
+        out["valor"] = pd.to_numeric(out["valor"], errors="coerce")
+        fraccionarios = out["valor"].notna() & (out["valor"] % 1 != 0)
+        if fraccionarios.any():
+            log.warning(
+                "[%s] %d valores fraccionarios en un conteo de personas (ej. %s). "
+                "Son errores de digitación de la fuente; se conservan sin redondear.",
+                self.source_id, int(fraccionarios.sum()),
+                out.loc[fraccionarios, "valor"].head(3).tolist(),
+            )
+        out.attrs["valores_fraccionarios"] = int(fraccionarios.sum())
         # El código territorial se deja como string y sin rellenar: resolver comunas es
         # trabajo de silver (ver la tabla de capas en docs/02-ARQUITECTURA.md).
         for col in ("comuna_cut_fuente", "region_cut_fuente", "establecimiento_deis"):

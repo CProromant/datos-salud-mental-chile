@@ -104,9 +104,17 @@ class TestTerritorioYTipos:
         assert "09108" in set(bronze["comuna_cut_fuente"])
         assert bronze["comuna_cut_fuente"].map(type).eq(str).all()
 
-    def test_los_valores_son_enteros(self, bronze):
-        assert bronze["valor"].dtype == "Int64"
-        assert (bronze["valor"] >= 0).all()
+    def test_los_valores_no_se_fuerzan_a_entero(self, bronze):
+        """El archivo trae algunos conteos con decimales y no se redondean (A-010).
+
+        Forzar a entero haría una de dos cosas malas: reventar la ingesta del año
+        —le pasó a 2014— o alterar el dato en silencio. Redondear es decisión de la
+        capa que publica, que además puede declararlo.
+        """
+        fraccion = bronze[bronze["valor"] % 1 != 0]
+        assert len(fraccion), "el fixture debe traer el caso feo de 2014"
+        assert 123.55 in set(fraccion["valor"]), "el valor se redondeó o se perdió"
+        assert (bronze["valor"].dropna() >= 0).all()
 
     def test_conserva_los_dos_cortes_semestrales(self, bronze):
         """La Serie P NO es mensual: se reporta en junio y diciembre.

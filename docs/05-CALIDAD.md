@@ -432,6 +432,31 @@ test escrito contra ese fixture confirma la creencia del autor en vez de la fuen
 segunda vez en este proyecto; por eso la ingesta contra el archivo real es parte de
 verificar y no un extra.
 
+### A-010 · rem_salud_mental · 2026-07-28
+
+**Qué se observó:** la ingesta de los doce años murió en el primero, 2014, con
+`TypeError: cannot safely cast non-equivalent float64 to int64`.
+
+**Verificación:** el archivo trae valores **fraccionarios** en columnas que cuentan
+personas: `123.55`, `186.1`, `0.85`. Son poquísimos —uno o dos por columna en 200.000
+filas— pero están en filas de la sección P6, o sea en el dato que se publica. Una persona
+bajo control con decimales no existe: es un error de digitación del formulario.
+
+**Decisión:** no se redondean. Forzar a entero hace una de dos cosas malas: revienta la
+ingesta del año completo, o altera el dato en silencio. Se conservan tal cual, se cuentan
+en el reporte de silver (`celdas_con_valor_fraccionario`) y redondear queda como decisión
+de la capa que publica, que además puede declararlo.
+
+**Segundo defecto, este propio y peor.** El comando guardaba cada año por separado
+justamente para que un fallo no costara el trabajo previo — pero su manejo de errores
+atrapaba solo `ObsmError`. Un `TypeError` se escapó y mató la corrida entera en el primer
+año, perdiendo los once siguientes. El diseño era correcto y la implementación lo
+contradecía. Ahora atrapa cualquier excepción por año.
+
+**Lección:** un mecanismo de recuperación que solo maneja los errores que uno anticipó no
+es un mecanismo de recuperación. Los errores que cuestan caro son precisamente los que no
+se anticiparon.
+
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.

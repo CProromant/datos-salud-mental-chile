@@ -474,8 +474,13 @@ def cmd_rem_ingerir(args) -> int:
             filas = _procesar_anio_rem(
                 fuente, url, sp[0], anio, dir_raw, destino_silver, args.forzar
             )
-        except ObsmError as exc:
-            print(f"{anio}: no se pudo procesar — {exc}", file=sys.stderr)
+        except Exception as exc:  # noqa: BLE001
+            # A propósito se atrapa cualquier excepción y no solo ObsmError. Un año con un
+            # defecto inesperado no puede costar el trabajo de los demás: la primera
+            # corrida murió en 2014 con un TypeError y perdió los once años siguientes,
+            # que era justamente lo que el guardado año por año quería evitar.
+            print(f"{anio}: no se pudo procesar — {type(exc).__name__}: {exc}",
+                  file=sys.stderr)
             resumen.append((anio, f"error: {type(exc).__name__}", 0))
             continue
         resumen.append((anio, "ok", filas))
@@ -615,6 +620,62 @@ def cmd_build_gold(args) -> int:
     return 0
 
 
+def cmd_rem_gold(args) -> int:
+    """Arma la tabla publicable del REM sobre todos los años que haya en silver.
+
+    Une los archivos anuales en vez de exigir uno solo: la ingesta guarda año por año
+    para poder reintentar barato, y esta es la otra mitad de esa decisión.
+    """
+    import pandas as pd
+
+    from .io import ruta_capa
+    from .transform.gold import tabla_rem
+
+    reg = cargar_registro(args.config)
+    fuente = reg.get("rem_salud_mental")
+
+    dir_silver = ruta_capa("silver", fuente.id, "x").parent
+    archivos = sorted(dir_silver.glob("serie_p_*.parquet"))
+    if not archivos:
+        print(f"ERROR: no hay silver del REM en {dir_silver}. "
+              f"Correr `obsm rem ingerir` primero.", file=sys.stderr)
+        return 1
+
+    partes = [pd.read_parquet(a) for a in archivos]
+    silver = pd.concat(partes, ignore_index=True)
+    anios = sorted({p[:4] for p in silver["periodo"].dropna().unique()})
+    print(f"{len(archivos)} años en silver ({anios[0]}-{anios[-1]}), "
+          f"{len(silver):,} filas")
+
+    dimensiones = ["comuna_cut", "periodo", "etiqueta"]
+    if args.por_edad:
+        dimensiones += ["grupo_edad", "sexo"]
+
+    gold, meta = tabla_rem(
+        silver,
+        dimensiones=dimensiones,
+        usar_total_etario=not args.por_edad,
+        k=args.k,
+        source_id=fuente.id,
+        source_version=fuente.source_version,
+    )
+    meta["anios"] = anios
+    meta["archivos_silver"] = [a.name for a in archivos]
+
+    sufijo = "_por_edad" if args.por_edad else ""
+    destino = ruta_capa("gold", fuente.id, f"poblacion_control_salud_mental{sufijo}.csv")
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    gold.to_csv(destino, index=False)
+    destino.with_suffix(".meta.json").write_text(
+        json.dumps(meta, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
+    )
+    print(f"gold escrito: {destino} ({len(gold):,} filas, "
+          f"{meta['supresion']['porcentaje']:.1%} suprimidas)")
+    for aviso in meta["advertencias"]:
+        print(f"  AVISO: {aviso}")
+    return 0
+
+
 def _parser_rem(sub) -> None:
     """Subcomandos del REM. Aparte para que `construir_parser` no crezca sin control."""
     p_rem = sub.add_parser("rem", help="utilidades del REM")
@@ -633,6 +694,13 @@ def _parser_rem(sub) -> None:
     ri.add_argument("--forzar", action="store_true",
                     help="reprocesa años que ya tienen silver")
     ri.set_defaults(func=cmd_rem_ingerir)
+
+    rg = rem.add_parser("gold", help="tabla publicable sobre todos los años")
+    rg.add_argument("--k", type=int, default=5,
+                    help="umbral de supresión (5 = actividad)")
+    rg.add_argument("--por-edad", action="store_true",
+                    help="desagrega por grupo etario y sexo; suprime mucho más")
+    rg.set_defaults(func=cmd_rem_gold)
 
 
 def construir_parser() -> argparse.ArgumentParser:

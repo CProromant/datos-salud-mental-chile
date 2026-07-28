@@ -199,6 +199,11 @@ def normalizar_rem(
 
     reporte["filas_salida"] = len(agregado)
     reporte["conceptos"] = int(agregado["concepto"].nunique())
+    # El formulario trae algunos conteos con decimales, que son errores de digitación de
+    # la fuente. No se redondean acá: se cuentan y se declaran (ver A-010).
+    reporte["celdas_con_valor_fraccionario"] = int(
+        (agregado["valor"].notna() & (agregado["valor"] % 1 != 0)).sum()
+    )
     reporte["personas_en_total_etario"] = int(
         agregado.loc[agregado["es_total_etario"] & agregado["sexo"].eq("ambos"), "valor"].sum()
     )
