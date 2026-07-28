@@ -118,8 +118,20 @@ mental consolidado, limpio y comparable entre años.
 4. Indicadores: cobertura sobre población inscrita, razón control/ingreso, abandono
    estimado, intensidad de tratamiento.
 
-**Término:** serie mensual comunal 2018–presente para al menos: personas bajo control en
-programa de salud mental por grupo etario, e ingresos por intento e ideación suicida.
+**Término:** serie comunal **semestral** 2014–presente para al menos: personas bajo control
+en programa de salud mental por grupo etario, e ingresos por intento e ideación suicida.
+
+> Corregido el 2026-07-27 al leer el archivo real. Decía «mensual 2018–presente» y ninguna
+> de las dos cosas era exacta:
+>
+> - **La periodicidad es semestral, no mensual.** Población bajo control es un *stock* con
+>   corte en junio y diciembre; en el archivo de 2023 los únicos meses presentes son 6 y 12.
+>   La Serie A (actividad) sí es mensual, pero mide otra cosa. `CLAUDE.md` ya advertía que
+>   no se mezclan.
+> - **La serie puede empezar en 2014, no en 2018.** Hay datos desde 2009, pero los
+>   diccionarios de 2009 y 2012 están encriptados y el de 2013 no trae la hoja P6; sin
+>   diccionario las columnas del archivo no tienen significado (ver
+>   `docs/05-CALIDAD.md#quiebres-rem`).
 
 **Riesgo principal:** discontinuidades por cambio de manual interpretadas como cambios
 reales. Mitigación: marcar quiebres de serie explícitamente en una tabla de `quiebres` que
