@@ -396,12 +396,110 @@ def seccion_7() -> None:
 
 
 # =====================================================================================
-# 8. EXPERIMENTOS
+# 8. EL REM: DONDE SÍ ESTÁN LA DEPRESIÓN Y LA ANSIEDAD
 # =====================================================================================
 
+def _mostrar_mapeo() -> None:
+    """Imprime los conceptos de salud mental del último año mapeado."""
+    import yaml
+
+    ruta = RAIZ / "config" / "rem_secciones.yml"
+    if not ruta.exists():
+        print("  (no existe config/rem_secciones.yml; generar con `obsm rem mapear`)")
+        return
+    mapa = yaml.safe_load(ruta.read_text(encoding="utf-8"))
+    anios = sorted(mapa.get("anios", {}))
+    print(f"  años mapeados: {anios[0]}-{anios[-1]} ({len(anios)} años)")
+    conceptos = mapa["anios"][anios[-1]]["conceptos"]
+    for cod, v in list(conceptos.items()):
+        if any(k in (v["grupo"] + v["concepto"]).upper()
+               for k in ("DEPRESI", "SUICID", "ANSIEDAD")):
+            print(f"    {cod}  {(v['concepto'] or v['grupo'])[:44]}")
+    print(f"  no legibles: {mapa.get('no_legibles', [])}")
+
+
+def _mapeo_de_juguete() -> dict:
+    """Mapeo mínimo con la forma del que genera `obsm rem mapear`, para el fixture."""
+    return {
+        "anios": {2023: {
+            "diccionario": "demo",
+            "conceptos": {
+                "P6221600": {"grupo": "TRASTORNOS DEL HUMOR", "concepto": "DEPRESIÓN LEVE"},
+                "P6227500": {"grupo": "TRASTORNOS DEL HUMOR", "concepto": "DEPRESIÓN MODERADA"},
+                "P6230800": {"grupo": "SUICIDIO", "concepto": "IDEACIÓN"},
+            },
+            "columnas": {f"COL{i:02d}": {
+                "grupo_edad": "" if i <= 3 else ("0 a 4 años" if i <= 5 else "5 a 9 años"),
+                "sexo": ["ambos", "hombres", "mujeres"][(i - 1) % 3 if i <= 3 else (i % 2)],
+            } for i in range(1, 8)},
+        }},
+    }
+
+
 def seccion_8() -> None:
+    """La segunda fuente, y la que contesta la mayoría de las preguntas."""
+    titulo(8, "El REM: personas en tratamiento, no muertes")
+
+    from obsm.transform.gold import tabla_rem
+    from obsm.transform.silver import grupo_edad_rem, normalizar_rem
+
+    sub("Por qué existe esta fuente")
+    print("  La mortalidad no sirve para medir salud mental. En 22 años de defunciones:")
+    print("     depresión (trastornos del ánimo)  252 muertes  =  11 al año en todo Chile")
+    print("     ansiedad                           47 muertes  =   2 al año")
+    print()
+    print("  No es que sean raras: es que la gente no se muere de eso. Donde sí")
+    print("  aparecen es en la atención primaria, como personas en tratamiento.")
+
+    sub("La trampa de este archivo")
+    print("  Las columnas del REM son GENÉRICAS: Col01 a Col38, sin nombre. Lo que")
+    print("  cuenta cada una depende del `CodigoPrestacion` de la fila Y del año,")
+    print("  porque el formulario se reordena. Un Col17=1 no significa nada solo.")
+    print()
+    print("  El significado vive en `config/rem_secciones.yml`, generado con")
+    print("  `obsm rem mapear` desde los diccionarios que publica DEIS.")
+
+    sub("Un vistazo al mapeo")
+    _mostrar_mapeo()
+
+    sub("Los grupos etarios calzan con los del resto del proyecto")
+    for txt in ("0 a 4 años", "45 a 49 años", "80 y más años", "de 20 a 30"):
+        print(f"    {txt!r:18} -> {grupo_edad_rem(txt)!r}")
+    print("  Fue suerte, no diseño: el REM ya usaba quinquenios con abierto en 80,")
+    print("  que es la misma grilla que impone el denominador del INE.")
+
+    sub("La cadena, sobre el fixture")
+    from obsm.ingest.rem_poblacion_control import RemPoblacionControl
+
+    muestra = FIXTURES / "rem_salud_mental" / "muestra_serie_p.txt"
+    bronze = RemPoblacionControl(mapeo=_mapeo_de_juguete()).preparar(muestra)
+    silver, rep = normalizar_rem(bronze)
+    gold, meta = tabla_rem(silver, k=1)
+    print(gold[["comuna_cut", "periodo", "etiqueta", "personas"]].to_string(index=False))
+
+    sub("Tres formas de contar a la misma persona dos veces")
+    print("  1. El formulario trae una columna de TOTAL y 17 de detalle etario.")
+    print("     Son la misma gente. `es_total_etario` obliga a elegir una.")
+    print("  2. Trae «ambos sexos» junto a «hombres» y «mujeres»: la misma población")
+    print("     partida. Se filtra a «ambos» cuando el sexo no es dimensión pedida.")
+    print("  3. Los períodos son cortes de un STOCK, no flujos. Sumar junio con")
+    print("     diciembre cuenta dos veces a quien siguió en tratamiento todo el año.")
+    print()
+    print(f"  período detectado en el fixture: {rep['periodos']}")
+    print("  (semestral, no mensual: el plan asumía lo contrario y estaba equivocado)")
+
+    sub("Por qué son conteos y no tasas")
+    for a in meta["advertencias"]:
+        print(f"    - {a}")
+
+
+# =====================================================================================
+# 9. EXPERIMENTOS
+# =====================================================================================
+
+def seccion_9() -> None:
     """Cosas para romper a propósito. Es la mejor forma de entender los guardas."""
-    titulo(8, "Rompe esto y mira qué pasa")
+    titulo(9, "Rompe esto y mira qué pasa")
 
     print("""
   Cada uno de estos experimentos hace fallar algo A PROPÓSITO. Los guardas del
@@ -459,8 +557,8 @@ def seccion_8() -> None:
 
 
 SECCIONES = {
-    1: seccion_1, 2: seccion_2, 3: seccion_3, 4: seccion_4,
-    5: seccion_5, 6: seccion_6, 7: seccion_7, 8: seccion_8,
+    1: seccion_1, 2: seccion_2, 3: seccion_3, 4: seccion_4, 5: seccion_5,
+    6: seccion_6, 7: seccion_7, 8: seccion_8, 9: seccion_9,
 }
 
 
@@ -479,7 +577,7 @@ def main(argv: list[str]) -> int:
         SECCIONES[n]()
 
     print(f"\n{'=' * 78}")
-    print("  Listo. Corre `python ejemplos/practica.py 8` para los experimentos.")
+    print("  Listo. Corre `python ejemplos/practica.py 9` para los experimentos.")
     print(f"{'=' * 78}\n")
     return 0
 
