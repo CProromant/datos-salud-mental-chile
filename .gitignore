@@ -19,3 +19,6 @@ dist/
 venv/
 .env
 .DS_Store
+
+# Artefactos de release: los datos se adjuntan al release de GitHub, no se versionan.
+dist/

@@ -341,6 +341,7 @@ def cmd_build_gold(args) -> int:
     from .transform.gold import tasas_comunales
     from .transform.silver import agregar_avpp, agregar_defunciones
 
+    reg = cargar_registro(args.config)
     dir_silver = ruta_capa("silver", args.source, "x").parent
     candidatos = sorted(dir_silver.glob("*.parquet"))
     if not candidatos:
@@ -394,9 +395,17 @@ def cmd_build_gold(args) -> int:
         silver, args.agrupador, dimensiones=["comuna_cut", "anio", "grupo_edad"]
     )
     avpp = agregar_avpp(silver, args.agrupador, dimensiones=["comuna_cut", "anio"])
+    # La versión de CADA fuente viaja a cada fila. Sin esto, una tasa publicada no se puede
+    # atribuir a una entrega concreta, y como un cambio de base poblacional mueve todas las
+    # tasas a la vez, `poblacion_version` no es un adorno: es lo que distingue una serie de
+    # otra que se ve igual. Iba en null en las 7.612 filas (CLAUDE.md §2.2).
+    fuente_num = reg.get(args.source)
+    fuente_pob = reg.get("ine_proyecciones")
     gold, meta = tasas_comunales(
         agregado, poblacion, args.agrupador, avpp=avpp,
         source_id=args.source, k=args.k,
+        source_version=fuente_num.source_version,
+        poblacion_version=fuente_pob.source_version,
     )
     meta["reconciliacion"] = resultados
     destino = ruta_capa("gold", args.source, f"{args.agrupador.lower()}_comunal.csv")

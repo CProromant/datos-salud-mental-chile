@@ -77,6 +77,41 @@ Algunos reutilizadores —sobre todo productos propietarios que quieran incorpor
 sin abrir su propio derivado— quedarán fuera. Se acepta: es la condición que el INE le puso a
 su material y el proyecto no está en posición de levantarla, ni le corresponde hacerlo.
 
+## Reconsideración del 2026-07-27: se evaluó CC BY-NC-SA y se descartó
+
+Antes de publicar se investigaron las licencias de las dos fuentes que quedaban sin
+confirmar, y el resultado hizo dudar de la decisión:
+
+- **DEIS no declara licencia en ninguna parte.** Ni en `deis.minsal.cl` ni en
+  `repositoriodeis.minsal.cl`, de donde se descarga el archivo. En `datos.gob.cl` la
+  evidencia es contradictoria y se refiere a otros artefactos: el MINSAL central publicó
+  «Defunciones por Semana Epidemiológica» como **CC Zero** (dominio público), mientras 41
+  datasets etiquetados **CC-NC** resultaron ser tablas resumidas de Servicios de Salud
+  regionales, no la microdata de causas.
+- **SUBDERE sí publica CC-NC**, pero sus datasets de división político-administrativa son
+  **cartografía** (shapefiles con geometrías). Lo que este proyecto usa es la planilla de
+  códigos y nombres, y lo que deriva de ella no tiene una sola coordenada.
+
+Ante esa incertidumbre se consideró publicar bajo **CC BY-NC-SA 4.0**, por prudencia y por
+la asimetría razonable de que aflojar una licencia después es fácil y endurecerla es
+imposible.
+
+**No es legalmente posible.** La cláusula 3(b) de CC BY-SA 4.0 exige que la licencia de la
+obra adaptada sea «una licencia de Creative Commons con **los mismos Elementos de la
+Licencia**». Agregar el elemento «no comercial» a material que no lo traía viola esa
+condición tanto como quitarle el CompartirIgual. Como las proyecciones del INE son el
+denominador de toda tasa, restringir la salida habría cambiado un riesgo **hipotético** con
+DEIS —que ni siquiera declaró licencia— por un incumplimiento **cierto** con el INE.
+
+**Se mantiene CC BY-SA 4.0.** La preocupación por el uso comercial quedó registrada donde el
+proyecto sí puede sostenerla: como norma en `USO-ACEPTABLE.md`, siguiendo la separación que
+ADR 0004 estableció y que esta ADR no tocó.
+
+**Pendiente que esto no cierra:** preguntarle a DEIS directamente. Es la única respuesta
+definitiva y no se obtiene programando. Si contestan que su microdata es no comercial, hay
+que reabrir esta decisión —y probablemente dejar de usar el denominador del INE, o publicar
+solo conteos—, porque las dos obligaciones serían incompatibles entre sí.
+
 ## Pendientes que esta decisión no cierra
 
 - Las licencias de `deis_defunciones` y `subdere_cut` siguen en `por_confirmar`. Si alguna

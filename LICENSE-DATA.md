@@ -73,12 +73,32 @@ cuyo argumento central es la trazabilidad.
 Se adoptó la licencia idéntica a la de la fuente, en vez de otra con CompartirIgual como
 ODbL, para que no haya que argumentar compatibilidad entre licencias distintas.
 
-Pendiente relacionado: `ine_vitales_anuario` está registrado como CC BY-NC 2.0, lo que
-contradice los términos generales CC BY-SA 4.0 del mismo organismo. No se pudo determinar
-cuál rige para ese PDF. El riesgo práctico es bajo —de ahí solo se usan dos cifras como
-ancla de verificación y no se redistribuye el documento—, pero conviene aclararlo con el INE.
-Las licencias de DEIS y SUBDERE siguen sin confirmar; fuentes bajo CC BY o dominio público
-no dan problema, porque se pueden incorporar a una obra CC BY-SA.
+## Estado de las licencias de las fuentes (investigado el 2026-07-27)
+
+| Fuente | Licencia | Estado |
+|---|---|---|
+| `ine_proyecciones` | CC BY-SA 4.0 | verificada; es la que obliga al CompartirIgual |
+| `deis_defunciones` | **sin declarar** | investigada sin resultado |
+| `subdere_cut` | **sin declarar** | investigada; el CC-NC de SUBDERE cubre su cartografía, no esta planilla |
+| `ine_vitales_anuario` | CC BY-NC 2.0 | contradice los términos generales del INE; no alimenta `gold` |
+
+**DEIS no declara licencia en ninguna parte.** Ni en `deis.minsal.cl` ni en
+`repositoriodeis.minsal.cl`. En `datos.gob.cl` la evidencia es contradictoria y sobre otros
+artefactos: el MINSAL central publicó «Defunciones por Semana Epidemiológica» como CC Zero,
+mientras 41 datasets marcados CC-NC resultaron ser tablas resumidas de Servicios de Salud
+regionales, no la microdata de causas.
+
+**Por qué el proyecto publica igual.** No redistribuye ninguna de las dos fuentes: publica
+indicadores agregados, calculados y con supresión estadística. Los hechos no son objeto de
+derecho de autor y Chile no tiene derecho *sui generis* de bases de datos. Aun así, la
+respuesta definitiva sería que DEIS conteste, y eso queda pendiente. Si contestara que su
+microdata es no comercial habría que reabrir ADR 0005: esa obligación y la del INE serían
+incompatibles entre sí, y no habría licencia que satisfaga a ambas.
+
+Pendiente menor: `ine_vitales_anuario` está registrado como CC BY-NC 2.0, lo que contradice
+los términos generales CC BY-SA 4.0 del mismo organismo. De ahí solo se usan dos cifras como
+ancla de verificación y no se redistribuye el documento, así que no condiciona nada, pero
+conviene aclararlo.
 
 ## Por qué no una licencia con restricciones de uso
 
