@@ -103,9 +103,53 @@ esperado. Ejemplos que ya se anticipan:
 |---|---|---|---|
 | 1997-1998 | defunciones | paso de CIE-9 a CIE-10 | comparabilidad limitada hacia atrás |
 | 2018 | todas | creación de la región de Ñuble | series regionales de Biobío y Ñuble no comparables sin recodificar |
-| variable | REM | cambio de manual y renumeración de secciones | discontinuidades que no son epidemiológicas |
+| **2018-2019** | REM-P6 | el formulario cae de 128 a 105 columnas y de 196 a 142 filas | **medido**: quiebre estructural, no epidemiológico |
+| **2021-2022** | REM-P6 | las columnas casi se duplican, de 122 a 234 | **medido**: quiebre estructural |
+| 2011-2014 | REM-P6 | de 55 a 124 columnas | prácticamente otro instrumento |
 | pendiente | población | re-base de proyecciones tras el Censo 2024 | todas las tasas cambian retroactivamente |
 | variable | Glosa 06 | cambios de criterio de depuración de la lista | saltos de nivel sin cambio de acceso |
+
+### REM: tres bloques comparables, no una serie {#quiebres-rem}
+
+Medido el 2026-07-27 sobre los diccionarios de códigos de la Serie P, bajados de los 17
+archivos `SERIE_REM_YYYY.zip` publicados por DEIS. La sección de salud mental es **REM-P6**
+en todos los años en que se pudo leer, pero sus dimensiones no se parecen:
+
+| Año | Filas × Columnas | |
+|---|---|---|
+| 2009 | — | diccionario **encriptado con contraseña** |
+| 2010 | 88 × 55 | |
+| 2011 | 90 × 55 | |
+| 2012 | — | diccionario **encriptado** |
+| 2013 | — | archivo de **0 bytes** en el servidor |
+| 2014 | 201 × 124 | |
+| 2015 | 199 × 126 | |
+| 2016 | 192 × 126 | |
+| 2017 | 203 × 128 | |
+| 2018 | 196 × 128 | |
+| 2019 | 142 × 105 | **quiebre** |
+| 2020 | 135 × 122 | |
+| 2021 | 138 × 122 | |
+| 2022 | 143 × 234 | **quiebre** |
+| 2023 | 146 × 236 | |
+| 2024 | 146 × 236 | |
+| 2025 | 155 × 235 | |
+
+**Consecuencia para el alcance.** El plan asumía «serie mensual comunal 2018–presente». Lo
+que hay son **tres bloques**: 2014-2018, 2019-2021 y 2022-2025. Empalmar conceptos entre
+bloques va a ser posible para algunos y no para otros, y cuáles es una pregunta abierta
+hasta extraer la correspondencia columna → concepto de cada año.
+
+**Por qué la serie no puede empezar en 2009.** Los datos de 2009, 2012 y 2013 están
+publicados, pero sin diccionario no se sabe qué cuenta cada columna: el archivo trae
+`Col01` a `Col38` y el significado depende del `CodigoPrestacion` de la fila. Dos
+diccionarios están protegidos con contraseña y uno pesa cero bytes. Hasta encontrarlos en
+otra parte, esos años son ilegibles aunque estén descargados.
+
+**Cómo se midió sin bajar 3,5 GB.** Cada `SERIE_REM_YYYY.zip` pesa ~220 MB y de cada uno
+solo interesaba un diccionario de medio mega. Se usó `io.listar_zip_remoto` y
+`io.extraer_de_zip_remoto`, que leen el índice central del ZIP por rangos HTTP y bajan solo
+el miembro pedido: **6,8 MB en total**.
 
 ## Anomalías {#anomalias}
 
