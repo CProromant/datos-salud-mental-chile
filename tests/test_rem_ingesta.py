@@ -182,7 +182,7 @@ class TestSilverDelRem:
         # Santiago, diciembre: el total de «ambos sexos» es 50 y el detalle etario suma
         # 30. Son la misma gente contada de dos formas, no 80 personas.
         df, _ = silver
-        stgo = df[(df["comuna_cut"] == "13101") & (df["concepto"] == "DEPRESIÓN LEVE")]
+        stgo = df[(df["comuna_cut"] == "13101") & (df["etiqueta"] == "DEPRESIÓN LEVE")]
         total = stgo[stgo["es_total_etario"] & (stgo["sexo"] == "ambos")]["valor"].sum()
         detalle = stgo[~stgo["es_total_etario"]]["valor"].sum()
         assert total == 50
@@ -216,3 +216,64 @@ class TestGrupoEdadRem:
 
         # Adivinar movería personas de un tramo a otro sin dejar rastro.
         assert grupo_edad_rem(texto) == "desconocido"
+
+
+class TestGoldDelRem:
+    """La tabla publicable: conteos, no tasas."""
+
+    @pytest.fixture()
+    def gold(self, bronze):
+        from obsm.transform.gold import tabla_rem
+        from obsm.transform.silver import normalizar_rem
+
+        silver, _ = normalizar_rem(bronze)
+        return tabla_rem(silver, k=1)
+
+    def test_no_devuelve_tasas(self, gold):
+        """Deliberado. El denominador correcto es la población INSCRITA en APS.
+
+        Dividir por la proyección comunal del INE incluiría a quien se atiende en el
+        sistema privado y daría un número que parece cobertura y no lo es. Mientras
+        `fonasa_inscritos` no exista, publicar conteos es lo honesto.
+        """
+        df, meta = gold
+        assert "personas" in df.columns
+        assert not any(c.startswith("tasa") for c in df.columns)
+        assert any("no tasas" in a for a in meta["advertencias"])
+
+    def test_usa_el_total_etario_y_no_lo_mezcla_con_el_detalle(self, gold):
+        # Santiago tiene 50 en el total y 30 en el detalle: son la misma gente.
+        # Si se mezclaran, saldrían 80 personas que no existen.
+        df, meta = gold
+        stgo = df[(df["comuna_cut"] == "13101") & (df["etiqueta"] == "DEPRESIÓN LEVE")]
+        assert int(stgo["personas"].iloc[0]) == 50
+        assert meta["origen_de_la_cifra"] == "total etario"
+
+    def test_no_suma_ambos_sexos_con_hombres_y_mujeres(self, gold):
+        # Las tres columnas describen la misma población. Sumarlas duplica a cada persona.
+        df, _ = gold
+        junio = df[(df["comuna_cut"] == "09108") & (df["periodo"] == "2023-06")
+                   & (df["etiqueta"] == "DEPRESIÓN LEVE")]
+        assert int(junio["personas"].iloc[0]) == 4
+
+    def test_advierte_que_los_periodos_no_se_suman(self, gold):
+        # Población bajo control es un stock: sumar junio y diciembre cuenta dos veces
+        # a quien siguió en tratamiento todo el año.
+        _, meta = gold
+        assert any("stock" in a for a in meta["advertencias"])
+
+    def test_la_procedencia_llega_a_cada_fila(self, gold):
+        df, _ = gold
+        for col in ("source_id", "pipeline_version", "fecha_calculo"):
+            assert col in df.columns
+
+    def test_suprime_con_el_umbral_de_actividad(self, bronze):
+        from obsm.quality import K_SUPRESION_ACTIVIDAD
+        from obsm.transform.gold import tabla_rem
+        from obsm.transform.silver import normalizar_rem
+
+        silver, _ = normalizar_rem(bronze)
+        df, meta = tabla_rem(silver)
+        assert meta["supresion"]["k"] == K_SUPRESION_ACTIVIDAD == 5
+        visibles = df[~df["suprimido"]]
+        assert not visibles["personas"].between(1, 4).any()

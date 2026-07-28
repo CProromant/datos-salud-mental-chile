@@ -21,6 +21,7 @@ from ..indicators.tasas import (
 )
 from ..io import ahora_iso
 from ..quality import (
+    K_SUPRESION_ACTIVIDAD,
     K_SUPRESION_MORTALIDAD,
     suprimir_celdas_pequenas,
     verificar_politica_publicacion,
@@ -269,6 +270,87 @@ def tasas_comunales(
             "porcentaje": reporte_sup.porcentaje_suprimido,
         },
         "advertencias": _advertencias(publicable, reporte_sup.porcentaje_suprimido),
+    }
+    return publicable, meta
+
+
+def tabla_rem(
+    silver: pd.DataFrame,
+    dimensiones: list[str] | None = None,
+    usar_total_etario: bool = True,
+    k: int = K_SUPRESION_ACTIVIDAD,
+    source_id: str = "rem_salud_mental",
+    source_version: str | None = None,
+) -> tuple[pd.DataFrame, dict]:
+    """Personas bajo control en salud mental, publicable, **en conteos y no en tasas**.
+
+    No devuelve tasas a propósito. El denominador correcto para cobertura de atención
+    primaria es la **población inscrita** en FONASA, no la proyección comunal del INE:
+    dividir por la proyección incluye a quien se atiende en el sistema privado y produce
+    un número que parece una cobertura y no lo es. Mientras `fonasa_inscritos` no esté
+    verificada, se publican conteos, que son honestos por sí solos.
+
+    `usar_total_etario` decide de cuál de las dos mitades del formulario sale la cifra. El
+    REM trae, para cada concepto, una columna de total y diecisiete de detalle etario que
+    cuentan a **la misma gente**: mezclarlas duplica personas. Con `True` se usa la fila de
+    total; con `False`, el detalle, que permite desagregar por edad a cambio de más
+    supresión.
+    """
+    dimensiones = dimensiones or ["comuna_cut", "periodo", "etiqueta"]
+    faltan = [d for d in (*dimensiones, "valor") if d not in silver.columns]
+    if faltan:
+        raise KeyError(f"El silver del REM no tiene las columnas {faltan}")
+
+    sub = silver
+    if "es_total_etario" in silver.columns:
+        sub = silver[silver["es_total_etario"] == usar_total_etario]
+    if "sexo" in sub.columns and "sexo" not in dimensiones:
+        # Sumar «ambos sexos» con «hombres» y «mujeres» cuenta a cada persona dos veces:
+        # las tres columnas describen la misma población.
+        sub = sub[sub["sexo"] == "ambos"]
+
+    df = (
+        sub.groupby(dimensiones, dropna=False)["valor"]
+        .sum()
+        .reset_index()
+        .rename(columns={"valor": "personas"})
+        .sort_values(dimensiones)
+        .reset_index(drop=True)
+    )
+
+    df["source_id"] = source_id
+    df["source_version"] = source_version
+    df["pipeline_version"] = PIPELINE_VERSION
+    df["fecha_calculo"] = ahora_iso()
+
+    verificar_politica_publicacion(df)
+    publicable, reporte_sup = suprimir_celdas_pequenas(
+        df, "personas", k=k, grupo=[d for d in dimensiones if d != "comuna_cut"]
+    )
+
+    advertencias = [
+        "Son CONTEOS de personas bajo control, no tasas ni cobertura. El denominador "
+        "correcto (población inscrita en APS) no está disponible todavía.",
+        "Población bajo control es un stock con corte semestral (junio y diciembre), "
+        "no un flujo mensual: no se suman los períodos.",
+    ]
+    if reporte_sup.porcentaje_suprimido > 0.5:
+        advertencias.append(
+            f"Se suprimió el {reporte_sup.porcentaje_suprimido:.0%} de las celdas: a esta "
+            f"desagregación el dato comunal aporta poco."
+        )
+
+    meta = {
+        "fuente": source_id,
+        "dimensiones": dimensiones,
+        "filas": len(publicable),
+        "origen_de_la_cifra": "total etario" if usar_total_etario else "detalle etario",
+        "supresion": {
+            "k": reporte_sup.k,
+            "filas_suprimidas": reporte_sup.filas_suprimidas,
+            "porcentaje": reporte_sup.porcentaje_suprimido,
+        },
+        "advertencias": advertencias,
     }
     return publicable, meta
 

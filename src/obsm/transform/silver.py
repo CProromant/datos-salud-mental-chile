@@ -177,9 +177,17 @@ def normalizar_rem(
         out.loc[no_reconocidos, "grupo_edad_fuente"].dropna().unique().tolist()
     )
 
+    # El formulario escribe el nombre a veces en la columna de grupo y a veces en la de
+    # concepto. Sin unificarlo, 2,2 millones de personas quedaban agrupadas bajo una
+    # etiqueta vacía: no es que faltara el dato, es que el nombre estaba en la otra columna.
+    grupo = out["grupo"].fillna("").astype(str).str.strip()
+    concepto = out["concepto"].fillna("").astype(str).str.strip()
+    out["etiqueta"] = concepto.where(concepto != "", grupo)
+    reporte["conceptos_sin_etiqueta"] = int((out["etiqueta"] == "").sum())
+
     dimensiones = [
         "comuna_cut", "region_cut", "periodo", "codigo_prestacion", "grupo", "concepto",
-        "grupo_edad", "sexo", "es_total_etario",
+        "etiqueta", "grupo_edad", "sexo", "es_total_etario",
     ]
     agregado = (
         out.groupby(dimensiones, dropna=False)["valor"]
