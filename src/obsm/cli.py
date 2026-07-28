@@ -390,6 +390,102 @@ def cmd_rem_mapear(args) -> int:
     return 0
 
 
+def _procesar_anio_rem(fuente, url, miembro, anio, dir_raw, destino, forzar):
+    """Baja, ingiere y normaliza un año del REM. Devuelve las filas de silver."""
+    import gc
+
+    from .ingest.rem_poblacion_control import RemPoblacionControl
+    from .io import extraer_de_zip_remoto
+    from .transform.silver import normalizar_rem
+
+    crudo = dir_raw / f"serie_p_{anio}{Path(miembro.nombre).suffix or '.txt'}"
+    if not crudo.exists() or forzar:
+        print(f"{anio}: bajando {miembro.nombre.split('/')[-1]} "
+              f"({miembro.bytes_comprimidos / 1024 / 1024:.0f} MB)")
+        crudo.write_bytes(extraer_de_zip_remoto(url, miembro))
+
+    bronze = RemPoblacionControl(fuente).preparar(crudo)
+    silver, rep = normalizar_rem(bronze)
+
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    silver.to_parquet(destino, index=False)
+    destino.with_suffix(".reporte.json").write_text(
+        json.dumps(rep, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
+    )
+    print(f"{anio}: {len(bronze):>9,} bronze -> {len(silver):>8,} silver "
+          f"| periodos {rep['periodos']} | cut inválidos {rep['cut_invalidos']}")
+    filas = len(silver)
+    # Un año son ~2,6 millones de filas en bronze. Liberarlas antes de empezar el
+    # siguiente evita que la memoria crezca con cada iteración.
+    del bronze, silver
+    gc.collect()
+    return filas
+
+
+def cmd_rem_ingerir(args) -> int:
+    """Ingiere la Serie P del REM año por año, hasta silver.
+
+    Descarga solo el miembro que interesa de cada ZIP con peticiones de rango: 152 MB en
+    total contra los ~2.500 MB que pesan los archivos completos.
+
+    Cada año se procesa entero y se guarda antes de pasar al siguiente. Con doce años y
+    ~7 minutos por año, un fallo a mitad de camino no puede costar todo el trabajo previo.
+    """
+    import re
+
+    from .io import DIR_DATOS, listar_zip_remoto, ruta_capa
+
+    reg = cargar_registro(args.config)
+    fuente = reg.exigir_verificada("rem_salud_mental")
+    patron = fuente.extra.get("patron_url_anual")
+    if not patron:
+        print("ERROR: la fuente no declara `patron_url_anual`.", file=sys.stderr)
+        return 1
+
+    dir_raw = DIR_DATOS / "raw" / fuente.id
+    dir_raw.mkdir(parents=True, exist_ok=True)
+    resumen: list[tuple[int, str, int]] = []
+
+    for anio in range(args.desde, args.hasta + 1):
+        url = patron.format(anio=anio)
+        destino_silver = ruta_capa("silver", fuente.id, f"serie_p_{anio}.parquet")
+        if destino_silver.exists() and not args.forzar:
+            print(f"{anio}: ya existe silver, se omite")
+            resumen.append((anio, "en caché", 0))
+            continue
+
+        # El nombre del miembro cambia todos los años: SerieP2014.csv, SerieP.txt,
+        # SerieP_2019.txt... Se busca por patrón, nunca por nombre exacto.
+        try:
+            miembros = listar_zip_remoto(url)
+        except Exception as exc:  # noqa: BLE001
+            print(f"{anio}: ZIP ilegible ({type(exc).__name__})", file=sys.stderr)
+            resumen.append((anio, f"ZIP ilegible: {type(exc).__name__}", 0))
+            continue
+
+        sp = [m for m in miembros
+              if re.search(r"serie\s*_?\s*p", m.nombre, re.I) and m.bytes_reales > 0]
+        if not sp:
+            print(f"{anio}: sin Serie P en el ZIP", file=sys.stderr)
+            resumen.append((anio, "sin Serie P", 0))
+            continue
+
+        try:
+            filas = _procesar_anio_rem(
+                fuente, url, sp[0], anio, dir_raw, destino_silver, args.forzar
+            )
+        except ObsmError as exc:
+            print(f"{anio}: no se pudo procesar — {exc}", file=sys.stderr)
+            resumen.append((anio, f"error: {type(exc).__name__}", 0))
+            continue
+        resumen.append((anio, "ok", filas))
+
+    print(f"\n{'=' * 62}\n  RESUMEN\n{'=' * 62}")
+    for anio, estado, filas in resumen:
+        print(f"  {anio}  {estado:22} {filas:>10,}" if filas else f"  {anio}  {estado}")
+    return 0 if any(e == "ok" for _, e, _ in resumen) else 1
+
+
 def cmd_build_silver(args) -> int:
     import pandas as pd
 
@@ -519,6 +615,26 @@ def cmd_build_gold(args) -> int:
     return 0
 
 
+def _parser_rem(sub) -> None:
+    """Subcomandos del REM. Aparte para que `construir_parser` no crezca sin control."""
+    p_rem = sub.add_parser("rem", help="utilidades del REM")
+    rem = p_rem.add_subparsers(dest="accion", required=True)
+
+    rm = rem.add_parser("mapear", help="regenera config/rem_secciones.yml")
+    rm.add_argument("--desde", type=int, default=2009)
+    rm.add_argument("--hasta", type=int, default=2025)
+    rm.add_argument("--hoja", default="P6", help="sección del REM (P6 = salud mental)")
+    rm.add_argument("--salida", default="config/rem_secciones.yml")
+    rm.set_defaults(func=cmd_rem_mapear)
+
+    ri = rem.add_parser("ingerir", help="ingiere la Serie P año por año, hasta silver")
+    ri.add_argument("--desde", type=int, default=2014)
+    ri.add_argument("--hasta", type=int, default=2025)
+    ri.add_argument("--forzar", action="store_true",
+                    help="reprocesa años que ya tienen silver")
+    ri.set_defaults(func=cmd_rem_ingerir)
+
+
 def construir_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="obsm", description="Observatorio de Salud Mental de Chile")
     p.add_argument("--version", action="version", version=f"obsm {__version__}")
@@ -570,14 +686,7 @@ def construir_parser() -> argparse.ArgumentParser:
                          "publicable y el metadato lo declara.")
     bg.set_defaults(func=cmd_build_gold)
 
-    p_rem = sub.add_parser("rem", help="utilidades del REM")
-    rem = p_rem.add_subparsers(dest="accion", required=True)
-    rm = rem.add_parser("mapear", help="regenera config/rem_secciones.yml")
-    rm.add_argument("--desde", type=int, default=2009)
-    rm.add_argument("--hasta", type=int, default=2025)
-    rm.add_argument("--hoja", default="P6", help="sección del REM (P6 = salud mental)")
-    rm.add_argument("--salida", default="config/rem_secciones.yml")
-    rm.set_defaults(func=cmd_rem_mapear)
+    _parser_rem(sub)
 
     r = sub.add_parser("run", help="pipeline de Fase 1 completo, en un comando")
     r.add_argument("--agrupador", default="SUICIDIO")
