@@ -47,7 +47,7 @@ class TestListar:
         assert nombres == ["Datos/grande.txt", "Diccionarios/dicc.xlsx",
                            "sin_comprimir.txt"]
 
-    def test_reporta_tamaños_comprimido_y_real(self, zip_demo):
+    def test_reporta_tamanos_comprimido_y_real(self, zip_demo):
         miembros = {m.nombre: m for m in listar_zip_remoto(
             "http://ejemplo/demo.zip", leer_rango=_lector_local(zip_demo))}
         grande = miembros["Datos/grande.txt"]
@@ -56,7 +56,7 @@ class TestListar:
         # si vale la pena bajar un miembro antes de pedirlo.
         assert grande.bytes_comprimidos < 10_000
 
-    def test_un_archivo_que_no_es_zip_falla_diciendo_por_qué(self, tmp_path):
+    def test_un_archivo_que_no_es_zip_falla_diciendo_por_que(self, tmp_path):
         malo = tmp_path / "no_es.zip"
         malo.write_bytes(b"esto es texto plano, no un zip")
         with pytest.raises(SourceUnavailableError, match="índice central"):
@@ -110,7 +110,7 @@ class TestExtraer:
 
 
 class TestIntegridad:
-    def test_lo_extraído_coincide_con_lo_que_daría_descargar_todo(self, zip_demo):
+    def test_lo_extraido_coincide_con_lo_que_daria_descargar_todo(self, zip_demo):
         """El control que importa: leer por partes no puede dar algo distinto."""
         leer = _lector_local(zip_demo)
         remotos = {m.nombre: extraer_de_zip_remoto("u", m, leer_rango=leer)
