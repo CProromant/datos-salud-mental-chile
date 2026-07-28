@@ -134,7 +134,11 @@ fuentes:
     seccion_salud_mental: "REM-P6"
     origen_url: verificada_en_sesion
     fecha_origen_url: "2026-07-27"
-    estado: no_verificada
+    estado: verificada
+    fecha_verificacion: "2026-07-27"
+    source_version: "SERIE_REM 2023 (Serie P, sección P6)"
+    licencia: sin_declarar
+    licencia_investigada: "2026-07-27"
     formato: [txt, xlsm, pdf_manual]
     granularidad: establecimiento_mes
     periodicidad: mensual
@@ -143,8 +147,10 @@ fuentes:
     depende_de: [maestro_establecimientos]
     mapeo_secciones: "config/rem_secciones.yml"
     notas: >
-      NO se promueve a `verificada` todavía: las URLs y la estructura están comprobadas,
-      pero falta el mapeo columna->concepto sin el cual el dato no se puede leer.
+      VERIFICADA el 2026-07-27: no solo respondió el servidor, se abrió el archivo, se
+      construyó el mapeo columna->concepto y se leyó de punta a punta. Sobre 2023:
+      1.004.789 personas bajo control en el programa de salud mental, 117.121 con
+      depresión moderada, en 327 comunas.
       ESTRUCTURA (verificada 2026-07-27 sobre SERIE_REM_2023.zip): cada ZIP pesa ~220 MB y
       trae cinco series —A, BM, BS, D, P— más sus diccionarios. Solo 2023 son 2 GB
       descomprimidos; SerieBS2023.txt pesa 1,2 GB por sí solo.
