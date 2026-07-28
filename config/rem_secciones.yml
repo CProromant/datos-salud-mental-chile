@@ -1,40 +1,4934 @@
-# Mapeo de secciones REM de salud mental, por año de manual.
+# Mapeo de las secciones del REM. GENERADO, no editar a mano.
 #
-# POR QUÉ ESTE ARCHIVO EXISTE: las secciones del REM se renumeran entre manuales.
-# Un ingestor que referencie "Sección A05" queda mal apuntado al año siguiente sin
-# error visible. Acá se mapea por NOMBRE NORMALIZADO de sección y se registra el
-# número observado por año, que sirve solo para auditoría.
+# Regenerar con:  obsm rem mapear
 #
-# ESTADO: esqueleto. Ninguna entrada verificada contra un manual real todavía.
-# Tarea bloqueante de Fase 2: abrir los manuales publicados en repositoriodeis.minsal.cl
-# y completar, un año a la vez, registrando la versión del manual.
-version: 1
-
-conceptos:
-  poblacion_bajo_control_salud_mental:
-    descripcion: "Personas bajo control en el programa de salud mental, por diagnóstico y grupo etario"
-    serie: P
-    periodicidad: semestral
-    nombre_normalizado_esperado: "poblacion en control programa de salud mental"
-  ingresos_programa_salud_mental:
-    descripcion: "Ingresos al programa, incluye ideación e intento suicida"
-    serie: A
-    periodicidad: mensual
-    nombre_normalizado_esperado: "ingresos al programa de salud mental"
-  egresos_por_alta_clinica:
-    descripcion: "Egresos del programa por alta clínica en APS y especialidad"
-    serie: A
-    periodicidad: mensual
-    nombre_normalizado_esperado: "egresos del programa de salud mental por altas clinicas"
-  rehabilitacion_psiquiatrica:
-    descripcion: "Programa de rehabilitación para personas con trastornos psiquiátricos"
-    serie: A
-    periodicidad: mensual
-    nombre_normalizado_esperado: "programa de rehabilitacion personas con trastornos psiquiatricos"
-
-# manual:
-#   2025:
-#     version_manual: "Series REM 2025-2026 A-BS-BM v1.2"
-#     url: "PENDIENTE DE VERIFICAR"
-#     secciones:
-#       egresos_por_alta_clinica: {seccion: "O", pagina: 146, verificado: false}
+# Existe porque los archivos del REM traen columnas genéricas (`Col01`..`Col38`)
+# cuyo significado depende del `CodigoPrestacion` de cada fila. Sin este mapeo,
+# un valor del archivo no se puede interpretar.
+#
+# El diff entre dos versiones de este archivo ES el registro de qué cambió el
+# formulario entre años, que es justo lo que un ingestor tiene que saber.
+# Ver docs/05-CALIDAD.md#quiebres-rem.
+seccion: P6
+fuente: rem_salud_mental
+anios:
+  2010:
+    diccionario: SP-2010_CODIGOS.xls
+    conceptos:
+      P6221000:
+        grupo: NÚMERO DE PACIENTES EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6221100:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: VICTIMA
+      P6221200:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: AGRESOR
+      P6221300:
+        grupo: VIOLENCIA HACIA EL ADULTO MAYOR
+        concepto: ''
+      P6221400:
+        grupo: MALTRATO INFANTIL
+        concepto: ''
+      P6221500:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6227100:
+        grupo: CONSUMO RIESGOSO DE ALCOHOL (AUDIT menor 8 puntos)
+        concepto: ''
+      P6227200:
+        grupo: CONSUMO RIESGOSO DE ALCOHOL (AUDIT entre 8 y 15 puntos)
+        concepto: ''
+      P6227300:
+        grupo: CONSUMO RIESGOSO DE DROGAS
+        concepto: ''
+      P6221600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN
+      P6221700:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6221800:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6221900:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: ALCOHOL COMO DROGA PRINCIPAL
+      P6222000:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: OTRA SUSTANCIA COMO DROGA PRINCIPAL
+      P6222100:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6222200:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: ''
+      P6222300:
+        grupo: ALZHEIMER Y OTRAS DEMENCIAS
+        concepto: ''
+      P6222400:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6227400:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6222500:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6222600:
+        grupo: TRASTORNO HIPERCINÉTICOS, DE LA ACTIVIDAD Y DE LA ATENCION
+        concepto: ''
+      P6222700:
+        grupo: TRASTORNOS EMOCIONALES Y DEL COMPORTAMIENTO DE LA INFANCIA Y ADOLESCENCIA
+        concepto: ''
+      P6222800:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6222900:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223000:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 - 9 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 - 9 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 10 - 14 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 10 - 14 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 15 - 19 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 15 - 19 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 20 - 24 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 20 - 24 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 25 - 64 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 25 - 64 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 65 años y más
+        sexo: hombres
+      COL15:
+        grupo_edad: 65 años y más
+        sexo: mujeres
+  2011:
+    diccionario: SP-11_CODIGOS.xls
+    conceptos:
+      P6221000:
+        grupo: NÚMERO DE PACIENTES EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6221100:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: VICTIMA
+      P6221200:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: AGRESOR
+      P6221300:
+        grupo: VIOLENCIA HACIA EL ADULTO MAYOR
+        concepto: ''
+      P6221400:
+        grupo: MALTRATO INFANTIL
+        concepto: ''
+      P6221500:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6227100:
+        grupo: CONSUMO DE BAJO RIESGO DE ALCOHOL (AUDIT menor 8 puntos)
+        concepto: ''
+      P6227200:
+        grupo: CONSUMO DE RIESGO DE ALCOHOL (AUDIT entre 8 y 15 puntos)
+        concepto: ''
+      P6227300:
+        grupo: CONSUMO RIESGOSO DE DROGAS
+        concepto: ''
+      P6221600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN LEVE
+      P6227500:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN MODERADA
+      P6227600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE
+      P6221700:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6221800:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6221900:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: ALCOHOL COMO DROGA PRINCIPAL (AUDIT mayor 16)
+      P6222000:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: OTRA SUSTANCIA COMO DROGA PRINCIPAL
+      P6222100:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6222200:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: ''
+      P6222300:
+        grupo: ALZHEIMER Y OTRAS DEMENCIAS
+        concepto: ''
+      P6222400:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6227400:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6222500:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6222600:
+        grupo: TRASTORNO HIPERCINÉTICOS, DE LA ACTIVIDAD Y DE LA ATENCION
+        concepto: ''
+      P6222700:
+        grupo: TRASTORNOS EMOCIONALES Y DEL COMPORTAMIENTO DE LA INFANCIA Y ADOLESCENCIA
+        concepto: ''
+      P6222800:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6222900:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223000:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 - 9 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 - 9 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 10 - 14 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 10 - 14 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 15 - 19 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 15 - 19 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 20 - 24 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 20 - 24 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 25 - 64 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 25 - 64 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 65 años y más
+        sexo: hombres
+      COL15:
+        grupo_edad: 65 años y más
+        sexo: mujeres
+      COL16:
+        grupo_edad: Gestantes
+        sexo: ''
+  2014:
+    diccionario: SP-14_V1.1CODIGOS.xls
+    conceptos:
+      P6221000:
+        grupo: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6221100:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: VICTIMA
+      P6221200:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: AGRESOR
+      P6221300:
+        grupo: VIOLENCIA HACIA EL ADULTO MAYOR
+        concepto: ''
+      P6221400:
+        grupo: MALTRATO DE NIÑOS, NIÑAS Y ADOLESCENTES
+        concepto: ''
+      P6221500:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6223010:
+        grupo: CONSUMO BAJO RIESGO DE ALCOHOL
+        concepto: 'AUDIT C: Hombres (4 o menos ptos) Mujeres (3 o menos ptos)'
+      P6223020:
+        grupo: CONSUMO BAJO RIESGO DE ALCOHOL
+        concepto: 'AUDIT : 7 o menos ptos'
+      P6227200:
+        grupo: CONSUMO RIESGOSO DE ALCOHOL
+        concepto: 'AUDIT: 8-15 ptos'
+      P6227300:
+        grupo: CONSUMO RIESGOSO DE DROGAS
+        concepto: ''
+      P6227601:
+        grupo: DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6221600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN LEVE
+      P6227500:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN MODERADA
+      P6227600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE
+      P6221700:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6221800:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6221900:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL (AUDIT:16 o más ptos)
+      P6222000:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE DROGAS
+      P6222100:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6222600:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223060:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223070:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223080:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6222200:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: ''
+      P6222300:
+        grupo: ALZHEIMER Y OTRAS DEMENCIAS
+        concepto: ''
+      P6223030:
+        grupo: TRASTORNOS CONDUCTUALES ASOCIADOS A DEMENCIA
+        concepto: ''
+      P6222400:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6227400:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6222500:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6222800:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6222900:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223000:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6223040:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223050:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223090:
+        grupo: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6223100:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: VICTIMA
+      P6223110:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: AGRESOR
+      P6223120:
+        grupo: VIOLENCIA HACIA EL ADULTO MAYOR
+        concepto: ''
+      P6223130:
+        grupo: MALTRATO DE NIÑOS, NIÑAS Y ADOLESCENTES
+        concepto: ''
+      P6223140:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6223150:
+        grupo: CONSUMO RIESGOSO DE ALCOHOL
+        concepto: 'AUDIT: 8-15 ptos'
+      P6223160:
+        grupo: CONSUMO RIESGOSO DE DROGAS
+        concepto: ''
+      P6223170:
+        grupo: DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6223180:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN REFRACTARIA
+      P6223190:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE CON PSICOSIS
+      P6223200:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN CON ALTO RIESGO SUICIDA
+      P6223210:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6223220:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6223230:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6223240:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE DROGAS
+      P6223250:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6223260:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223270:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223280:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223290:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6223300:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: ''
+      P6223310:
+        grupo: ALZHEIMER Y OTRAS DEMENCIAS
+        concepto: ''
+      P6223320:
+        grupo: TRASTORNOS CONDUCTUALES ASOCIADOS A DEMENCIA
+        concepto: ''
+      P6223330:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6223340:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6223350:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6223360:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6223370:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223380:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6223390:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 a 4 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 a 4 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 5 a 9 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 5 a 9 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 10 a 14 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 10 a 14 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 15 a 19 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 15 a 19 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 20 a 24 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 20 a 24 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 25 a 29 años
+        sexo: hombres
+      COL15:
+        grupo_edad: 25 a 29 años
+        sexo: mujeres
+      COL16:
+        grupo_edad: 30 a 34 años
+        sexo: hombres
+      COL17:
+        grupo_edad: 30 a 34 años
+        sexo: mujeres
+      COL18:
+        grupo_edad: 35 a 39 años
+        sexo: hombres
+      COL19:
+        grupo_edad: 35 a 39 años
+        sexo: mujeres
+      COL20:
+        grupo_edad: 40 a 44 años
+        sexo: hombres
+      COL21:
+        grupo_edad: 40 a 44 años
+        sexo: mujeres
+      COL22:
+        grupo_edad: 45 a 49 años
+        sexo: hombres
+      COL23:
+        grupo_edad: 45 a 49 años
+        sexo: mujeres
+      COL24:
+        grupo_edad: 50 a 54 años
+        sexo: hombres
+      COL25:
+        grupo_edad: 50 a 54 años
+        sexo: mujeres
+      COL26:
+        grupo_edad: 55 a 59 años
+        sexo: hombres
+      COL27:
+        grupo_edad: 55 a 59 años
+        sexo: mujeres
+      COL28:
+        grupo_edad: 60 a 64 años
+        sexo: hombres
+      COL29:
+        grupo_edad: 60 a 64 años
+        sexo: mujeres
+      COL30:
+        grupo_edad: 65 a 69 años
+        sexo: hombres
+      COL31:
+        grupo_edad: 65 a 69 años
+        sexo: mujeres
+      COL32:
+        grupo_edad: 70 a 74 años
+        sexo: hombres
+      COL33:
+        grupo_edad: 70 a 74 años
+        sexo: mujeres
+      COL34:
+        grupo_edad: 75 a 79 años
+        sexo: hombres
+      COL35:
+        grupo_edad: 75 a 79 años
+        sexo: mujeres
+      COL36:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL37:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL38:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL39:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL40:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL41:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+  2015:
+    diccionario: SP-15_V1.1_CODIGOS.xls
+    conceptos:
+      P6221000:
+        grupo: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6221100:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: VICTIMA
+      P6221200:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: AGRESOR
+      P6221300:
+        grupo: VIOLENCIA HACIA EL ADULTO MAYOR
+        concepto: ''
+      P6221400:
+        grupo: MALTRATO DE NIÑOS, NIÑAS Y ADOLESCENTES
+        concepto: ''
+      P6221500:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6223010:
+        grupo: CONSUMO BAJO RIESGO DE ALCOHOL
+        concepto: ''
+      P6227200:
+        grupo: CONSUMO RIESGOSO DE ALCOHOL
+        concepto: ''
+      P6227300:
+        grupo: CONSUMO RIESGOSO DE DROGAS
+        concepto: ''
+      P6227601:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6221600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN LEVE
+      P6227500:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN MODERADA
+      P6227600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE
+      P6221700:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6221800:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6221900:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6222000:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6222100:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6222600:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223060:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223070:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223080:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6222200:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: ''
+      P6222300:
+        grupo: ALZHEIMER Y OTRAS DEMENCIAS
+        concepto: ''
+      P6223030:
+        grupo: TRASTORNOS CONDUCTUALES ASOCIADOS A DEMENCIA
+        concepto: ''
+      P6222400:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6227400:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6222500:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6222800:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6222900:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223000:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6223040:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223050:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223090:
+        grupo: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6223100:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: VICTIMA
+      P6223110:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: AGRESOR
+      P6223120:
+        grupo: VIOLENCIA HACIA EL ADULTO MAYOR
+        concepto: ''
+      P6223130:
+        grupo: MALTRATO DE NIÑOS, NIÑAS Y ADOLESCENTES
+        concepto: ''
+      P6223140:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6223150:
+        grupo: CONSUMO RIESGOSO DE ALCOHOL
+        concepto: ''
+      P6223160:
+        grupo: CONSUMO RIESGOSO DE DROGAS
+        concepto: ''
+      P6223170:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6223180:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN REFRACTARIA
+      P6223190:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE CON PSICOSIS
+      P6223200:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN CON ALTO RIESGO SUICIDA
+      P6223210:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6223220:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6223230:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6223240:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6223250:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6223260:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223270:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223280:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223290:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6223300:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: ''
+      P6223310:
+        grupo: ALZHEIMER Y OTRAS DEMENCIAS
+        concepto: ''
+      P6223320:
+        grupo: TRASTORNOS CONDUCTUALES ASOCIADOS A DEMENCIA
+        concepto: ''
+      P6223330:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6223340:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6223350:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6223360:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6223370:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223380:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6223390:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223020:
+        grupo: '0'
+        concepto: ''
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 a 4 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 a 4 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 5 a 9 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 5 a 9 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 10 a 14 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 10 a 14 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 15 a 19 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 15 a 19 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 20 a 24 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 20 a 24 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 25 a 29 años
+        sexo: hombres
+      COL15:
+        grupo_edad: 25 a 29 años
+        sexo: mujeres
+      COL16:
+        grupo_edad: 30 a 34 años
+        sexo: hombres
+      COL17:
+        grupo_edad: 30 a 34 años
+        sexo: mujeres
+      COL18:
+        grupo_edad: 35 a 39 años
+        sexo: hombres
+      COL19:
+        grupo_edad: 35 a 39 años
+        sexo: mujeres
+      COL20:
+        grupo_edad: 40 a 44 años
+        sexo: hombres
+      COL21:
+        grupo_edad: 40 a 44 años
+        sexo: mujeres
+      COL22:
+        grupo_edad: 45 a 49 años
+        sexo: hombres
+      COL23:
+        grupo_edad: 45 a 49 años
+        sexo: mujeres
+      COL24:
+        grupo_edad: 50 a 54 años
+        sexo: hombres
+      COL25:
+        grupo_edad: 50 a 54 años
+        sexo: mujeres
+      COL26:
+        grupo_edad: 55 a 59 años
+        sexo: hombres
+      COL27:
+        grupo_edad: 55 a 59 años
+        sexo: mujeres
+      COL28:
+        grupo_edad: 60 a 64 años
+        sexo: hombres
+      COL29:
+        grupo_edad: 60 a 64 años
+        sexo: mujeres
+      COL30:
+        grupo_edad: 65 a 69 años
+        sexo: hombres
+      COL31:
+        grupo_edad: 65 a 69 años
+        sexo: mujeres
+      COL32:
+        grupo_edad: 70 a 74 años
+        sexo: hombres
+      COL33:
+        grupo_edad: 70 a 74 años
+        sexo: mujeres
+      COL34:
+        grupo_edad: 75 a 79 años
+        sexo: hombres
+      COL35:
+        grupo_edad: 75 a 79 años
+        sexo: mujeres
+      COL36:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL37:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL38:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL39:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL40:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL41:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL42:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL43:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+  2016:
+    diccionario: SP-16_V1.2CODIGOS.xls
+    conceptos:
+      P6221000:
+        grupo: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6221100:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: VICTIMA
+      P6221200:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: AGRESOR
+      P6221500:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6227601:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6221600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN LEVE
+      P6227500:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN MODERADA
+      P6227600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE
+      P6221700:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6221800:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6221900:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6222000:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6222100:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6222600:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223060:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223070:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223080:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6222200:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: ''
+      P6222300:
+        grupo: ALZHEIMER Y OTRAS DEMENCIAS
+        concepto: ''
+      P6223030:
+        grupo: TRASTORNOS CONDUCTUALES ASOCIADOS A DEMENCIA
+        concepto: ''
+      P6222400:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6227400:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6222500:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6222800:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6222900:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223000:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6227602:
+        grupo: OTRAS
+        concepto: ''
+      P6223040:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223050:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223090:
+        grupo: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6223100:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: VICTIMA
+      P6223110:
+        grupo: VIOLENCIA DE GÉNERO
+        concepto: AGRESOR
+      P6223140:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6223170:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6223180:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN REFRACTARIA
+      P6223190:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE CON PSICOSIS
+      P6223200:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN CON ALTO RIESGO SUICIDA
+      P6223210:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6223220:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6223230:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6223240:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6223250:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6223260:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223270:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223280:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223290:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6223300:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: ''
+      P6223310:
+        grupo: ALZHEIMER Y OTRAS DEMENCIAS
+        concepto: ''
+      P6223320:
+        grupo: TRASTORNOS CONDUCTUALES ASOCIADOS A DEMENCIA
+        concepto: ''
+      P6223330:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6223340:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6223350:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6223360:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6223370:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223380:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6227603:
+        grupo: OTRAS
+        concepto: ''
+      P6223390:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6221300:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6221400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6223010:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6227200:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6227300:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6223120:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6223130:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6223150:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6223160:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 a 4 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 a 4 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 5 a 9 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 5 a 9 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 10 a 14 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 10 a 14 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 15 a 19 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 15 a 19 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 20 a 24 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 20 a 24 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 25 a 29 años
+        sexo: hombres
+      COL15:
+        grupo_edad: 25 a 29 años
+        sexo: mujeres
+      COL16:
+        grupo_edad: 30 a 34 años
+        sexo: hombres
+      COL17:
+        grupo_edad: 30 a 34 años
+        sexo: mujeres
+      COL18:
+        grupo_edad: 35 a 39 años
+        sexo: hombres
+      COL19:
+        grupo_edad: 35 a 39 años
+        sexo: mujeres
+      COL20:
+        grupo_edad: 40 a 44 años
+        sexo: hombres
+      COL21:
+        grupo_edad: 40 a 44 años
+        sexo: mujeres
+      COL22:
+        grupo_edad: 45 a 49 años
+        sexo: hombres
+      COL23:
+        grupo_edad: 45 a 49 años
+        sexo: mujeres
+      COL24:
+        grupo_edad: 50 a 54 años
+        sexo: hombres
+      COL25:
+        grupo_edad: 50 a 54 años
+        sexo: mujeres
+      COL26:
+        grupo_edad: 55 a 59 años
+        sexo: hombres
+      COL27:
+        grupo_edad: 55 a 59 años
+        sexo: mujeres
+      COL28:
+        grupo_edad: 60 a 64 años
+        sexo: hombres
+      COL29:
+        grupo_edad: 60 a 64 años
+        sexo: mujeres
+      COL30:
+        grupo_edad: 65 a 69 años
+        sexo: hombres
+      COL31:
+        grupo_edad: 65 a 69 años
+        sexo: mujeres
+      COL32:
+        grupo_edad: 70 a 74 años
+        sexo: hombres
+      COL33:
+        grupo_edad: 70 a 74 años
+        sexo: mujeres
+      COL34:
+        grupo_edad: 75 a 79 años
+        sexo: hombres
+      COL35:
+        grupo_edad: 75 a 79 años
+        sexo: mujeres
+      COL36:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL37:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL38:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL39:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL40:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL41:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL42:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL43:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+  2017:
+    diccionario: SP_17_V1.1 CODIGOS.xlsm
+    conceptos:
+      P6221000:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6221100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6221200:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6221500:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6227601:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6221600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN LEVE
+      P6227500:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN MODERADA
+      P6227600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE
+      P6221700:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6221800:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6221900:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6222000:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6222100:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6222600:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223060:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223070:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223080:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6222200:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: ''
+      P6222300:
+        grupo: OTRAS DEMENCIAS (INCLUYE ALZHEIMERR)
+        concepto: LEVE
+      P6230100:
+        grupo: OTRAS DEMENCIAS (INCLUYE ALZHEIMERR)
+        concepto: MODERADO
+      P6230200:
+        grupo: OTRAS DEMENCIAS (INCLUYE ALZHEIMERR)
+        concepto: AVANZADO
+      P6222400:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6227400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6222500:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6222800:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6222900:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223000:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6227602:
+        grupo: OTRAS
+        concepto: ''
+      P6223040:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223050:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6230300:
+        grupo: N° DE PERSONAS EN CONTROL EN PROGRAMA DE ACOMPAÑAMIENTO PSICOSOCIAL
+        concepto: ''
+      P6223090:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6223100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6223110:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6223140:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6223170:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6223180:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN REFRACTARIA
+      P6223190:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE CON PSICOSIS
+      P6223200:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN CON ALTO RIESGO SUICIDA
+      P6223210:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6223220:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6223230:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6223240:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6223250:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6223260:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223270:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223280:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223290:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6223300:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: ''
+      P6223310:
+        grupo: OTRAS DEMENCIAS (INCLUYE ALZHEIMERR)
+        concepto: LEVE
+      P6230400:
+        grupo: OTRAS DEMENCIAS (INCLUYE ALZHEIMERR)
+        concepto: MODERADO
+      P6230500:
+        grupo: OTRAS DEMENCIAS (INCLUYE ALZHEIMERR)
+        concepto: AVANZADO
+      P6223330:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6223340:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6223350:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6223360:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6223370:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223380:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6227603:
+        grupo: OTRAS
+        concepto: ''
+      P6223390:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 a 4 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 a 4 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 5 a 9 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 5 a 9 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 10 a 14 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 10 a 14 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 15 a 19 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 15 a 19 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 20 a 24 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 20 a 24 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 25 a 29 años
+        sexo: hombres
+      COL15:
+        grupo_edad: 25 a 29 años
+        sexo: mujeres
+      COL16:
+        grupo_edad: 30 a 34 años
+        sexo: hombres
+      COL17:
+        grupo_edad: 30 a 34 años
+        sexo: mujeres
+      COL18:
+        grupo_edad: 35 a 39 años
+        sexo: hombres
+      COL19:
+        grupo_edad: 35 a 39 años
+        sexo: mujeres
+      COL20:
+        grupo_edad: 40 a 44 años
+        sexo: hombres
+      COL21:
+        grupo_edad: 40 a 44 años
+        sexo: mujeres
+      COL22:
+        grupo_edad: 45 a 49 años
+        sexo: hombres
+      COL23:
+        grupo_edad: 45 a 49 años
+        sexo: mujeres
+      COL24:
+        grupo_edad: 50 a 54 años
+        sexo: hombres
+      COL25:
+        grupo_edad: 50 a 54 años
+        sexo: mujeres
+      COL26:
+        grupo_edad: 55 a 59 años
+        sexo: hombres
+      COL27:
+        grupo_edad: 55 a 59 años
+        sexo: mujeres
+      COL28:
+        grupo_edad: 60 a 64 años
+        sexo: hombres
+      COL29:
+        grupo_edad: 60 a 64 años
+        sexo: mujeres
+      COL30:
+        grupo_edad: 65 a 69 años
+        sexo: hombres
+      COL31:
+        grupo_edad: 65 a 69 años
+        sexo: mujeres
+      COL32:
+        grupo_edad: 70 a 74 años
+        sexo: hombres
+      COL33:
+        grupo_edad: 70 a 74 años
+        sexo: mujeres
+      COL34:
+        grupo_edad: 75 a 79 años
+        sexo: hombres
+      COL35:
+        grupo_edad: 75 a 79 años
+        sexo: mujeres
+      COL36:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL37:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL38:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL39:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL40:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL41:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL42:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL43:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+  2018:
+    diccionario: SP_18_V1.0-CODIGOS1.xlsm
+    conceptos:
+      P6221000:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6221100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6221200:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6221500:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6227601:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6221600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN LEVE
+      P6227500:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN MODERADA
+      P6227600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE
+      P6221700:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6221800:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6221900:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6222000:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6222100:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6222600:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223060:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223070:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223080:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6222200:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: ''
+      P6222300:
+        grupo: OTRAS DEMENCIAS (INCLUYE ALZHEIMERR)
+        concepto: LEVE
+      P6230100:
+        grupo: OTRAS DEMENCIAS (INCLUYE ALZHEIMERR)
+        concepto: MODERADO
+      P6230200:
+        grupo: OTRAS DEMENCIAS (INCLUYE ALZHEIMERR)
+        concepto: AVANZADO
+      P6222400:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6227400:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6222500:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6222800:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6222900:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223000:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6227602:
+        grupo: OTRAS
+        concepto: ''
+      P6223040:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223050:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6230300:
+        grupo: N° DE PERSONAS EN CONTROL EN PROGRAMA DE ACOMPAÑAMIENTO PSICOSOCIAL
+        concepto: ''
+      P6223090:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6223100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6223110:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6223140:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6223170:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6223180:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN REFRACTARIA
+      P6223190:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE CON PSICOSIS
+      P6223200:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN CON ALTO RIESGO SUICIDA
+      P6223210:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6223220:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6223230:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6223240:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6223250:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6223260:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223270:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223280:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223290:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6223300:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: ''
+      P6223310:
+        grupo: OTRAS DEMENCIAS (INCLUYE ALZHEIMERR)
+        concepto: LEVE
+      P6230400:
+        grupo: OTRAS DEMENCIAS (INCLUYE ALZHEIMERR)
+        concepto: MODERADO
+      P6230500:
+        grupo: OTRAS DEMENCIAS (INCLUYE ALZHEIMERR)
+        concepto: AVANZADO
+      P6223330:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6223340:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6223350:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6223360:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6223370:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223380:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6227603:
+        grupo: OTRAS
+        concepto: ''
+      P6223390:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 a 4 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 a 4 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 5 a 9 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 5 a 9 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 10 a 14 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 10 a 14 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 15 a 19 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 15 a 19 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 20 a 24 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 20 a 24 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 25 a 29 años
+        sexo: hombres
+      COL15:
+        grupo_edad: 25 a 29 años
+        sexo: mujeres
+      COL16:
+        grupo_edad: 30 a 34 años
+        sexo: hombres
+      COL17:
+        grupo_edad: 30 a 34 años
+        sexo: mujeres
+      COL18:
+        grupo_edad: 35 a 39 años
+        sexo: hombres
+      COL19:
+        grupo_edad: 35 a 39 años
+        sexo: mujeres
+      COL20:
+        grupo_edad: 40 a 44 años
+        sexo: hombres
+      COL21:
+        grupo_edad: 40 a 44 años
+        sexo: mujeres
+      COL22:
+        grupo_edad: 45 a 49 años
+        sexo: hombres
+      COL23:
+        grupo_edad: 45 a 49 años
+        sexo: mujeres
+      COL24:
+        grupo_edad: 50 a 54 años
+        sexo: hombres
+      COL25:
+        grupo_edad: 50 a 54 años
+        sexo: mujeres
+      COL26:
+        grupo_edad: 55 a 59 años
+        sexo: hombres
+      COL27:
+        grupo_edad: 55 a 59 años
+        sexo: mujeres
+      COL28:
+        grupo_edad: 60 a 64 años
+        sexo: hombres
+      COL29:
+        grupo_edad: 60 a 64 años
+        sexo: mujeres
+      COL30:
+        grupo_edad: 65 a 69 años
+        sexo: hombres
+      COL31:
+        grupo_edad: 65 a 69 años
+        sexo: mujeres
+      COL32:
+        grupo_edad: 70 a 74 años
+        sexo: hombres
+      COL33:
+        grupo_edad: 70 a 74 años
+        sexo: mujeres
+      COL34:
+        grupo_edad: 75 a 79 años
+        sexo: hombres
+      COL35:
+        grupo_edad: 75 a 79 años
+        sexo: mujeres
+      COL36:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL37:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL38:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL39:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL40:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL41:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL42:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL43:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL44:
+        grupo_edad: 80 y más años
+        sexo: ''
+  2019:
+    diccionario: SP_19_V1.1-CODIGOS.xlsm
+    conceptos:
+      P6221000:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6221100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6221200:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6221500:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6230600:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6230700:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6230800:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6230900:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6227601:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6221600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN LEVE
+      P6227500:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN MODERADA
+      P6227600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE
+      P6221700:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6221800:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6221900:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6222000:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6222100:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6222600:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223060:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223070:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223080:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6231000:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6231100:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6231200:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6231300:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6231400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6231500:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6222300:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: LEVE
+      P6230100:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: MODERADO
+      P6230200:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: AVANZADO
+      P6222400:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6227400:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6222500:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6222800:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6222900:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223000:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6231600:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6227602:
+        grupo: OTRAS
+        concepto: ''
+      P6223040:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223050:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6230300:
+        grupo: N° DE PERSONAS EN CONTROL EN PROGRAMA DE ACOMPAÑAMIENTO PSICOSOCIAL
+        concepto: ''
+      P6223090:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6223100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6223110:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6223140:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6231700:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6231800:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6231900:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6232000:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6223170:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6223180:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN REFRACTARIA
+      P6223190:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE CON PSICOSIS
+      P6223200:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN CON ALTO RIESGO SUICIDA
+      P6223210:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6223220:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6223230:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6223240:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6223250:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6223260:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223270:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223280:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223290:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6232100:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6232200:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6232300:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6232400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6232500:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6232600:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6223310:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: LEVE
+      P6230400:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: MODERADO
+      P6230500:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: AVANZADO
+      P6223330:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6223340:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6223350:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6223360:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6223370:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223380:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6232700:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6227603:
+        grupo: OTRAS
+        concepto: ''
+      P6223390:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6222200:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6223300:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 a 4 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 a 4 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 5 a 9 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 5 a 9 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 10 a 14 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 10 a 14 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 15 a 19 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 15 a 19 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 20 a 24 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 20 a 24 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 25 a 29 años
+        sexo: hombres
+      COL15:
+        grupo_edad: 25 a 29 años
+        sexo: mujeres
+      COL16:
+        grupo_edad: 30 a 34 años
+        sexo: hombres
+      COL17:
+        grupo_edad: 30 a 34 años
+        sexo: mujeres
+      COL18:
+        grupo_edad: 35 a 39 años
+        sexo: hombres
+      COL19:
+        grupo_edad: 35 a 39 años
+        sexo: mujeres
+      COL20:
+        grupo_edad: 40 a 44 años
+        sexo: hombres
+      COL21:
+        grupo_edad: 40 a 44 años
+        sexo: mujeres
+      COL22:
+        grupo_edad: 45 a 49 años
+        sexo: hombres
+      COL23:
+        grupo_edad: 45 a 49 años
+        sexo: mujeres
+      COL24:
+        grupo_edad: 50 a 54 años
+        sexo: hombres
+      COL25:
+        grupo_edad: 50 a 54 años
+        sexo: mujeres
+      COL26:
+        grupo_edad: 55 a 59 años
+        sexo: hombres
+      COL27:
+        grupo_edad: 55 a 59 años
+        sexo: mujeres
+      COL28:
+        grupo_edad: 60 a 64 años
+        sexo: hombres
+      COL29:
+        grupo_edad: 60 a 64 años
+        sexo: mujeres
+      COL30:
+        grupo_edad: 65 a 69 años
+        sexo: hombres
+      COL31:
+        grupo_edad: 65 a 69 años
+        sexo: mujeres
+      COL32:
+        grupo_edad: 70 a 74 años
+        sexo: hombres
+      COL33:
+        grupo_edad: 70 a 74 años
+        sexo: mujeres
+      COL34:
+        grupo_edad: 75 a 79 años
+        sexo: hombres
+      COL35:
+        grupo_edad: 75 a 79 años
+        sexo: mujeres
+      COL36:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL37:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL38:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL39:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL40:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL41:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL42:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL43:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL44:
+        grupo_edad: 80 y más años
+        sexo: ''
+  2020:
+    diccionario: SP_20_V1.0 CODIGOS.xlsm
+    conceptos:
+      P6221000:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6221100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6221200:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6221500:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6230800:
+        grupo: SUICIDIO
+        concepto: IDEACIÓN
+      P6230900:
+        grupo: SUICIDIO
+        concepto: INTENTO
+      P6227601:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6221600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN LEVE
+      P6227500:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN MODERADA
+      P6227600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE
+      P6221700:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6221800:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6221900:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6222000:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6222100:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6222600:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223060:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223070:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223080:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6231000:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE ESTRÉS POST TRAUMATICO
+      P6231100:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO CON AGOROFOBIA
+      P6231200:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO SIN AGOROFOBIA
+      P6231300:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: FOBIAS SOCIALES
+      P6231400:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNOS DE ANSIEDAD GENERALIZADA
+      P6231500:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: OTROS TRASTORNOS DE ANSIEDAD
+      P6222300:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: LEVE
+      P6230100:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: MODERADO
+      P6230200:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: AVANZADO
+      P6222400:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6227400:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6222500:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6222800:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6222900:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223000:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6231600:
+        grupo: EPILEPSIA
+        concepto: ''
+      P6227602:
+        grupo: OTRAS
+        concepto: ''
+      P6223040:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223050:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6230300:
+        grupo: N° DE PERSONAS EN CONTROL EN PROGRAMA DE ACOMPAÑAMIENTO PSICOSOCIAL
+        concepto: ''
+      P6223090:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6223100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6223110:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6223140:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6231900:
+        grupo: SUICIDIO
+        concepto: IDEACIÓN
+      P6232000:
+        grupo: SUICIDIO
+        concepto: INTENTO
+      P6223170:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6223180:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN REFRACTARIA
+      P6223190:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE CON PSICOSIS
+      P6223200:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN CON ALTO RIESGO SUICIDA
+      P6223210:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6223220:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6223230:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6223240:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6223250:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6223260:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223270:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223280:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223290:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6232100:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE ESTRÉS POST TRAUMATICO
+      P6232200:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO CON AGOROFOBIA
+      P6232300:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO SIN AGOROFOBIA
+      P6232400:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: FOBIAS SOCIALES
+      P6232500:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNOS DE ANSIEDAD GENERALIZADA
+      P6232600:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: OTROS TRASTORNOS DE ANSIEDAD
+      P6223310:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: LEVE
+      P6230400:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: MODERADO
+      P6230500:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: AVANZADO
+      P6223330:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6223340:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6223350:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6223360:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6223370:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6223380:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ''
+      P6232700:
+        grupo: EPILEPSIA
+        concepto: ''
+      P6227603:
+        grupo: OTRAS
+        concepto: ''
+      P6223390:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6230600:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6230700:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6231700:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6231800:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 a 4 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 a 4 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 5 a 9 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 5 a 9 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 10 a 14 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 10 a 14 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 15 a 19 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 15 a 19 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 20 a 24 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 20 a 24 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 25 a 29 años
+        sexo: hombres
+      COL15:
+        grupo_edad: 25 a 29 años
+        sexo: mujeres
+      COL16:
+        grupo_edad: 30 a 34 años
+        sexo: hombres
+      COL17:
+        grupo_edad: 30 a 34 años
+        sexo: mujeres
+      COL18:
+        grupo_edad: 35 a 39 años
+        sexo: hombres
+      COL19:
+        grupo_edad: 35 a 39 años
+        sexo: mujeres
+      COL20:
+        grupo_edad: 40 a 44 años
+        sexo: hombres
+      COL21:
+        grupo_edad: 40 a 44 años
+        sexo: mujeres
+      COL22:
+        grupo_edad: 45 a 49 años
+        sexo: hombres
+      COL23:
+        grupo_edad: 45 a 49 años
+        sexo: mujeres
+      COL24:
+        grupo_edad: 50 a 54 años
+        sexo: hombres
+      COL25:
+        grupo_edad: 50 a 54 años
+        sexo: mujeres
+      COL26:
+        grupo_edad: 55 a 59 años
+        sexo: hombres
+      COL27:
+        grupo_edad: 55 a 59 años
+        sexo: mujeres
+      COL28:
+        grupo_edad: 60 a 64 años
+        sexo: hombres
+      COL29:
+        grupo_edad: 60 a 64 años
+        sexo: mujeres
+      COL30:
+        grupo_edad: 65 a 69 años
+        sexo: hombres
+      COL31:
+        grupo_edad: 65 a 69 años
+        sexo: mujeres
+      COL32:
+        grupo_edad: 70 a 74 años
+        sexo: hombres
+      COL33:
+        grupo_edad: 70 a 74 años
+        sexo: mujeres
+      COL34:
+        grupo_edad: 75 a 79 años
+        sexo: hombres
+      COL35:
+        grupo_edad: 75 a 79 años
+        sexo: mujeres
+      COL36:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL37:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL38:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL39:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL40:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL41:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL42:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL43:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL44:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL45:
+        grupo_edad: 80 y más años
+        sexo: ''
+  2021:
+    diccionario: SP_21_V1.1 CODIGOS.xlsm
+    conceptos:
+      P6221000:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6221100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6221200:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6221500:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6230800:
+        grupo: SUICIDIO
+        concepto: IDEACIÓN
+      P6230900:
+        grupo: SUICIDIO
+        concepto: INTENTO
+      P6227601:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6221600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN LEVE
+      P6227500:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN MODERADA
+      P6227600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE
+      P6221700:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6221800:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6221900:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6222000:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6222100:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6222600:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223060:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223070:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223080:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6231000:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE ESTRÉS POST TRAUMATICO
+      P6231100:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO CON AGOROFOBIA
+      P6231200:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO SIN AGOROFOBIA
+      P6231300:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: FOBIAS SOCIALES
+      P6231400:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNOS DE ANSIEDAD GENERALIZADA
+      P6231500:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: OTROS TRASTORNOS DE ANSIEDAD
+      P6222300:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: LEVE
+      P6230100:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: MODERADO
+      P6230200:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: AVANZADO
+      P6222400:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6227400:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6222500:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6222800:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6222900:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6241010:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6241020:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6241030:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6241040:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6241050:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6231600:
+        grupo: EPILEPSIA
+        concepto: ''
+      P6227602:
+        grupo: OTRAS
+        concepto: ''
+      P6223040:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223050:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6230300:
+        grupo: N° DE PERSONAS EN CONTROL EN PROGRAMA DE ACOMPAÑAMIENTO PSICOSOCIAL
+        concepto: ''
+      P6223090:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6223100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6223110:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6223140:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6231900:
+        grupo: SUICIDIO
+        concepto: IDEACIÓN
+      P6232000:
+        grupo: SUICIDIO
+        concepto: INTENTO
+      P6223170:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6223180:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN REFRACTARIA
+      P6223190:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE CON PSICOSIS
+      P6223200:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN CON ALTO RIESGO SUICIDA
+      P6223210:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6223220:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6223230:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6223240:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6223250:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6223260:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223270:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223280:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223290:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6232100:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE ESTRÉS POST TRAUMATICO
+      P6232200:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO CON AGOROFOBIA
+      P6232300:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO SIN AGOROFOBIA
+      P6232400:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: FOBIAS SOCIALES
+      P6232500:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNOS DE ANSIEDAD GENERALIZADA
+      P6232600:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: OTROS TRASTORNOS DE ANSIEDAD
+      P6223310:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: LEVE
+      P6230400:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: MODERADO
+      P6230500:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: AVANZADO
+      P6223330:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6223340:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6223350:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6223360:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6223370:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6241060:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6241070:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6241080:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6241090:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6241100:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6232700:
+        grupo: EPILEPSIA
+        concepto: ''
+      P6227603:
+        grupo: OTRAS
+        concepto: ''
+      P6223390:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223000:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+      P6223380:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: ''
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 a 4 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 a 4 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 5 a 9 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 5 a 9 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 10 a 14 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 10 a 14 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 15 a 19 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 15 a 19 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 20 a 24 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 20 a 24 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 25 a 29 años
+        sexo: hombres
+      COL15:
+        grupo_edad: 25 a 29 años
+        sexo: mujeres
+      COL16:
+        grupo_edad: 30 a 34 años
+        sexo: hombres
+      COL17:
+        grupo_edad: 30 a 34 años
+        sexo: mujeres
+      COL18:
+        grupo_edad: 35 a 39 años
+        sexo: hombres
+      COL19:
+        grupo_edad: 35 a 39 años
+        sexo: mujeres
+      COL20:
+        grupo_edad: 40 a 44 años
+        sexo: hombres
+      COL21:
+        grupo_edad: 40 a 44 años
+        sexo: mujeres
+      COL22:
+        grupo_edad: 45 a 49 años
+        sexo: hombres
+      COL23:
+        grupo_edad: 45 a 49 años
+        sexo: mujeres
+      COL24:
+        grupo_edad: 50 a 54 años
+        sexo: hombres
+      COL25:
+        grupo_edad: 50 a 54 años
+        sexo: mujeres
+      COL26:
+        grupo_edad: 55 a 59 años
+        sexo: hombres
+      COL27:
+        grupo_edad: 55 a 59 años
+        sexo: mujeres
+      COL28:
+        grupo_edad: 60 a 64 años
+        sexo: hombres
+      COL29:
+        grupo_edad: 60 a 64 años
+        sexo: mujeres
+      COL30:
+        grupo_edad: 65 a 69 años
+        sexo: hombres
+      COL31:
+        grupo_edad: 65 a 69 años
+        sexo: mujeres
+      COL32:
+        grupo_edad: 70 a 74 años
+        sexo: hombres
+      COL33:
+        grupo_edad: 70 a 74 años
+        sexo: mujeres
+      COL34:
+        grupo_edad: 75 a 79 años
+        sexo: hombres
+      COL35:
+        grupo_edad: 75 a 79 años
+        sexo: mujeres
+      COL36:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL37:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL38:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL39:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL40:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL41:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL42:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL43:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL44:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL45:
+        grupo_edad: 80 y más años
+        sexo: ''
+  2022:
+    diccionario: SP_22_V1.0 CODIGOS.xlsm
+    conceptos:
+      P6221000:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6221100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6221200:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6221500:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6230800:
+        grupo: SUICIDIO
+        concepto: IDEACIÓN
+      P6230900:
+        grupo: SUICIDIO
+        concepto: INTENTO
+      P6227601:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6221600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN LEVE
+      P6227500:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN MODERADA
+      P6227600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE
+      P6221700:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6221800:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6221900:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6222000:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6222100:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6222600:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223060:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223070:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223080:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6231000:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE ESTRÉS POST TRAUMATICO
+      P6231100:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO CON AGOROFOBIA
+      P6231200:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO SIN AGOROFOBIA
+      P6231300:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: FOBIAS SOCIALES
+      P6231400:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNOS DE ANSIEDAD GENERALIZADA
+      P6231500:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: OTROS TRASTORNOS DE ANSIEDAD
+      P6222300:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: LEVE
+      P6230100:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: MODERADO
+      P6230200:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: AVANZADO
+      P6222400:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6227400:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6222500:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6222800:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6222900:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6241010:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: AUTISMO
+      P6241020:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ASPERGER
+      P6241030:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: SÍNDROME DE RETT
+      P6241040:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTORNO DESINTEGRATIVO DE LA INFANCIA
+      P6241050:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTONO GENERALIZADO DEL DESARROLLO NO ESPECÍFICO
+      P6231600:
+        grupo: EPILEPSIA
+        concepto: ''
+      P6227602:
+        grupo: OTRAS
+        concepto: ''
+      P6223040:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223050:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6230300:
+        grupo: N° DE PERSONAS EN CONTROL EN PROGRAMA DE ACOMPAÑAMIENTO PSICOSOCIAL
+        concepto: ''
+      P6223090:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6223100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6223110:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6223140:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6231900:
+        grupo: SUICIDIO
+        concepto: IDEACIÓN
+      P6232000:
+        grupo: SUICIDIO
+        concepto: INTENTO
+      P6223170:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6223180:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN REFRACTARIA
+      P6223190:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE CON PSICOSIS
+      P6223200:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN CON ALTO RIESGO SUICIDA
+      P6223210:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6223220:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6223230:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA DE ALCOHOL
+      P6223240:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL O DEPENDENCIA COMO DROGA PRINCIPAL
+      P6223250:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: POLICONSUMO
+      P6223260:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223270:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223280:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223290:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6232100:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE ESTRÉS POST TRAUMATICO
+      P6232200:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO CON AGOROFOBIA
+      P6232300:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO SIN AGOROFOBIA
+      P6232400:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: FOBIAS SOCIALES
+      P6232500:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNOS DE ANSIEDAD GENERALIZADA
+      P6232600:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: OTROS TRASTORNOS DE ANSIEDAD
+      P6223310:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: LEVE
+      P6230400:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: MODERADO
+      P6230500:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: AVANZADO
+      P6223330:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6223340:
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
+        concepto: ''
+      P6223350:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6223360:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6223370:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6241060:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: AUTISMO
+      P6241070:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ASPERGER
+      P6241080:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: SÍNDROME DE RETT
+      P6241090:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTORNO DESINTEGRATIVO DE LA INFANCIA
+      P6241100:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTONO GENERALIZADO DEL DESARROLLO NO ESPECÍFICO
+      P6232700:
+        grupo: EPILEPSIA
+        concepto: ''
+      P6227603:
+        grupo: OTRAS
+        concepto: ''
+      P6223390:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 a 4 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 a 4 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 5 a 9 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 5 a 9 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 10 a 14 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 10 a 14 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 15 a 19 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 15 a 19 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 20 a 24 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 20 a 24 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 25 a 29 años
+        sexo: hombres
+      COL15:
+        grupo_edad: 25 a 29 años
+        sexo: mujeres
+      COL16:
+        grupo_edad: 30 a 34 años
+        sexo: hombres
+      COL17:
+        grupo_edad: 30 a 34 años
+        sexo: mujeres
+      COL18:
+        grupo_edad: 35 a 39 años
+        sexo: hombres
+      COL19:
+        grupo_edad: 35 a 39 años
+        sexo: mujeres
+      COL20:
+        grupo_edad: 40 a 44 años
+        sexo: hombres
+      COL21:
+        grupo_edad: 40 a 44 años
+        sexo: mujeres
+      COL22:
+        grupo_edad: 45 a 49 años
+        sexo: hombres
+      COL23:
+        grupo_edad: 45 a 49 años
+        sexo: mujeres
+      COL24:
+        grupo_edad: 50 a 54 años
+        sexo: hombres
+      COL25:
+        grupo_edad: 50 a 54 años
+        sexo: mujeres
+      COL26:
+        grupo_edad: 55 a 59 años
+        sexo: hombres
+      COL27:
+        grupo_edad: 55 a 59 años
+        sexo: mujeres
+      COL28:
+        grupo_edad: 60 a 64 años
+        sexo: hombres
+      COL29:
+        grupo_edad: 60 a 64 años
+        sexo: mujeres
+      COL30:
+        grupo_edad: 65 a 69 años
+        sexo: hombres
+      COL31:
+        grupo_edad: 65 a 69 años
+        sexo: mujeres
+      COL32:
+        grupo_edad: 70 a 74 años
+        sexo: hombres
+      COL33:
+        grupo_edad: 70 a 74 años
+        sexo: mujeres
+      COL34:
+        grupo_edad: 75 a 79 años
+        sexo: hombres
+      COL35:
+        grupo_edad: 75 a 79 años
+        sexo: mujeres
+      COL36:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL37:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL38:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL39:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL40:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL41:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL42:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL43:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL44:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL45:
+        grupo_edad: 80 y más años
+        sexo: ''
+  2023:
+    diccionario: DICCIONARIO CODIGOS SP_23_V1.2.xlsm
+    conceptos:
+      P6221000:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6221100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6221200:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6221500:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6230800:
+        grupo: SUICIDIO
+        concepto: IDEACIÓN
+      P6230900:
+        grupo: SUICIDIO
+        concepto: INTENTO
+      P6227601:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6221600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN LEVE
+      P6227500:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN MODERADA
+      P6227600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE
+      P6221700:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6221800:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6241110:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL DE ALCOHOL
+      P6241111:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO DEPENDIENTE DEL ALCOHOL
+      P6241112:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL DE DROGAS
+      P6241113:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO DEPENDIENTE DE DROGAS
+      P6241114:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO DE DROGAS Y ALCOHOL
+      P6222600:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223060:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223070:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223080:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6231000:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE ESTRÉS POST TRAUMATICO
+      P6241115:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PÁNICO
+      P6231300:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: FOBIAS SOCIALES
+      P6231400:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNOS DE ANSIEDAD GENERALIZADA
+      P6231500:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: OTROS TRASTORNOS DE ANSIEDAD
+      P6222300:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: LEVE
+      P6230100:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: MODERADO
+      P6230200:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: AVANZADO
+      P6222400:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6241116:
+        grupo: TRASTORNO ADAPTATIVO
+        concepto: ''
+      P6222500:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6222800:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6222900:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6241010:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: AUTISMO
+      P6241020:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ASPERGER
+      P6241030:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: SÍNDROME DE RETT
+      P6241040:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTORNO DESINTEGRATIVO DE LA INFANCIA
+      P6241050:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTONO GENERALIZADO DEL DESARROLLO NO ESPECÍFICO
+      P6231600:
+        grupo: EPILEPSIA
+        concepto: ''
+      P6227602:
+        grupo: OTRAS
+        concepto: ''
+      P6223040:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223050:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6230300:
+        grupo: N° DE PERSONAS EN CONTROL EN PROGRAMA DE ACOMPAÑAMIENTO PSICOSOCIAL
+        concepto: ''
+      P6223090:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6223100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6223110:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6223140:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6231900:
+        grupo: SUICIDIO
+        concepto: IDEACIÓN
+      P6232000:
+        grupo: SUICIDIO
+        concepto: INTENTO
+      P6223170:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6223180:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN REFRACTARIA
+      P6223190:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE CON PSICOSIS
+      P6223200:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN CON ALTO RIESGO SUICIDA
+      P6223210:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6223220:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6241117:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL DE ALCOHOL
+      P6241118:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO DEPENDIENTE DEL ALCOHOL
+      P6241119:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL DE DROGAS
+      P6241120:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO DEPENDIENTE DE DROGAS
+      P6241121:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO DE DROGAS Y ALCOHOL
+      P6223260:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223270:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223280:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223290:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6232100:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE ESTRÉS POST TRAUMATICO
+      P6241122:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PÁNICO
+      P6232400:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: FOBIAS SOCIALES
+      P6232500:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNOS DE ANSIEDAD GENERALIZADA
+      P6232600:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: OTROS TRASTORNOS DE ANSIEDAD
+      P6223310:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: LEVE
+      P6230400:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: MODERADO
+      P6230500:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: AVANZADO
+      P6223330:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6241123:
+        grupo: TRASTORNO ADAPTATIVO
+        concepto: ''
+      P6223350:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6223360:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6223370:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6241060:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: AUTISMO
+      P6241070:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ASPERGER
+      P6241080:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: SÍNDROME DE RETT
+      P6241090:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTORNO DESINTEGRATIVO DE LA INFANCIA
+      P6241100:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTONO GENERALIZADO DEL DESARROLLO NO ESPECÍFICO
+      P6232700:
+        grupo: EPILEPSIA
+        concepto: ''
+      P6227603:
+        grupo: OTRAS
+        concepto: ''
+      P6223390:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 a 4 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 a 4 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 5 a 9 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 5 a 9 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 10 a 14 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 10 a 14 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 15 a 19 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 15 a 19 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 20 a 24 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 20 a 24 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 25 a 29 años
+        sexo: hombres
+      COL15:
+        grupo_edad: 25 a 29 años
+        sexo: mujeres
+      COL16:
+        grupo_edad: 30 a 34 años
+        sexo: hombres
+      COL17:
+        grupo_edad: 30 a 34 años
+        sexo: mujeres
+      COL18:
+        grupo_edad: 35 a 39 años
+        sexo: hombres
+      COL19:
+        grupo_edad: 35 a 39 años
+        sexo: mujeres
+      COL20:
+        grupo_edad: 40 a 44 años
+        sexo: hombres
+      COL21:
+        grupo_edad: 40 a 44 años
+        sexo: mujeres
+      COL22:
+        grupo_edad: 45 a 49 años
+        sexo: hombres
+      COL23:
+        grupo_edad: 45 a 49 años
+        sexo: mujeres
+      COL24:
+        grupo_edad: 50 a 54 años
+        sexo: hombres
+      COL25:
+        grupo_edad: 50 a 54 años
+        sexo: mujeres
+      COL26:
+        grupo_edad: 55 a 59 años
+        sexo: hombres
+      COL27:
+        grupo_edad: 55 a 59 años
+        sexo: mujeres
+      COL28:
+        grupo_edad: 60 a 64 años
+        sexo: hombres
+      COL29:
+        grupo_edad: 60 a 64 años
+        sexo: mujeres
+      COL30:
+        grupo_edad: 65 a 69 años
+        sexo: hombres
+      COL31:
+        grupo_edad: 65 a 69 años
+        sexo: mujeres
+      COL32:
+        grupo_edad: 70 a 74 años
+        sexo: hombres
+      COL33:
+        grupo_edad: 70 a 74 años
+        sexo: mujeres
+      COL34:
+        grupo_edad: 75 a 79 años
+        sexo: hombres
+      COL35:
+        grupo_edad: 75 a 79 años
+        sexo: mujeres
+      COL36:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL37:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL38:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL39:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL40:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL41:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL42:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL43:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL44:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL45:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL46:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL47:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL48:
+        grupo_edad: 80 y más años
+        sexo: ''
+  2024:
+    diccionario: DICCIONARIO CODIGOS SP_24_V1.1.xlsm
+    conceptos:
+      P6221000:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6221100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6221200:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6221500:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6230800:
+        grupo: SUICIDIO
+        concepto: IDEACIÓN
+      P6230900:
+        grupo: SUICIDIO
+        concepto: INTENTO
+      P6227601:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6221600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN LEVE
+      P6227500:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN MODERADA
+      P6227600:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE
+      P6221700:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6221800:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6241110:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL DE ALCOHOL
+      P6241111:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO DEPENDIENTE DEL ALCOHOL
+      P6241112:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL DE DROGAS
+      P6241113:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO DEPENDIENTE DE DROGAS
+      P6241114:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO DE DROGAS Y ALCOHOL
+      P6222600:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223060:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223070:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223080:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6231000:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE ESTRÉS POST TRAUMATICO
+      P6241115:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PÁNICO
+      P6231300:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: FOBIAS SOCIALES
+      P6231400:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNOS DE ANSIEDAD GENERALIZADA
+      P6231500:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: OTROS TRASTORNOS DE ANSIEDAD
+      P6222300:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: LEVE
+      P6230100:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: MODERADO
+      P6230200:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: AVANZADO
+      P6222400:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6241116:
+        grupo: TRASTORNO ADAPTATIVO
+        concepto: ''
+      P6222500:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6222800:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6222900:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6241010:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: AUTISMO
+      P6241020:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ASPERGER
+      P6241030:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: SÍNDROME DE RETT
+      P6241040:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTORNO DESINTEGRATIVO DE LA INFANCIA
+      P6241050:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTONO GENERALIZADO DEL DESARROLLO NO ESPECÍFICO
+      P6231600:
+        grupo: EPILEPSIA
+        concepto: ''
+      P6227602:
+        grupo: OTRAS
+        concepto: ''
+      P6223040:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223050:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6230300:
+        grupo: N° DE PERSONAS EN CONTROL EN PROGRAMA DE ACOMPAÑAMIENTO PSICOSOCIAL
+        concepto: ''
+      P6223090:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6223100:
+        grupo: VIOLENCIA
+        concepto: VICTIMA
+      P6223110:
+        grupo: VIOLENCIA
+        concepto: AGRESOR/A
+      P6223140:
+        grupo: ABUSO SEXUAL
+        concepto: ''
+      P6231900:
+        grupo: SUICIDIO
+        concepto: IDEACIÓN
+      P6232000:
+        grupo: SUICIDIO
+        concepto: INTENTO
+      P6223170:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6223180:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN REFRACTARIA
+      P6223190:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN GRAVE CON PSICOSIS
+      P6223200:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN CON ALTO RIESGO SUICIDA
+      P6223210:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: DEPRESIÓN POST PARTO
+      P6223220:
+        grupo: TRASTORNOS DEL HUMOR (AFECTIVOS)
+        concepto: TRASTORNO BIPOLAR
+      P6241117:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL DE ALCOHOL
+      P6241118:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO DEPENDIENTE DEL ALCOHOL
+      P6241119:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO PERJUDICIAL DE DROGAS
+      P6241120:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO DEPENDIENTE DE DROGAS
+      P6241121:
+        grupo: TRASTORNOS MENTALES Y DEL COMPORTAMIENTO DEBIDO A CONSUMO SUSTANCIAS
+          PSICOTROPICAS
+        concepto: CONSUMO DE DROGAS Y ALCOHOL
+      P6223260:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO HIPERCINÉTICO
+      P6223270:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DISOCIAL DESAFIANTE Y OPOSICIONISTA
+      P6223280:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: TRASTORNO DE ANSIEDAD DE SEPARACIÓN EN LA INFANCIA
+      P6223290:
+        grupo: TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO HABITUAL
+          EN LA INFANCIA Y ADOLESCENCIA
+        concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
+          HABITUAL EN LA INFANCIA Y ADOLESCENCIA
+      P6232100:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE ESTRÉS POST TRAUMATICO
+      P6241122:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PÁNICO
+      P6232400:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: FOBIAS SOCIALES
+      P6232500:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNOS DE ANSIEDAD GENERALIZADA
+      P6232600:
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: OTROS TRASTORNOS DE ANSIEDAD
+      P6223310:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: LEVE
+      P6230400:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: MODERADO
+      P6230500:
+        grupo: DEMENCIAS (INCLUYE ALZHEIMER)
+        concepto: AVANZADO
+      P6223330:
+        grupo: ESQUIZOFRENIA
+        concepto: ''
+      P6241123:
+        grupo: TRASTORNO ADAPTATIVO
+        concepto: ''
+      P6223350:
+        grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
+        concepto: ''
+      P6223360:
+        grupo: RETRASO MENTAL
+        concepto: ''
+      P6223370:
+        grupo: TRASTORNO DE PERSONALIDAD
+        concepto: ''
+      P6241060:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: AUTISMO
+      P6241070:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ASPERGER
+      P6241080:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: SÍNDROME DE RETT
+      P6241090:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTORNO DESINTEGRATIVO DE LA INFANCIA
+      P6241100:
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTONO GENERALIZADO DEL DESARROLLO NO ESPECÍFICO
+      P6232700:
+        grupo: EPILEPSIA
+        concepto: ''
+      P6227603:
+        grupo: OTRAS
+        concepto: ''
+      P6223390:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO I
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+      P6223400:
+        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        concepto: NÚMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 a 4 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 a 4 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 5 a 9 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 5 a 9 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 10 a 14 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 10 a 14 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 15 a 19 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 15 a 19 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 20 a 24 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 20 a 24 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 25 a 29 años
+        sexo: hombres
+      COL15:
+        grupo_edad: 25 a 29 años
+        sexo: mujeres
+      COL16:
+        grupo_edad: 30 a 34 años
+        sexo: hombres
+      COL17:
+        grupo_edad: 30 a 34 años
+        sexo: mujeres
+      COL18:
+        grupo_edad: 35 a 39 años
+        sexo: hombres
+      COL19:
+        grupo_edad: 35 a 39 años
+        sexo: mujeres
+      COL20:
+        grupo_edad: 40 a 44 años
+        sexo: hombres
+      COL21:
+        grupo_edad: 40 a 44 años
+        sexo: mujeres
+      COL22:
+        grupo_edad: 45 a 49 años
+        sexo: hombres
+      COL23:
+        grupo_edad: 45 a 49 años
+        sexo: mujeres
+      COL24:
+        grupo_edad: 50 a 54 años
+        sexo: hombres
+      COL25:
+        grupo_edad: 50 a 54 años
+        sexo: mujeres
+      COL26:
+        grupo_edad: 55 a 59 años
+        sexo: hombres
+      COL27:
+        grupo_edad: 55 a 59 años
+        sexo: mujeres
+      COL28:
+        grupo_edad: 60 a 64 años
+        sexo: hombres
+      COL29:
+        grupo_edad: 60 a 64 años
+        sexo: mujeres
+      COL30:
+        grupo_edad: 65 a 69 años
+        sexo: hombres
+      COL31:
+        grupo_edad: 65 a 69 años
+        sexo: mujeres
+      COL32:
+        grupo_edad: 70 a 74 años
+        sexo: hombres
+      COL33:
+        grupo_edad: 70 a 74 años
+        sexo: mujeres
+      COL34:
+        grupo_edad: 75 a 79 años
+        sexo: hombres
+      COL35:
+        grupo_edad: 75 a 79 años
+        sexo: mujeres
+      COL36:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL37:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL38:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL39:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL40:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL41:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL42:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL43:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL44:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL45:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL46:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL47:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL48:
+        grupo_edad: 80 y más años
+        sexo: ''
+  2025:
+    diccionario: DICCIONARIO CODIGOS SP_25_V1.2.xlsm
+    conceptos:
+      P6221000:
+        grupo: Número de personas en control en el programa
+        concepto: ''
+      P6241200:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6241210:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6241220:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6241230:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6241240:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6241250:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6221500:
+        grupo: Abuso sexual
+        concepto: ''
+      P6230800:
+        grupo: Suicidio
+        concepto: Ideación
+      P6230900:
+        grupo: Suicidio
+        concepto: Intento
+      P6227601:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6221600:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: Depresión leve
+      P6227500:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: Depresión moderada
+      P6227600:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: Depresión grave
+      P6221700:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: Depresión post parto
+      P6221800:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: Trastorno bipolar
+      P6241110:
+        grupo: Trastornos mentales y del comportamiento debido a consumo sustancias
+          psicotrópicas
+        concepto: Consumo perjudicial de alcohol
+      P6241111:
+        grupo: Trastornos mentales y del comportamiento debido a consumo sustancias
+          psicotrópicas
+        concepto: Consumo dependiente del alcohol
+      P6241112:
+        grupo: Trastornos mentales y del comportamiento debido a consumo sustancias
+          psicotrópicas
+        concepto: Consumo perjudicial de drogas
+      P6241113:
+        grupo: Trastornos mentales y del comportamiento debido a consumo sustancias
+          psicotrópicas
+        concepto: Consumo dependiente de drogas
+      P6241114:
+        grupo: Trastornos mentales y del comportamiento debido a consumo sustancias
+          psicotrópicas
+        concepto: Consumo de drogas y alcohol
+      P6222600:
+        grupo: Trastornos del comportamiento y de las emociones de comienzo habitual
+          en la infancia y adolescencia
+        concepto: Trastorno hipercinético
+      P6223060:
+        grupo: Trastornos del comportamiento y de las emociones de comienzo habitual
+          en la infancia y adolescencia
+        concepto: Trastorno disocial desafiante y oposicionista
+      P6223070:
+        grupo: Trastornos del comportamiento y de las emociones de comienzo habitual
+          en la infancia y adolescencia
+        concepto: Trastorno de ansiedad de separación en la infancia
+      P6223080:
+        grupo: Trastornos del comportamiento y de las emociones de comienzo habitual
+          en la infancia y adolescencia
+        concepto: Otros trastornos del comportamiento y de las emociones de comienzo
+          habitual en la infancia y adolescencia
+      P6231000:
+        grupo: Trastornos de ansiedad
+        concepto: Trastorno de estrés post traumático
+      P6241115:
+        grupo: Trastornos de ansiedad
+        concepto: Trastorno de pánico
+      P6231300:
+        grupo: Trastornos de ansiedad
+        concepto: Fobias sociales
+      P6231400:
+        grupo: Trastornos de ansiedad
+        concepto: Trastornos de ansiedad generalizada
+      P6231500:
+        grupo: Trastornos de ansiedad
+        concepto: Otros trastornos de ansiedad
+      P6222300:
+        grupo: Demencias (incluye Alzheimer)
+        concepto: Leve
+      P6230100:
+        grupo: Demencias (incluye Alzheimer)
+        concepto: Moderado
+      P6230200:
+        grupo: Demencias (incluye Alzheimer)
+        concepto: Avanzado
+      P6222400:
+        grupo: Esquizofrenia
+        concepto: ''
+      P6241116:
+        grupo: Trastorno adaptativo
+        concepto: ''
+      P6222500:
+        grupo: Trastornos de la conducta alimentaria
+        concepto: ''
+      P6222800:
+        grupo: Retraso mental
+        concepto: ''
+      P6222900:
+        grupo: Trastorno de personalidad
+        concepto: ''
+      P6241010:
+        grupo: Trastorno generalizados del desarrollo
+        concepto: Autismo
+      P6241020:
+        grupo: Trastorno generalizados del desarrollo
+        concepto: Asperger
+      P6241030:
+        grupo: Trastorno generalizados del desarrollo
+        concepto: Síndrome de Rett
+      P6241040:
+        grupo: Trastorno generalizados del desarrollo
+        concepto: Trastorno desintegrativo de la infancia
+      P6241050:
+        grupo: Trastorno generalizados del desarrollo
+        concepto: Trastorno generalizado del desarrollo no específico
+      P6231600:
+        grupo: Epilepsia
+        concepto: ''
+      P6227602:
+        grupo: Otras
+        concepto: ''
+      P6223040:
+        grupo: Programa de rehabilitación tipo I
+        concepto: Número de personas en control en el programa
+      P6223050:
+        grupo: Programa de rehabilitación tipo II
+        concepto: Número de personas en control en el programa
+      P6230300:
+        grupo: N° de Personas en Control en Progrma de Acompañamiento Psicosocial
+        concepto: ''
+      P6223090:
+        grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
+        concepto: ''
+      P6241260:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6241270:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6241280:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6241290:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6241300:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6241310:
+        grupo: '0'
+        concepto: datos
+      P6223140:
+        grupo: Abuso sexual
+        concepto: ''
+      P6231900:
+        grupo: Suicidio
+        concepto: Ideación
+      P6232000:
+        grupo: Suicidio
+        concepto: Intento
+      P6223170:
+        grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
+        concepto: ''
+      P6223180:
+        grupo: Trastornos del humor
+        concepto: Depresión refractaria
+      P6223190:
+        grupo: Trastornos del humor
+        concepto: Depresión grave con psicosis
+      P6223200:
+        grupo: Trastornos del humor
+        concepto: Depresión con alto riesgo suicida
+      P6223210:
+        grupo: Trastornos del humor
+        concepto: Depresión post parto
+      P6223220:
+        grupo: Trastornos del humor
+        concepto: Trastorno bipolar
+      P6241117:
+        grupo: Trastornos mentales y del comportamiento debido a consumo sustancias
+          psicotropicas
+        concepto: Consumo perjudicial de alcohol
+      P6241118:
+        grupo: Trastornos mentales y del comportamiento debido a consumo sustancias
+          psicotropicas
+        concepto: Consumo dependiente del alcohol
+      P6241119:
+        grupo: Trastornos mentales y del comportamiento debido a consumo sustancias
+          psicotropicas
+        concepto: Consumo perjudicial de drogas
+      P6241120:
+        grupo: Trastornos mentales y del comportamiento debido a consumo sustancias
+          psicotropicas
+        concepto: Consumo dependiente de drogas
+      P6241121:
+        grupo: Trastornos mentales y del comportamiento debido a consumo sustancias
+          psicotropicas
+        concepto: Consumo de drogas y alcohol
+      P6223260:
+        grupo: Trastornos del comportamiento y de las emociones de comienzo habitual
+          en la infancia y adolescencia
+        concepto: Trastorno hipercinético
+      P6223270:
+        grupo: Trastornos del comportamiento y de las emociones de comienzo habitual
+          en la infancia y adolescencia
+        concepto: Trastorno disocial desafiante y oposicionista
+      P6223280:
+        grupo: Trastornos del comportamiento y de las emociones de comienzo habitual
+          en la infancia y adolescencia
+        concepto: Trastorno de ansiedad de separación en la infancia
+      P6223290:
+        grupo: Trastornos del comportamiento y de las emociones de comienzo habitual
+          en la infancia y adolescencia
+        concepto: Otros trastornos del comportamiento y de las emociones de comienzo
+          habitual en la infancia y adolescencia
+      P6232100:
+        grupo: Trastornos de ansiedad
+        concepto: Trastorno de estrés post traumatico
+      P6241122:
+        grupo: Trastornos de ansiedad
+        concepto: Trastorno de pánico
+      P6232400:
+        grupo: Trastornos de ansiedad
+        concepto: Fobias sociales
+      P6232500:
+        grupo: Trastornos de ansiedad
+        concepto: Trastornos de ansiedad generalizada
+      P6232600:
+        grupo: Trastornos de ansiedad
+        concepto: Otros trastornos de ansiedad
+      P6223310:
+        grupo: Demencias (incluye Alzheimer)
+        concepto: Leve
+      P6230400:
+        grupo: Demencias (incluye Alzheimer)
+        concepto: Moderado
+      P6230500:
+        grupo: Demencias (incluye Alzheimer)
+        concepto: Avanzado
+      P6223330:
+        grupo: Esquizofrenia
+        concepto: ''
+      P6241123:
+        grupo: Trastorno adaptativo
+        concepto: ''
+      P6223350:
+        grupo: Trastornos de la conducta alimentaria
+        concepto: ''
+      P6223360:
+        grupo: Retraso mental
+        concepto: ''
+      P6223370:
+        grupo: Trastorno de personalidad
+        concepto: ''
+      P6241060:
+        grupo: Trastorno generalizados del desarrollo
+        concepto: Autismo
+      P6241070:
+        grupo: Trastorno generalizados del desarrollo
+        concepto: Asperger
+      P6241080:
+        grupo: Trastorno generalizados del desarrollo
+        concepto: Síndrome de rett
+      P6241090:
+        grupo: Trastorno generalizados del desarrollo
+        concepto: Trastorno desintegrativo de la infancia
+      P6241100:
+        grupo: Trastorno generalizados del desarrollo
+        concepto: Trastono generalizado del desarrollo no específico
+      P6232700:
+        grupo: Epilepsia
+        concepto: ''
+      P6227603:
+        grupo: Otras
+        concepto: ''
+      P6223390:
+        grupo: Programa de rehabilitación tipo I
+        concepto: Número de personas en control en el programa
+      P6223400:
+        grupo: Programa de rehabilitación tipo II
+        concepto: Número de personas en control en el programa
+      P6221100:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6221200:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6223100:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+      P6223110:
+        grupo: Programa de rehabilitación tipo II
+        concepto: ''
+    columnas:
+      COL01:
+        grupo_edad: ''
+        sexo: ambos
+      COL02:
+        grupo_edad: ''
+        sexo: hombres
+      COL03:
+        grupo_edad: ''
+        sexo: mujeres
+      COL04:
+        grupo_edad: 0 a 4 años
+        sexo: hombres
+      COL05:
+        grupo_edad: 0 a 4 años
+        sexo: mujeres
+      COL06:
+        grupo_edad: 5 a 9 años
+        sexo: hombres
+      COL07:
+        grupo_edad: 5 a 9 años
+        sexo: mujeres
+      COL08:
+        grupo_edad: 10 a 14 años
+        sexo: hombres
+      COL09:
+        grupo_edad: 10 a 14 años
+        sexo: mujeres
+      COL10:
+        grupo_edad: 15 a 19 años
+        sexo: hombres
+      COL11:
+        grupo_edad: 15 a 19 años
+        sexo: mujeres
+      COL12:
+        grupo_edad: 20 a 24 años
+        sexo: hombres
+      COL13:
+        grupo_edad: 20 a 24 años
+        sexo: mujeres
+      COL14:
+        grupo_edad: 25 a 29 años
+        sexo: hombres
+      COL15:
+        grupo_edad: 25 a 29 años
+        sexo: mujeres
+      COL16:
+        grupo_edad: 30 a 34 años
+        sexo: hombres
+      COL17:
+        grupo_edad: 30 a 34 años
+        sexo: mujeres
+      COL18:
+        grupo_edad: 35 a 39 años
+        sexo: hombres
+      COL19:
+        grupo_edad: 35 a 39 años
+        sexo: mujeres
+      COL20:
+        grupo_edad: 40 a 44 años
+        sexo: hombres
+      COL21:
+        grupo_edad: 40 a 44 años
+        sexo: mujeres
+      COL22:
+        grupo_edad: 45 a 49 años
+        sexo: hombres
+      COL23:
+        grupo_edad: 45 a 49 años
+        sexo: mujeres
+      COL24:
+        grupo_edad: 50 a 54 años
+        sexo: hombres
+      COL25:
+        grupo_edad: 50 a 54 años
+        sexo: mujeres
+      COL26:
+        grupo_edad: 55 a 59 años
+        sexo: hombres
+      COL27:
+        grupo_edad: 55 a 59 años
+        sexo: mujeres
+      COL28:
+        grupo_edad: 60 a 64 años
+        sexo: hombres
+      COL29:
+        grupo_edad: 60 a 64 años
+        sexo: mujeres
+      COL30:
+        grupo_edad: 65 a 69 años
+        sexo: hombres
+      COL31:
+        grupo_edad: 65 a 69 años
+        sexo: mujeres
+      COL32:
+        grupo_edad: 70 a 74 años
+        sexo: hombres
+      COL33:
+        grupo_edad: 70 a 74 años
+        sexo: mujeres
+      COL34:
+        grupo_edad: 75 a 79 años
+        sexo: hombres
+      COL35:
+        grupo_edad: 75 a 79 años
+        sexo: mujeres
+      COL36:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL37:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL38:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL39:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL40:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL41:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL42:
+        grupo_edad: 80 y más años
+        sexo: hombres
+      COL43:
+        grupo_edad: 80 y más años
+        sexo: mujeres
+      COL44:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL45:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL46:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL47:
+        grupo_edad: 80 y más años
+        sexo: ''
+      COL48:
+        grupo_edad: 80 y más años
+        sexo: ''
+no_legibles:
+- '2009: diccionario ilegible (XLRDError)'
+- '2012: diccionario ilegible (XLRDError)'
+- '2013: sin conceptos en la hoja P6'

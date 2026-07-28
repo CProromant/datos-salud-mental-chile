@@ -291,6 +291,105 @@ def cmd_run(args) -> int:
     return 0
 
 
+def cmd_rem_mapear(args) -> int:
+    """Regenera `config/rem_secciones.yml` desde los diccionarios publicados por DEIS.
+
+    El mapeo vive en `config/` y no en código (CLAUDE.md §7), pero tiene que ser
+    **reproducible**: cuando DEIS publique el año siguiente, esto se corre de nuevo y el
+    diff muestra exactamente qué conceptos cambiaron. Un mapeo escrito a mano una vez es
+    un mapeo que nadie se atreve a actualizar.
+
+    Lee solo los diccionarios de cada ZIP con peticiones de rango: son ~7 MB en total
+    contra los 3,5 GB que pesan los archivos completos.
+    """
+    import re
+    import tempfile
+
+    import yaml
+
+    from .ingest.rem_diccionario import leer_columnas, leer_conceptos
+    from .io import extraer_de_zip_remoto, listar_zip_remoto
+
+    reg = cargar_registro(args.config)
+    fuente = reg.get("rem_salud_mental")
+    patron = fuente.extra.get("patron_url_anual")
+    if not patron:
+        print("ERROR: la fuente no declara `patron_url_anual`.", file=sys.stderr)
+        return 1
+
+    salida: dict = {"seccion": args.hoja, "fuente": "rem_salud_mental", "anios": {}}
+    ilegibles: list[str] = []
+
+    for anio in range(args.desde, args.hasta + 1):
+        url = patron.format(anio=anio)
+        try:
+            miembros = listar_zip_remoto(url)
+        except Exception as exc:  # noqa: BLE001
+            ilegibles.append(f"{anio}: no se pudo leer el ZIP ({type(exc).__name__})")
+            continue
+
+        dicc = [m for m in miembros
+                if re.search(r"dicc", m.nombre, re.I)
+                and re.search(r"SP[-_ ]?\d", m.nombre, re.I) and m.bytes_reales > 0]
+        if not dicc:
+            ilegibles.append(f"{anio}: sin diccionario de la Serie P en el ZIP")
+            continue
+
+        datos = extraer_de_zip_remoto(url, dicc[0])
+        sufijo = Path(dicc[0].nombre).suffix or ".xls"
+        with tempfile.NamedTemporaryFile(suffix=sufijo, delete=False) as fh:
+            fh.write(datos)
+            tmp = Path(fh.name)
+        try:
+            conceptos = leer_conceptos(tmp, hoja=args.hoja)
+            columnas = leer_columnas(tmp, hoja=args.hoja)
+        except Exception as exc:  # noqa: BLE001
+            ilegibles.append(f"{anio}: diccionario ilegible ({type(exc).__name__})")
+            continue
+        finally:
+            tmp.unlink(missing_ok=True)
+
+        if not conceptos:
+            ilegibles.append(f"{anio}: sin conceptos en la hoja {args.hoja}")
+            continue
+
+        salida["anios"][anio] = {
+            "diccionario": dicc[0].nombre.split("/")[-1],
+            "conceptos": {c.codigo: {"grupo": c.grupo, "concepto": c.concepto}
+                          for c in conceptos},
+            "columnas": {c.nombre: {"grupo_edad": c.grupo_edad, "sexo": c.sexo}
+                         for c in columnas},
+        }
+        print(f"  {anio}: {len(conceptos):>3} conceptos, {len(columnas):>3} columnas")
+
+    if ilegibles:
+        salida["no_legibles"] = ilegibles
+        print("\nAños que no se pudieron mapear:")
+        for x in ilegibles:
+            print(f"  {x}")
+
+    destino = Path(args.salida)
+    cabecera = (
+        "# Mapeo de las secciones del REM. GENERADO, no editar a mano.\n"
+        "#\n"
+        "# Regenerar con:  obsm rem mapear\n"
+        "#\n"
+        "# Existe porque los archivos del REM traen columnas genéricas (`Col01`..`Col38`)\n"
+        "# cuyo significado depende del `CodigoPrestacion` de cada fila. Sin este mapeo,\n"
+        "# un valor del archivo no se puede interpretar.\n"
+        "#\n"
+        "# El diff entre dos versiones de este archivo ES el registro de qué cambió el\n"
+        "# formulario entre años, que es justo lo que un ingestor tiene que saber.\n"
+        "# Ver docs/05-CALIDAD.md#quiebres-rem.\n"
+    )
+    destino.write_text(
+        cabecera + yaml.safe_dump(salida, allow_unicode=True, sort_keys=False),
+        encoding="utf-8",
+    )
+    print(f"\nescrito: {destino} ({len(salida['anios'])} años mapeados)")
+    return 0
+
+
 def cmd_build_silver(args) -> int:
     import pandas as pd
 
@@ -470,6 +569,15 @@ def construir_parser() -> argparse.ArgumentParser:
                     help="Salta la reconciliación. Solo para depurar: la salida NO es "
                          "publicable y el metadato lo declara.")
     bg.set_defaults(func=cmd_build_gold)
+
+    p_rem = sub.add_parser("rem", help="utilidades del REM")
+    rem = p_rem.add_subparsers(dest="accion", required=True)
+    rm = rem.add_parser("mapear", help="regenera config/rem_secciones.yml")
+    rm.add_argument("--desde", type=int, default=2009)
+    rm.add_argument("--hasta", type=int, default=2025)
+    rm.add_argument("--hoja", default="P6", help="sección del REM (P6 = salud mental)")
+    rm.add_argument("--salida", default="config/rem_secciones.yml")
+    rm.set_defaults(func=cmd_rem_mapear)
 
     r = sub.add_parser("run", help="pipeline de Fase 1 completo, en un comando")
     r.add_argument("--agrupador", default="SUICIDIO")
