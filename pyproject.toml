@@ -19,6 +19,12 @@ dependencies = [
     # el bundle de certifi no puede resolverla. Ver `io._usar_almacen_de_certificados`.
     "truststore>=0.9",
     "pyarrow>=14.0",
+    # Lectores de Excel para los diccionarios de códigos del REM, que vienen como
+    # réplica del formulario en papel. `openpyxl` lee .xlsx/.xlsm (2017-2025) y `xlrd`
+    # el .xls antiguo (2010-2016). No son opcionales: sin ellos el ingestor del REM no
+    # puede saber qué cuenta cada columna del archivo de datos.
+    "openpyxl>=3.1",
+    "xlrd>=2.0",
 ]
 
 [project.optional-dependencies]

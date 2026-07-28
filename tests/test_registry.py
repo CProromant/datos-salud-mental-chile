@@ -235,3 +235,54 @@ class TestCompatibilidadDeLicencias:
         f = cargar_registro().get("ine_vitales_anuario")
         assert "NC" in self._licencia(f)
         assert f.extra.get("alimenta_gold") is False
+
+
+class TestDependenciasDeclaradas:
+    """Todo paquete que el código importa tiene que estar en `pyproject.toml`.
+
+    CI falló porque `openpyxl` y `xlrd` se usaban sin declararse: acá estaban
+    instalados de antes y en el `pip install` limpio de CI no existían. Es un fallo
+    que no se puede reproducir en la máquina donde se escribió el código, que es la
+    peor clase.
+    """
+
+    def test_ningun_import_externo_queda_sin_declarar(self):
+        import ast
+        import pathlib
+        import sys
+        import tomllib
+
+        raiz = pathlib.Path(__file__).resolve().parents[1]
+        cfg = tomllib.loads((raiz / "pyproject.toml").read_text(encoding="utf-8"))
+        proyecto = cfg["project"]
+        requisitos = list(proyecto.get("dependencies", []))
+        for extra in proyecto.get("optional-dependencies", {}).values():
+            requisitos += extra
+        # `pyyaml` se importa como `yaml`, `camelot-py` como `camelot`.
+        declarados = {r.split(">")[0].split("=")[0].split("[")[0].strip().lower()
+                      for r in requisitos}
+        declarados |= {"yaml", "camelot"}
+
+        propios = {"obsm", "tests"}
+        estandar = set(sys.stdlib_module_names)
+        sin_declarar: dict[str, set[str]] = {}
+        for carpeta in ("src", "tests", "ejemplos"):
+            for ruta in (raiz / carpeta).rglob("*.py"):
+                arbol = ast.parse(ruta.read_text(encoding="utf-8"))
+                for n in ast.walk(arbol):
+                    if isinstance(n, ast.Import):
+                        mods = [a.name.split(".")[0] for a in n.names]
+                    elif isinstance(n, ast.ImportFrom) and n.level == 0 and n.module:
+                        mods = [n.module.split(".")[0]]
+                    else:
+                        continue
+                    for m in mods:
+                        if m in estandar or m in propios or m.lower() in declarados:
+                            continue
+                        sin_declarar.setdefault(m, set()).add(
+                            str(ruta.relative_to(raiz))
+                        )
+        assert not sin_declarar, (
+            f"paquetes importados y no declarados en pyproject.toml: "
+            f"{ {k: sorted(v) for k, v in sin_declarar.items()} }"
+        )
