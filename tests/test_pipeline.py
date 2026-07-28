@@ -647,3 +647,46 @@ class TestSupresionDeDerivadas:
         gold, _ = self._gold()
         una_muerte = gold[gold["casos"] == 1]
         assert len(una_muerte) == 0 or una_muerte["avpp"].isna().all()
+
+
+class TestProcedenciaEnCadaFila:
+    """CLAUDE.md §2.2: toda fila publicada arrastra su procedencia.
+
+    Se descubrió al inspeccionar el CSV justo antes de publicarlo: `source_version` y
+    `poblacion_version` iban en null en las 7.612 filas porque el CLI no se las pasaba.
+    Un dataset sin eso no se puede atribuir a una entrega concreta, y como un cambio de
+    base poblacional mueve todas las tasas a la vez, dos series idénticas en apariencia
+    pueden venir de denominadores distintos.
+    """
+
+    def _tablas(self):
+        pob = pd.DataFrame({
+            "comuna_cut": ["05101"], "anio": [2020],
+            "grupo_edad": ["40-44"], "poblacion": [100_000],
+        })
+        ag = pd.DataFrame({
+            "comuna_cut": ["05101"], "anio": [2020],
+            "grupo_edad": ["40-44"], "casos": [12],
+        })
+        return ag, pob
+
+    def test_las_versiones_llegan_a_todas_las_filas(self):
+        ag, pob = self._tablas()
+        gold, _ = tasas_comunales(
+            ag, pob, "SUICIDIO", k=1,
+            source_version="CIFRAS_OFICIALES 1990-2023",
+            poblacion_version="base 2017",
+        )
+        assert (gold["source_version"] == "CIFRAS_OFICIALES 1990-2023").all()
+        assert (gold["poblacion_version"] == "base 2017").all()
+
+    def test_el_catalogo_declara_las_versiones_que_el_cli_necesita(self):
+        # Si alguien quita `source_version` de sources.yml, gold vuelve a salir con nulls
+        # sin que nada falle. Esta es la punta que lo detecta.
+        from obsm.registry import cargar_registro
+
+        reg = cargar_registro()
+        for source_id in ("deis_defunciones", "ine_proyecciones"):
+            assert reg.get(source_id).source_version, (
+                f"{source_id} sin source_version: gold saldría sin procedencia"
+            )

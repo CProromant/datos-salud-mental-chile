@@ -4,6 +4,51 @@ Formato: [Keep a Changelog]. Versionado de datos `AAAA.MM.N`, de código SemVer.
 Un cambio metodológico que altere series ya publicadas exige versión mayor y mantener
 disponible la versión anterior.
 
+## [0.2.0] — 2026-07-27 — Primera serie publicable (Fase 1)
+
+Primer release con datos. La serie es la **tasa comunal de mortalidad por suicidio,
+Chile 2002-2023** (dataset `2026.07.1`): 346 comunas x 22 años, con tasa cruda,
+estandarizada por edad, suavizada por Bayes empírico y años de vida potencial perdidos.
+
+### Verificado contra fuentes externas
+- Defunciones totales 2023 = 122.218 y 2020 = 126.169: **exacto** contra el Anuario de
+  Estadísticas Vitales del INE.
+- Población nacional 2020 y 2023: **exacto** contra las proyecciones del INE.
+- Tasa nacional de suicidio 2015-2023 entre 8,0 y 10,6 por 100.000, dentro del rango
+  publicado para Chile. AVPP de 38,8 años por muerte.
+- Conservación de casos: 46.810 = 40.730 dentro de la ventana + 6.080 declarados fuera.
+
+### Agregado
+- `obsm run`: el pipeline completo en un comando. Descarga, verifica hashes, descomprime,
+  ingiere, normaliza, reconcilia y escribe gold. Se detiene en el primer error.
+- Ingestor `ine_proyecciones` y normalización del denominador en silver.
+- Reconciliación **automática** contra `config/anclas.yml`: cinco anclas con procedencia,
+  evaluadas antes de publicar. Si una no cuadra, no se escribe nada.
+- Tasa estandarizada por edad con IC 95 % y AVPP en gold, con supresión extendida a todas
+  las columnas derivadas.
+- `ejemplos/practica.py`: ocho secciones ejecutables para aprender la herramienta.
+- Ficha del dataset en `docs/DATASET-suicidio-comunal.md`.
+
+### Corregido
+- Nueve anomalías documentadas en `docs/05-CALIDAD.md`. Cinco eran defectos que **no
+  lanzaban excepción** y habrían publicado números plausibles y falsos: cero suicidios en
+  27 años por leer la columna de diagnóstico equivocada (A-004), una comuna inventada por
+  validar el formato del CUT y no su existencia (A-007), doce años futuros con tasa cero,
+  y el desglose por método —prohibido en docs/06— autorizado por un error de tipeo en
+  `es_publicable`.
+- La descarga no funcionaba contra las fuentes reales: user-agent rechazado con 403 y
+  cadena de certificados incompleta. Resuelto con user-agent de navegador y `truststore`.
+- `source_version` y `poblacion_version` iban en null en las 7.612 filas.
+
+### Licencias
+- Se investigaron DEIS y SUBDERE: **ninguna declara licencia** para el archivo que se usa.
+  Se evaluó publicar bajo CC BY-NC-SA y no es legalmente posible —la cláusula 3(b) de
+  CC BY-SA 4.0 del INE exige los mismos elementos de licencia—. Se mantiene CC BY-SA 4.0
+  y la postura sobre uso comercial queda como norma en `USO-ACEPTABLE.md`.
+
+### Métricas
+- 337 tests. 4 de 17 fuentes verificadas con descarga real. 2 indicadores activos.
+
 ## [0.1.0] — 2026-07-26 — Andamiaje (Fase 0)
 
 ### Agregado

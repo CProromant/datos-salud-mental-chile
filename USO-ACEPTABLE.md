@@ -25,6 +25,28 @@ investigación académica, fiscalización, docencia y periodismo especializado.
 5. **Presentación de las cifras sin sus advertencias metodológicas**, en particular sin
    marcar años preliminares ni quiebres de serie.
 
+## Lo que se pide a quien haga uso comercial
+
+La licencia permite el uso comercial y el proyecto no quiere impedirlo: prensa, consultoría
+en política pública y docencia pagada son usos legítimos y buscados. Pero se **pide** —como
+norma, no como condición legal— lo siguiente:
+
+1. **Avisar.** Un correo diciendo qué se está haciendo con los datos. No para autorizar
+   nada, sino porque saber quién los usa es lo único que permite avisar de una corrección
+   o de un quiebre de serie a quien le importa.
+2. **Citar a la fuente primaria, no solo a este proyecto.** Los datos vienen de DEIS/MINSAL
+   y del INE. Este proyecto no genera datos primarios: los limpia, los cruza y los documenta.
+3. **Arrastrar las advertencias.** Un producto comercial que muestre estas cifras sin decir
+   que los últimos dos años son preliminares, o que las diferencias entre comunas pequeñas
+   son mayormente ruido, está vendiendo precisión falsa.
+
+**Por qué esto vive acá y no en la licencia.** Se evaluó publicar bajo CC BY-NC-SA para
+restringir el uso comercial, y **no es legalmente posible**: el INE publica las proyecciones
+de población bajo CC BY-SA 4.0, cuya cláusula 3(b) exige que toda obra derivada lleve una
+licencia con *los mismos elementos*. Agregar «no comercial» a material que no lo traía viola
+esa condición. Restringir acá habría cambiado un riesgo hipotético por un incumplimiento
+cierto. El razonamiento completo está en `docs/adr/0005-licencia-datos-sharealike.md`.
+
 ## Qué hará el proyecto
 
 Ante un uso que contravenga lo anterior y sea de conocimiento público, el proyecto publicará
