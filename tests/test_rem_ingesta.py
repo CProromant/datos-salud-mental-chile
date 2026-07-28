@@ -134,3 +134,85 @@ class TestMapeoFaltante:
         from obsm.ingest import INGESTORES
 
         assert INGESTORES["rem_salud_mental"] is RemPoblacionControl
+
+
+class TestSilverDelRem:
+    """bronze → silver: territorio, período semestral y grilla etaria."""
+
+    @pytest.fixture()
+    def silver(self, bronze):
+        from obsm.transform.silver import normalizar_rem
+
+        return normalizar_rem(bronze)
+
+    def test_aqui_si_se_rellena_el_cut(self, silver):
+        df, rep = silver
+        assert "09108" in set(df["comuna_cut"])
+        assert all(len(c) == 5 for c in df["comuna_cut"])
+        assert rep["cut_invalidos"] == 0
+
+    def test_el_periodo_es_semestral_y_va_en_iso(self, silver):
+        df, rep = silver
+        assert rep["periodos"] == ["2023-06", "2023-12"]
+        assert set(df["periodo"]) == {"2023-06", "2023-12"}
+
+    def test_los_grupos_del_rem_calzan_con_la_grilla_del_proyecto(self, silver):
+        """Coincidencia afortunada: el REM ya usa quinquenios con abierto en 80.
+
+        Es la misma grilla que impone el denominador del INE, así que no hay que
+        armonizar nada. Si algún año cambiara, `grupos_edad_no_reconocidos` lo delata.
+        """
+        df, rep = silver
+        assert rep["grupos_edad_no_reconocidos"] == []
+        assert {"00-04", "05-09"} <= set(df["grupo_edad"])
+
+    def test_las_filas_de_total_se_marcan_y_no_se_llaman_desconocido(self, silver):
+        """`total` y `desconocido` dicen cosas opuestas y confundirlas duplica gente.
+
+        Una fila de total son todos los tramos juntos; una `desconocido` sería gente de
+        la que no se sabe la edad. Sumar el total con el detalle cuenta a cada persona
+        dos veces, y con el mismo nombre nadie lo notaría.
+        """
+        df, _ = silver
+        totales = df[df["es_total_etario"]]
+        assert set(totales["grupo_edad"]) == {"total"}
+        assert "desconocido" not in set(df["grupo_edad"])
+
+    def test_el_total_no_se_puede_sumar_con_el_detalle(self, silver):
+        # Santiago, diciembre: el total de «ambos sexos» es 50 y el detalle etario suma
+        # 30. Son la misma gente contada de dos formas, no 80 personas.
+        df, _ = silver
+        stgo = df[(df["comuna_cut"] == "13101") & (df["concepto"] == "DEPRESIÓN LEVE")]
+        total = stgo[stgo["es_total_etario"] & (stgo["sexo"] == "ambos")]["valor"].sum()
+        detalle = stgo[~stgo["es_total_etario"]]["valor"].sum()
+        assert total == 50
+        assert detalle == 30
+        assert total != detalle, "el detalle no cubre todos los tramos; no son sumables"
+
+    def test_agrega_establecimientos_dentro_de_la_comuna(self, silver):
+        # El establecimiento no es unidad publicable: identificar el CESFAM con dos casos
+        # de un diagnóstico es identificar a las personas.
+        df, _ = silver
+        assert "establecimiento_deis" not in df.columns
+
+
+class TestGrupoEdadRem:
+    @pytest.mark.parametrize("texto,esperado", [
+        ("0 a 4 años", "00-04"),
+        ("5 a 9 años", "05-09"),
+        ("75 a 79 años", "75-79"),
+        ("80 y más años", "80+"),
+        ("80 y mas años", "80+"),
+        ("10 - 14 años", "10-14"),
+    ])
+    def test_traduce_las_formas_conocidas(self, texto, esperado):
+        from obsm.transform.silver import grupo_edad_rem
+
+        assert grupo_edad_rem(texto) == esperado
+
+    @pytest.mark.parametrize("texto", ["", "adultos", "de 20 a 30", None, "0-4"])
+    def test_lo_que_no_reconoce_queda_desconocido_y_no_adivinado(self, texto):
+        from obsm.transform.silver import grupo_edad_rem
+
+        # Adivinar movería personas de un tramo a otro sin dejar rastro.
+        assert grupo_edad_rem(texto) == "desconocido"

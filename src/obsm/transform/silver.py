@@ -5,6 +5,8 @@ Funciones puras sobre DataFrames. Acá y solo acá se aplica `territorio` y `cie
 
 from __future__ import annotations
 
+import re
+
 import pandas as pd
 
 from ..cie10 import AGRUPADORES
@@ -103,6 +105,95 @@ def normalizar_poblacion(
     # Un cero es un dato («no vive nadie»), no un faltante. Se cuenta, no se filtra: es
     # legítimo en comunas diminutas (A-009) y `tasa_cruda` ya devuelve NaN al dividir.
     reporte["celdas_poblacion_cero"] = int((agregado["poblacion"] == 0).sum())
+    return agregado, reporte
+
+
+#: Traducción de los grupos etarios del REM a la grilla del proyecto.
+#: Coinciden exactamente y son idénticos en todos los años revisados (2014-2025): el
+#: formulario usa quinquenios y cierra con un grupo abierto en 80, que es la misma grilla
+#: que impone el denominador del INE (ver TOPE_EDAD_PIPELINE). No hay que armonizar nada,
+#: solo cambiar la escritura.
+_RE_GRUPO_REM = re.compile(r"^(\d{1,3})\s*(?:a|-)\s*(\d{1,3})\s*años?$", re.I)
+_RE_GRUPO_ABIERTO = re.compile(r"^(\d{1,3})\s*y\s*m[áa]s\s*años?$", re.I)
+
+
+def grupo_edad_rem(texto: str) -> str:
+    """Pasa «0 a 4 años» a «00-04» y «80 y más años» a «80+».
+
+    Devuelve `desconocido` ante cualquier forma que no reconozca, en vez de adivinar:
+    un grupo mal asignado mueve personas de un tramo etario a otro sin dejar rastro.
+    """
+    t = " ".join(str(texto or "").split())
+    if not t:
+        return "desconocido"
+    if m := _RE_GRUPO_ABIERTO.match(t):
+        return f"{int(m.group(1))}+"
+    if m := _RE_GRUPO_REM.match(t):
+        return f"{int(m.group(1)):02d}-{int(m.group(2)):02d}"
+    return "desconocido"
+
+
+def normalizar_rem(
+    df: pd.DataFrame, dpa: DPA | None = None
+) -> tuple[pd.DataFrame, dict]:
+    """Lleva el REM de bronze a la grilla canónica.
+
+    Devuelve (silver, reporte) con una fila por `comuna_cut × periodo × concepto ×
+    grupo_edad × sexo`. El período es **semestral**, no mensual: población bajo control es
+    un stock con corte en junio y diciembre, y así viene el archivo.
+
+    Se agrega por comuna sumando establecimientos. Un establecimiento no es una unidad de
+    análisis publicable —identificar el CESFAM con dos casos de un diagnóstico es
+    identificar a las personas—, y el proyecto trabaja a nivel territorial.
+    """
+    reporte: dict = {"filas_entrada": len(df)}
+    out = df.copy()
+
+    out["comuna_cut"], rep_cut = resolver_cut(out["comuna_cut_fuente"], dpa=dpa)
+    reporte.update(rep_cut)
+    out["region_cut"] = out["comuna_cut"].str[:2]
+
+    # Período ISO mensual: el corte de junio es `2023-06`, el de diciembre `2023-12`.
+    out["periodo"] = (
+        out["anio"].astype("Int64").astype(str)
+        + "-"
+        + out["mes"].astype("Int64").astype(str).str.zfill(2)
+    )
+    reporte["periodos"] = sorted(out["periodo"].dropna().unique().tolist())
+
+    # Las columnas de total y las de detalle etario cuentan a la MISMA gente: sumarlas
+    # duplicaría a cada persona. Se marcan para que quien agregue elija una de las dos.
+    out["es_total_etario"] = out["grupo_edad_fuente"].fillna("").eq("")
+
+    # Una fila de total se etiqueta `total`, no `desconocido`. La distinción importa:
+    # `desconocido` dice «no sabemos en qué tramo está esta gente» y `total` dice «esta
+    # fila son todos los tramos juntos». Confundirlas lleva a sumar el total con el
+    # detalle y contar a cada persona dos veces.
+    out["grupo_edad"] = out["grupo_edad_fuente"].map(grupo_edad_rem)
+    out.loc[out["es_total_etario"], "grupo_edad"] = "total"
+
+    no_reconocidos = out["grupo_edad"].eq("desconocido")
+    reporte["grupos_edad_no_reconocidos"] = sorted(
+        out.loc[no_reconocidos, "grupo_edad_fuente"].dropna().unique().tolist()
+    )
+
+    dimensiones = [
+        "comuna_cut", "region_cut", "periodo", "codigo_prestacion", "grupo", "concepto",
+        "grupo_edad", "sexo", "es_total_etario",
+    ]
+    agregado = (
+        out.groupby(dimensiones, dropna=False)["valor"]
+        .sum()
+        .reset_index()
+        .sort_values(dimensiones)
+        .reset_index(drop=True)
+    )
+
+    reporte["filas_salida"] = len(agregado)
+    reporte["conceptos"] = int(agregado["concepto"].nunique())
+    reporte["personas_en_total_etario"] = int(
+        agregado.loc[agregado["es_total_etario"] & agregado["sexo"].eq("ambos"), "valor"].sum()
+    )
     return agregado, reporte
 
 
