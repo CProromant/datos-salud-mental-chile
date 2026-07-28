@@ -10,6 +10,7 @@ import hashlib
 import json
 import logging
 import re
+import struct
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -307,6 +308,141 @@ def descargar(
         bytes=destino.stat().st_size,
         encoding=detectar_encoding(destino),
     )
+
+
+# --------------------------------------------------------------------------------------
+# Lectura parcial de ZIP remotos
+# --------------------------------------------------------------------------------------
+
+#: Fin del índice central de un ZIP clásico.
+_FIRMA_EOCD = b"PK\x05\x06"
+#: Fin del índice central en ZIP64. Se detecta para fallar, no para soportarlo.
+_FIRMA_EOCD64 = b"PK\x06\x06"
+_FIRMA_ENTRADA_CD = b"PK\x01\x02"
+
+#: Codepage para los nombres de miembro que no declaran UTF-8. La especificación del
+#: formato dice CP437, pero las herramientas reales escriben la codepage del sistema que
+#: creó el archivo. Verificado sobre el ZIP del REM: CP850, que es la de un Windows en
+#: español. Ambas coinciden en todo el rango ASCII y difieren solo en los acentos.
+CODEC_NOMBRES_ZIP = "cp850"
+
+
+@dataclass(frozen=True)
+class MiembroZip:
+    """Un archivo dentro de un ZIP, con lo necesario para bajarlo por separado."""
+
+    nombre: str
+    offset: int
+    bytes_comprimidos: int
+    bytes_reales: int
+
+
+def _rango_http(url: str, desde: int, hasta: int, user_agent: str) -> bytes:
+    """Pide un tramo de bytes. `desde` negativo significa «los últimos N bytes»."""
+    import requests  # noqa: PLC0415
+
+    _usar_almacen_de_certificados_del_sistema()
+    # HTTP tiene una sintaxis propia para la cola de un archivo (`bytes=-500`), distinta
+    # de un rango normal. Sirve justo para lo que se necesita acá: leer el final sin
+    # conocer el tamaño de antemano.
+    rango = f"bytes={desde}" if desde < 0 else f"bytes={desde}-{hasta}"
+    resp = requests.get(
+        url, headers={"User-Agent": user_agent, "Range": rango}, timeout=120
+    )
+    resp.raise_for_status()
+    return resp.content
+
+
+def listar_zip_remoto(
+    url: str,
+    user_agent: str = USER_AGENT_NAVEGADOR,
+    leer_rango=None,
+) -> list[MiembroZip]:
+    """Lista los archivos de un ZIP remoto **sin descargarlo**.
+
+    El índice central de un ZIP vive al final del archivo, así que basta con pedir los
+    últimos kilobytes para saber qué contiene y dónde está cada miembro. Para los ZIP del
+    REM —220 MB cada uno, de los que solo interesa un diccionario de medio mega— la
+    diferencia entre esto y descargar todo es de tres órdenes de magnitud.
+
+    `leer_rango(url, desde, hasta) -> bytes` se puede inyectar para probar sin red.
+    """
+    leer = leer_rango or (lambda u, d, h: _rango_http(u, d, h, user_agent))
+
+    # No se conoce el tamaño de antemano; se pide una cola generosa. Si el servidor no
+    # soporta rangos devolverá el archivo entero, que es lento pero no incorrecto.
+    cola = leer(url, -65_536, -1)
+
+    i = cola.rfind(_FIRMA_EOCD)
+    if i < 0:
+        if _FIRMA_EOCD64 in cola:
+            raise SourceUnavailableError(
+                f"{url} es un ZIP64 y este lector no lo soporta. Descargar completo."
+            )
+        raise SourceUnavailableError(
+            f"No se encontró el índice central en {url}. ¿El servidor ignora las "
+            f"peticiones de rango, o el archivo no es un ZIP?"
+        )
+
+    n_entradas, tam_cd, off_cd = struct.unpack("<HII", cola[i + 10 : i + 20])
+    if off_cd == 0xFFFFFFFF or n_entradas == 0xFFFF:
+        raise SourceUnavailableError(f"{url} usa ZIP64; este lector no lo soporta.")
+
+    cd = leer(url, off_cd, off_cd + tam_cd - 1)
+    miembros: list[MiembroZip] = []
+    p = 0
+    for _ in range(n_entradas):
+        if cd[p : p + 4] != _FIRMA_ENTRADA_CD:
+            break
+        # El bit 11 de las banderas declara que el nombre viene en UTF-8. Cuando no está,
+        # la especificación dice CP437, pero las herramientas reales escriben la codepage
+        # del sistema que creó el archivo. Verificado sobre el ZIP de DEIS: el byte del
+        # nombre es 0xE0, que en CP437 es «α» y en CP850 es «Ó» — o sea que el archivo
+        # se creó en un Windows con configuración regional española.
+        # `DICCIONARIO CÓDIGOS SBS...` leído como CP437 da `DICCIONARIO CαDIGOS SBS...`,
+        # y con ese nombre el miembro deja de encontrarse. Para fuentes chilenas CP850 es
+        # la apuesta correcta; coincide con CP437 en todo el rango ASCII.
+        banderas = struct.unpack("<H", cd[p + 8 : p + 10])[0]
+        comp, real = struct.unpack("<II", cd[p + 20 : p + 28])
+        ln, le, lc = struct.unpack("<HHH", cd[p + 28 : p + 34])
+        off = struct.unpack("<I", cd[p + 42 : p + 46])[0]
+        crudo_nombre = cd[p + 46 : p + 46 + ln]
+        codec = "utf-8" if banderas & 0x800 else CODEC_NOMBRES_ZIP
+        nombre = crudo_nombre.decode(codec, "replace")
+        miembros.append(MiembroZip(nombre, off, comp, real))
+        p += 46 + ln + le + lc
+    return miembros
+
+
+def extraer_de_zip_remoto(
+    url: str,
+    miembro: MiembroZip,
+    user_agent: str = USER_AGENT_NAVEGADOR,
+    leer_rango=None,
+) -> bytes:
+    """Descarga y descomprime **solo** un miembro de un ZIP remoto."""
+    import zlib  # noqa: PLC0415
+
+    leer = leer_rango or (lambda u, d, h: _rango_http(u, d, h, user_agent))
+    # El encabezado local repite nombre y extras con largos propios, distintos a los del
+    # índice central, así que hay que leerlo para saber dónde empiezan los datos.
+    crudo = leer(url, miembro.offset, miembro.offset + miembro.bytes_comprimidos + 4096)
+    if crudo[:4] != b"PK\x03\x04":
+        raise SourceUnavailableError(
+            f"El offset de {miembro.nombre!r} no apunta a un encabezado de archivo."
+        )
+    ln, le = struct.unpack("<HH", crudo[26:30])
+    metodo = struct.unpack("<H", crudo[8:10])[0]
+    inicio = 30 + ln + le
+    datos = crudo[inicio : inicio + miembro.bytes_comprimidos]
+
+    if metodo == 0:
+        return datos
+    if metodo != 8:
+        raise SourceUnavailableError(
+            f"{miembro.nombre!r} usa el método de compresión {metodo}, no soportado."
+        )
+    return zlib.decompress(datos, -15)
 
 
 def ruta_capa(capa: str, source_id: str, nombre: str) -> Path:
