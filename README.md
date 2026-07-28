@@ -5,246 +5,186 @@
 [![código: MIT](https://img.shields.io/badge/c%C3%B3digo-MIT-green)](LICENSE)
 [![datos: CC BY-SA 4.0](https://img.shields.io/badge/datos-CC%20BY--SA%204.0-green)](LICENSE-DATA.md)
 
-Motor de datos que consolida, normaliza y publica indicadores de salud mental de Chile a
-nivel comunal, a partir de fuentes públicas hoy dispersas, inconsistentes entre años y en
-buena parte atrapadas en PDF.
+**Los datos de salud mental de Chile están publicados, pero repartidos en archivos que no
+conversan entre sí.** Este proyecto los junta, los limpia, los verifica contra las cifras
+oficiales y los deja descargables.
 
-> **Proyecto independiente.** No representa ni cuenta con el respaldo de ningún organismo
-> del Estado. Los datos primarios son de DEIS/MINSAL, INE, DIPRES y otros; este proyecto los
-> limpia, los cruza y los documenta.
-
-**El problema que ataca:** Chile no tiene una línea base utilizable de salud mental. Sin
-ella no hay evaluación posible de política pública, y las decisiones de presupuesto,
-brechas y priorización se toman con anécdota o con cifras de hace una década.
-Ver [`docs/00-PROBLEMA.md`](docs/00-PROBLEMA.md).
-
-**Lo que NO es:** no es una aplicación clínica, no hace triage, no procesa datos
-identificables de pacientes, no entrega orientación clínica y no reemplaza el juicio
-profesional. Estos límites son de diseño, no de alcance temporal.
+> Proyecto independiente. No representa ni cuenta con el respaldo de ningún organismo del
+> Estado. Los datos primarios son de DEIS/MINSAL, INE y SUBDERE; acá se limpian, se cruzan
+> y se documentan.
 
 ---
 
-## Estado
+## Qué se puede averiguar con esto
 
-**Fase 1 completa** (2026-07-27). El primer indicador existe, corre de punta a punta
-sobre datos reales con un solo comando, y está verificado contra referencias externas.
+Preguntas que hoy no tienen respuesta fácil y que estos datos contestan:
 
-| Verificación | Estado |
-|---|---|
-| Tests (`pytest`) | 323 pasando |
-| Lint y tipos (`ruff`, `mypy`) | limpios |
-| Fuentes verificadas con descarga real | 4 de 17 |
-| Pipeline reproducible | `obsm run`, un comando |
-| Anclas de reconciliación automáticas | 5 de 5 cuadrando |
-| Indicadores activos con ficha y verificación externa | 2 (I-01, I-02) |
-| Anomalías documentadas con reproducción y decisión | 9 |
+- **¿Cuánta gente está en tratamiento por depresión en mi comuna?**
+  117.121 personas con depresión moderada a diciembre de 2023, en 327 comunas.
+- **¿Cómo se compara la tasa de suicidio de una comuna con el resto?**
+  Serie 2002-2023 para las 346 comunas, ajustada por edad y suavizada.
+- **¿Cuántos años de vida se pierden por suicidio?**
+  38,8 por cada muerte — el suicidio concentra muerte joven.
+- **¿Cuánta gente hay en el programa de salud mental de atención primaria?**
+  1.004.789 personas a diciembre de 2023.
 
-Fase 2 (REM) no ha comenzado. El catálogo distingue explícitamente fuentes verificadas de
-no verificadas, y el código **se niega a ingerir** una URL no verificada.
+Y una que **no** contesta, a propósito: *¿qué comuna está peor?* En la mayoría de las
+comunas la diferencia con la vecina es indistinguible del ruido. Los datos incluyen la
+medida de esa incertidumbre justamente para que no se hagan rankings.
 
-## El resultado, y cómo saber si es creíble
+## Los datos
 
-La primera serie publicable es la **tasa comunal de mortalidad por suicidio, 2002–2023**:
-346 comunas × 22 años, con tasa cruda, estandarizada por edad, suavizada por Bayes empírico
-y años de vida potencial perdidos.
+| Serie | Qué mide | Cobertura | Estado |
+|---|---|---|---|
+| **Mortalidad por suicidio** | muertes, tasas cruda / estandarizada / suavizada, años de vida perdidos | 346 comunas, 2002-2023, anual | [descargable](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) |
+| **Población bajo control en salud mental** | personas en tratamiento por diagnóstico | ~330 comunas, semestral | en el repositorio, sin publicar |
 
-Un número solo vale lo que vale su verificación. Estos son los contrastes contra fuentes
-externas, no contra la salida del propio código:
+La segunda es la importante para la mayoría de las preguntas: **la mortalidad no sirve para
+medir depresión o ansiedad**, porque casi nadie muere de eso. En el archivo de defunciones
+los trastornos del ánimo son once muertes al año en todo Chile; en el de atención primaria
+son ciento diecisiete mil personas en tratamiento.
 
-| Contraste | Resultado | Referencia |
-|---|---|---|
-| Defunciones totales 2023 | 122.218 | **exacto** contra el Anuario de Estadísticas Vitales del INE |
-| Defunciones totales 2020 | 126.169 | **exacto** contra la misma fuente |
-| Población nacional 2020 | 19.458.310 | **exacto** contra las proyecciones INE |
-| Tasa nacional de suicidio 2015–2023 | 8,0 – 10,6 por 100.000 | rango publicado para Chile ≈ 10 |
-| Tasa estandarizada, celdas publicables | mediana 10,5 por 100.000 | ídem |
-| AVPP por muerte | 38,8 años | coherente con que el suicidio concentra muerte joven |
-| Conservación de casos | 46.810 = 40.730 + 6.080 | cierra exacto; el resto se declara |
-
-La reconciliación **no es un informe, es un portero**: `obsm build gold` la corre antes de
-calcular y aborta sin escribir nada si un ancla no cuadra. Verificado alterando un ancla a
-propósito — el archivo anterior queda intacto y el proceso sale con código 1.
-
-## Cómo funciona
-
-Los datos recorren cuatro capas y cada una tiene permitido hacer cosas distintas. La
-separación es lo que hace testeable el proyecto; romperla es la forma más común de meter un
-error difícil de encontrar.
-
-```
-archivo público
-    │  obsm ingest         descarga, hash, encoding, manifiesto
-    ▼                      (NO resuelve comunas, NO clasifica, NO calcula)
-raw/      archivo tal como vino, inmutable, nunca versionado en git
-    │
-bronze/   tabla legible: columnas renombradas, tipos mínimos
-    │  obsm build silver   territorio, edad, CIE-10
-    ▼
-silver/   grilla canónica: comuna_cut × período × dimensiones
-    │  obsm build gold     denominadores, tasas, reconciliación, supresión
-    ▼
-gold/     indicadores publicables + manifiesto de procedencia + reporte de calidad
-```
-
-Detalle en [`docs/02-ARQUITECTURA.md`](docs/02-ARQUITECTURA.md), incluida la tabla de qué
-puede y qué no puede hacer cada capa.
-
-## Instalación y uso
-
-Requiere Python 3.11 o superior.
+## Empezar en dos minutos
 
 ```bash
 git clone https://github.com/CProromant/datos-salud-mental-chile.git
 cd datos-salud-mental-chile
 make setup
-make test
+
+python ejemplos/practica.py        # ocho secciones para entender la herramienta tocándola
 ```
 
-### Explorar sin descargar nada
+El archivo de práctica corre entero con los datos de ejemplo del repositorio: **no hace
+falta descargar nada**. La sección 8 son experimentos para romper cosas a propósito y ver
+saltar cada resguardo.
 
-La forma más rápida de entender qué hace la herramienta es tocarla. El archivo de práctica
-corre entero con los fixtures del repositorio:
+### Reproducir las series completas
 
 ```bash
-python ejemplos/practica.py        # las ocho secciones
-python ejemplos/practica.py 6      # solo «gold: tasas publicables»
-python ejemplos/practica.py 8      # experimentos para romper cosas a propósito
+obsm run     # descarga, verifica, normaliza, reconcilia y escribe todo
 ```
 
-### Reproducir la serie completa
+Un comando. Toma unos 20 minutos y deja ~1,1 GB en `data/`. Se detiene en el primer error:
+encadenar sobre una etapa fallida produce basura con buen aspecto.
 
-```bash
-obsm run
-```
+## Cómo saber si estos números son confiables
 
-Eso es todo. Descarga los archivos de DEIS y del INE, verifica cada uno contra el
-SHA-256 declarado en [`config/sources.yml`](config/sources.yml), descomprime, ingiere,
-normaliza, reconcilia contra cinco cifras oficiales y escribe `data/gold/`. Se detiene en
-el primer error: encadenar sobre una etapa fallida produce basura con buen aspecto.
+Un dato vale lo que vale su verificación. Estos son los contrastes contra **fuentes
+externas**, no contra la salida del propio código:
 
-Los archivos ya descargados se reutilizan, así que reintentar cuesta segundos y no
-minutos. Para volver a bajarlos: `obsm run --forzar-descarga`.
+| Se comparó | Resultado |
+|---|---|
+| Defunciones totales 2023 | 122.218 — **exacto** contra el Anuario del INE |
+| Defunciones totales 2020 | 126.169 — **exacto** contra la misma fuente |
+| Población nacional 2020 y 2023 | **exacto** contra las proyecciones del INE |
+| Tasa nacional de suicidio 2015-2023 | 8,0 a 10,6 por 100.000 (lo publicado para Chile ≈ 10) |
+| Conservación de casos | 46.810 = 40.730 publicados + 6.080 declarados fuera |
 
-Si prefieres correr las etapas por separado —para depurar, o para ingerir un archivo que
-descargaste a mano:
-
-```bash
-obsm sources list                       # catálogo y estado de verificación
-obsm ingest ine_proyecciones --archivo <ruta al CSV>
-obsm build silver --source ine_proyecciones
-obsm build gold   --source deis_defunciones --agrupador SUICIDIO
-obsm qa                                 # validaciones y reconciliación
-```
-
-> **Nota sobre TLS.** Varios servidores de gobierno de Chile sirven una cadena de
-> certificados incompleta, y `requests` falla contra ellos con
-> `CERTIFICATE_VERIFY_FAILED`. No es un certificado inválido ni un bloqueo de red: el
-> servidor no envía la CA intermedia. El proyecto usa `truststore` para validar con el
-> almacén del sistema operativo, que es lo mismo que hace un navegador. **Nunca**
-> `verify=False`. Detalle en [`CLAUDE.md`](CLAUDE.md) §4.
-
-> La corrida completa toma unos 20 minutos y deja ~1,1 GB en `data/`, dominados por los
-> 3,18 millones de registros de defunciones (940 MB en `raw/`, el resto en las capas
-> derivadas).
+**Y no es un informe, es un portero.** El pipeline corre esas comprobaciones *antes* de
+calcular y **se niega a escribir** si alguna falla. Verificado alterando una cifra a
+propósito: el archivo anterior quedó intacto y el proceso salió con error.
 
 ## Cómo leer estos datos sin equivocarse
 
-Cada ficha de indicador tiene una sección **«qué NO significa»**, obligatoria por diseño: el
-modo típico de fallo de un observatorio no es publicar una cifra errónea, sino publicar una
-cifra correcta que se lee mal. Lo esencial:
+Cada indicador tiene una sección **«qué NO significa»**, obligatoria por diseño: el modo
+típico de fallo de un observatorio no es publicar una cifra errónea, sino publicar una
+cifra correcta que se lee mal.
 
-- **No permite rankear comunas.** En la mayoría, la diferencia con la vecina es
-  indistinguible del ruido. El pipeline lo dice solo: en el 44,5 % de las celdas el
-  suavizado domina al dato local, y emite la advertencia automáticamente.
+- **No permite rankear comunas.** En el 44,5 % de las celdas el suavizado estadístico
+  domina al dato local — o sea, la diferencia entre esas comunas es ruido. El pipeline lo
+  advierte solo.
 - **La tasa de suicidio no mide la salud mental de un territorio.** Es un desenlace raro y
   multicausal; una comuna con buena tasa puede tener un sistema pésimo.
-- **No hay desagregación por método, y no la habrá.** Está prohibida en
-  [`docs/06-ETICA-Y-DATOS.md`](docs/06-ETICA-Y-DATOS.md) siguiendo las recomendaciones de
-  publicación segura sobre suicidio. La prohibición está embebida en el código, no solo en
-  la documentación.
-- **Ninguna celda pública tiene un conteo entre 1 y 9** (supresión con k=10). Se suprimen
-  también todas las columnas derivadas, incluido el AVPP: con un solo caso revelaría la edad
-  exacta de la persona fallecida.
-- **Los últimos dos años son preliminares** y típicamente suben al consolidarse.
-- **La ventana es 2002–2023**, no 1990–2023. El denominador comunal del INE empieza en 2002
-  y las defunciones están en CIE-9 hasta 1996.
+- **Las personas bajo control no son una cobertura.** Son conteos. Calcular un porcentaje
+  contra la población comunal incluiría a quien se atiende en el sistema privado, y daría
+  un número que parece cobertura y no lo es.
+- **Ninguna celda pública tiene un conteo entre 1 y 9.** Se suprimen para que nadie sea
+  identificable en una comuna chica, junto con todo lo que permita reconstruirlas.
+- **No hay desagregación por método de suicidio, y no la habrá.** Está prohibida siguiendo
+  las recomendaciones internacionales de publicación segura. La prohibición está en el
+  código, no solo en la documentación.
 
-## Qué produce
+## Cómo funciona por dentro
 
-| Salida | Formato | Estado |
-|---|---|---|
-| Datasets normalizados (comuna × período × indicador) | CSV + Parquet | en `data/gold/`, sin publicar aún |
-| Manifiesto de procedencia por dataset | JSON | cada corrida |
-| Reporte de calidad, cobertura y reconciliación | JSON | cada corrida |
-| API de solo lectura sobre el almacén | DuckDB | planificado (Fase 5) |
-| Alertas de desviación de series | issue automático | planificado (Fase 5) |
+Los datos pasan por cuatro capas y cada una tiene permitido hacer cosas distintas. Esa
+separación es lo que hace verificable el proyecto.
 
-`data/` está fuera del control de versiones por completo. Los datos derivados aún no tienen
-release público; ver [`docs/07-PUBLICACION.md`](docs/07-PUBLICACION.md).
+```
+archivo público del Estado
+    │  descarga, verifica el hash, detecta el encoding
+    ▼
+raw      el archivo tal como vino, nunca se toca
+    │  renombra columnas y tipa. NO resuelve comunas ni calcula
+    ▼
+bronze   tabla legible
+    │  normaliza territorio, edad y diagnósticos
+    ▼
+silver   grilla común: comuna × período × dimensiones
+    │  une denominadores, calcula, reconcilia y suprime
+    ▼
+gold     lo publicable, con su procedencia y su reporte de calidad
+```
+
+Detalle en [`docs/02-ARQUITECTURA.md`](docs/02-ARQUITECTURA.md).
+
+## Estado
+
+**Fases 1 y 2 completas** (2026-07-27): dos fuentes funcionando de punta a punta.
+
+| | |
+|---|---|
+| Tests | 394 pasando |
+| Lint y tipos | limpios |
+| Fuentes verificadas con descarga real | 5 de 17 |
+| Anclas de reconciliación automáticas | 5 de 5 cuadrando |
+| Anomalías documentadas | 9 |
+
+Una fuente está `verificada` solo cuando alguien **abrió el archivo y lo entendió** — no
+cuando el servidor respondió 200.
+
+## Las anomalías son parte del producto
+
+[`docs/05-CALIDAD.md`](docs/05-CALIDAD.md) registra nueve anomalías con su reproducción y la
+decisión tomada. Cinco eran defectos propios que **no lanzaban ningún error** y habrían
+publicado números plausibles y falsos: cero suicidios en 27 años por leer la columna
+equivocada, una comuna inventada, doce años futuros con tasa cero.
+
+El patrón que se repite es **un cero que significa otra cosa**: «no hubo muertes» contra
+«no hay a quién dividir» contra «no se leyó la columna correcta».
+
+Las anomalías no se borran. Muchas son reales —un CESFAM que dejó de reportar es un dato
+sobre el sistema— y borrarlas falsifica el diagnóstico.
 
 ## Documentación
 
-| Documento | Contenido |
+| | |
 |---|---|
-| [`PLAN.md`](PLAN.md) | Fases, hitos, criterios de término verificables |
-| [`docs/00-PROBLEMA.md`](docs/00-PROBLEMA.md) | Teoría de cambio, usuarios, qué se decide con esto |
-| [`docs/01-FUENTES.md`](docs/01-FUENTES.md) | Fichas de cada fuente y sus trampas conocidas |
-| [`docs/02-ARQUITECTURA.md`](docs/02-ARQUITECTURA.md) | Capas, contratos, qué puede hacer cada una |
-| [`docs/03-DICCIONARIO.md`](docs/03-DICCIONARIO.md) | Esquema canónico y diccionario de variables |
-| [`docs/04-INDICADORES.md`](docs/04-INDICADORES.md) | Fichas de indicador y qué NO significan |
-| [`docs/05-CALIDAD.md`](docs/05-CALIDAD.md) | Anclas de reconciliación y las nueve anomalías |
-| [`docs/06-ETICA-Y-DATOS.md`](docs/06-ETICA-Y-DATOS.md) | Ley 21.719, secreto estadístico, publicación segura |
-| [`docs/07-PUBLICACION.md`](docs/07-PUBLICACION.md) | Versionado, releases, citación |
-| [`docs/08-RIESGOS.md`](docs/08-RIESGOS.md) | Registro de riesgos con mitigación y dueño |
-| [`docs/09-GOBERNANZA.md`](docs/09-GOBERNANZA.md) | Dueño institucional, comité, aprobación de cambios |
-| [`docs/adr/`](docs/adr/) | Decisiones de arquitectura, con su justificación y lo que descartaron |
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Cómo contribuir |
-| [`CLAUDE.md`](CLAUDE.md) | Instrucciones operativas del repositorio |
+| [`PLAN.md`](PLAN.md) | fases, hitos y criterios de término |
+| [`docs/00-PROBLEMA.md`](docs/00-PROBLEMA.md) | para qué existe y quién lo usa |
+| [`docs/01-FUENTES.md`](docs/01-FUENTES.md) | cada fuente y sus trampas conocidas |
+| [`docs/02-ARQUITECTURA.md`](docs/02-ARQUITECTURA.md) | las capas y qué puede hacer cada una |
+| [`docs/04-INDICADORES.md`](docs/04-INDICADORES.md) | fórmulas, límites y qué NO significan |
+| [`docs/05-CALIDAD.md`](docs/05-CALIDAD.md) | anclas de reconciliación y anomalías |
+| [`docs/06-ETICA-Y-DATOS.md`](docs/06-ETICA-Y-DATOS.md) | los límites que no se negocian |
+| [`docs/adr/`](docs/adr/) | decisiones tomadas, con lo que se descartó y por qué |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | cómo contribuir |
 
-Si vas a tocar código, lo mínimo es `docs/00`, `docs/02` y `docs/06`. El último no es
-negociable.
-
-## Anomalías: por qué hay nueve documentadas y eso es buena señal
-
-[`docs/05-CALIDAD.md`](docs/05-CALIDAD.md) registra cada anomalía con su reproducción, su
-verificación y la decisión tomada. Cinco eran defectos propios que **no lanzaban ninguna
-excepción** y habrían publicado números plausibles y falsos: cero suicidios en 27 años por
-leer la columna de diagnóstico equivocada, una comuna inventada por validar el formato del
-código territorial y no su existencia, doce años futuros con tasa cero.
-
-El patrón que se repite es **un cero que significa otra cosa**: «no hubo muertes» contra «no
-hay a quién dividir» contra «no se leyó la columna correcta». De ahí la regla operativa del
-proyecto: un indicador de calidad que sale perfecto a la primera se audita antes de
-celebrarlo.
-
-La política es no borrar anomalías. Muchas son reales —un CESFAM que dejó de reportar— y
-borrarlas es falsificar el diagnóstico.
-
-## Citación
-
-El proyecto aún no tiene release ni DOI. Mientras tanto, citar el repositorio y el commit:
-
-```
-Datos de Salud Mental de Chile (obsm). https://github.com/CProromant/datos-salud-mental-chile
-Commit <sha>. Elaborado a partir de datos de DEIS/MINSAL e INE.
-```
-
-Toda reutilización debe mencionar también al organismo de origen. Este proyecto no genera
-datos primarios: los limpia, los cruza y los documenta.
+Si vas a tocar código: `docs/00`, `docs/02` y `docs/06`. El último no es negociable.
 
 ## Licencia
 
 - **Código:** MIT ([`LICENSE`](LICENSE)).
-- **Datos derivados:** CC BY-SA 4.0 ([`LICENSE-DATA.md`](LICENSE-DATA.md)). El
-  CompartirIgual es **heredado, no una preferencia**: el INE publica bajo esa licencia las
-  proyecciones de población, que son el denominador de toda tasa del proyecto
-  ([ADR 0005](docs/adr/0005-licencia-datos-sharealike.md)). **Permite uso comercial.**
-- **Normas de uso:** [`USO-ACEPTABLE.md`](USO-ACEPTABLE.md). Son normas del proyecto, no
-  cláusulas de licencia, y el documento explica por qué esa distinción es deliberada.
-- Las fuentes primarias conservan sus propias condiciones. Las de DEIS y SUBDERE están sin
-  confirmar y es un pendiente declarado.
+- **Datos:** CC BY-SA 4.0 ([`LICENSE-DATA.md`](LICENSE-DATA.md)). **Permite uso comercial.**
+  El «CompartirIgual» no es una preferencia del proyecto: el INE publica bajo esa licencia
+  las proyecciones de población, que son el denominador de toda tasa, y su cláusula obliga
+  al derivado ([ADR 0005](docs/adr/0005-licencia-datos-sharealike.md)).
+- **Normas de uso:** [`USO-ACEPTABLE.md`](USO-ACEPTABLE.md) — normas del proyecto, no
+  cláusulas legales, y el documento explica por qué esa distinción es deliberada.
+
+Cita siempre también al organismo de origen. Este proyecto no genera datos primarios.
 
 ---
 
-Si este proyecto te sirve, lo más útil que puedes hacer es **usarlo y reportar dónde el dato
-no cuadra**. Un observatorio sin quien lo audite es un blog con tablas.
+**Lo más útil que puedes hacer es usarlo y decir dónde el dato no cuadra.** Un observatorio
+sin quien lo audite es un blog con tablas — las nueve anomalías salieron todas de mirar con
+desconfianza un resultado que parecía correcto.
