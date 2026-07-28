@@ -135,3 +135,52 @@ class TestConceptos:
     def test_una_hoja_que_no_existe_devuelve_vacio(self, diccionario):
         assert leer_conceptos(diccionario, hoja="P99") == []
         assert leer_columnas(diccionario, hoja="P99") == []
+
+
+class TestCodigosRepetidos:
+    """Un código puede aparecer dos veces en la hoja, y la segunda suele venir vacía.
+
+    En el diccionario de 2019 las filas 118-139 repiten veintidós códigos sin grupo ni
+    concepto —un listado al final del formulario—. Como el extractor guardaba en un
+    diccionario, ganaba la última aparición: la ansiedad de ese año quedó etiquetada
+    «Programa de rehabilitación tipo II» con el concepto en blanco, y en la serie
+    publicada se veía como una caída del 99 % entre 2018 y 2020.
+
+    El dato nunca se perdió. Se perdió su nombre, que para un observatorio es igual de
+    grave: un número sin etiqueta no se puede leer ni corregir.
+    """
+
+    @pytest.fixture()
+    def con_repetidos(self, tmp_path):
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "P6"
+        ws["D10"] = "T O T A L"
+        for col, sexo in zip("DEF", ["Ambos sexos", "Hombres", "Mujeres"], strict=True):
+            ws[f"{col}12"] = sexo
+        for i, col in enumerate("DEF", start=1):
+            ws[f"{col}13"] = f"COL{i:02d}"
+
+        # El bloque bueno: código, grupo y concepto.
+        ws["A20"] = "P6232500"
+        ws["B20"] = "TRASTORNOS DE ANSIEDAD"
+        ws["C20"] = "TRASTORNOS DE ANSIEDAD GENERALIZADA"
+        for i, col in enumerate("DEF", start=1):
+            ws[f"{col}20"] = f"COL{i:02d}"
+
+        # Más abajo, un encabezado de otra sección y el mismo código sin etiqueta.
+        ws["B40"] = "PROGRAMA DE REHABILITACIÓN TIPO II"
+        ws["A41"] = "P6232500"
+
+        ruta = tmp_path / "repetidos.xlsx"
+        wb.save(ruta)
+        return ruta
+
+    def test_gana_la_aparicion_que_trae_concepto(self, con_repetidos):
+        con = {c.codigo: c for c in leer_conceptos(con_repetidos)}
+        assert con["P6232500"].concepto == "TRASTORNOS DE ANSIEDAD GENERALIZADA"
+        assert con["P6232500"].grupo == "TRASTORNOS DE ANSIEDAD"
+
+    def test_el_codigo_aparece_una_sola_vez_en_la_salida(self, con_repetidos):
+        codigos = [c.codigo for c in leer_conceptos(con_repetidos)]
+        assert codigos.count("P6232500") == 1

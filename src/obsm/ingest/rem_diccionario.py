@@ -25,9 +25,12 @@ más común de leer mal un formulario que se reordena.
 
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
+
+log = logging.getLogger(__name__)
 
 #: Un `CodigoPrestacion` del REM: la letra de la serie y seis a ocho dígitos.
 PATRON_CODIGO = re.compile(r"^[ABDP]\d{6,8}$")
@@ -173,7 +176,14 @@ def leer_conceptos(ruta: Path, hoja: str = "P6") -> list[ConceptoRem]:
         return []
     celda, nfilas, ncols = abierto
 
-    salida: list[ConceptoRem] = []
+    # Un código puede aparecer MÁS DE UNA VEZ en la hoja. En 2019 las filas 118-139
+    # repiten veintidós códigos sin grupo ni concepto —un listado al final del
+    # formulario— y esas apariciones vacías pisaban a las buenas: la ansiedad de ese
+    # año quedó etiquetada «Programa de rehabilitación tipo II», con el concepto en
+    # blanco, y en la serie publicada aparecía como una caída del 99 %. El dato no se
+    # perdía: se perdía su nombre. Gana la aparición que trae concepto.
+    por_codigo: dict[str, ConceptoRem] = {}
+    repetidos: set[str] = set()
     grupo_actual = ""
     for r in range(1, nfilas + 1):
         codigo = _texto(celda(r, 1)).upper()
@@ -190,7 +200,23 @@ def leer_conceptos(ruta: Path, hoja: str = "P6") -> list[ConceptoRem]:
             for col in range(4, ncols + 1)
             if (m := PATRON_COLUMNA.match(_texto(celda(r, col))))
         )
-        salida.append(
-            ConceptoRem(codigo=codigo, grupo=grupo_actual, concepto=c_, columnas=columnas)
+        nuevo = ConceptoRem(
+            codigo=codigo, grupo=grupo_actual, concepto=c_, columnas=columnas
         )
-    return salida
+        previo = por_codigo.get(codigo)
+        if previo is not None:
+            repetidos.add(codigo)
+            # Se queda la que describe algo. Ante empate, la primera: el formulario
+            # define arriba y lista abajo.
+            if not nuevo.concepto or (previo.concepto and not nuevo.columnas):
+                continue
+            if previo.concepto and not nuevo.concepto:
+                continue
+        por_codigo[codigo] = nuevo
+
+    if repetidos:
+        log.warning(
+            "%d códigos repetidos en la hoja; se conservó la aparición con concepto: %s",
+            len(repetidos), sorted(repetidos)[:5],
+        )
+    return list(por_codigo.values())

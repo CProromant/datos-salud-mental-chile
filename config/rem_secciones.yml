@@ -1391,7 +1391,7 @@ anios:
         grupo: ESQUIZOFRENIA
         concepto: ''
       P6227400:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
         concepto: ''
       P6222500:
         grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
@@ -1492,7 +1492,7 @@ anios:
         grupo: ESQUIZOFRENIA
         concepto: ''
       P6223340:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        grupo: PRIMER EPISODIO ESQUIZOFRENIA CON OCUPACION REGULAR
         concepto: ''
       P6223350:
         grupo: TRASTORNOS DE LA CONDUCTA ALIMENTARIA
@@ -1996,17 +1996,17 @@ anios:
         grupo: ABUSO SEXUAL
         concepto: ''
       P6230600:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: PEORES FORMAS DE VIOLENCIA-TRATA DE PERSONAS
+        concepto: SOSPECHA
       P6230700:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: PEORES FORMAS DE VIOLENCIA-TRATA DE PERSONAS
+        concepto: CONFIRMACIÓN DIAGNÓSTICA
       P6230800:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: SUICIDIO
+        concepto: IDEACIÓN
       P6230900:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: SUICIDIO
+        concepto: INTENTO
       P6227601:
         grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
         concepto: ''
@@ -2055,23 +2055,23 @@ anios:
         concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
           HABITUAL EN LA INFANCIA Y ADOLESCENCIA
       P6231000:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE ESTRÉS POST TRAUMATICO
       P6231100:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO CON AGOROFOBIA
       P6231200:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO SIN AGOROFOBIA
       P6231300:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: FOBIAS SOCIALES
       P6231400:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNOS DE ANSIEDAD GENERALIZADA
       P6231500:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: OTROS TRASTORNOS DE ANSIEDAD
       P6222300:
         grupo: DEMENCIAS (INCLUYE ALZHEIMER)
         concepto: LEVE
@@ -2100,7 +2100,7 @@ anios:
         grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
         concepto: ''
       P6231600:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        grupo: EPILEPSIA
         concepto: ''
       P6227602:
         grupo: OTRAS
@@ -2127,17 +2127,17 @@ anios:
         grupo: ABUSO SEXUAL
         concepto: ''
       P6231700:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: PEORES FORMAS DE VIOLENCIA-TRATA DE PERSONAS
+        concepto: SOSPECHA
       P6231800:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: PEORES FORMAS DE VIOLENCIA-TRATA DE PERSONAS
+        concepto: CONFIRMACIÓN DIAGNÓSTICA
       P6231900:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: SUICIDIO
+        concepto: IDEACIÓN
       P6232000:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: SUICIDIO
+        concepto: INTENTO
       P6223170:
         grupo: PERSONAS CON DIAGNOSTICOS DE TRASTORNOS MENTALES
         concepto: ''
@@ -2186,23 +2186,23 @@ anios:
         concepto: OTROS TRASTORNOS DEL COMPORTAMIENTO Y DE LAS EMOCIONES DE COMIENZO
           HABITUAL EN LA INFANCIA Y ADOLESCENCIA
       P6232100:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE ESTRÉS POST TRAUMATICO
       P6232200:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO CON AGOROFOBIA
       P6232300:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNO DE PANICO SIN AGOROFOBIA
       P6232400:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: FOBIAS SOCIALES
       P6232500:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: TRASTORNOS DE ANSIEDAD GENERALIZADA
       P6232600:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNOS DE ANSIEDAD
+        concepto: OTROS TRASTORNOS DE ANSIEDAD
       P6223310:
         grupo: DEMENCIAS (INCLUYE ALZHEIMER)
         concepto: LEVE
@@ -2231,7 +2231,7 @@ anios:
         grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
         concepto: ''
       P6232700:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
+        grupo: EPILEPSIA
         concepto: ''
       P6227603:
         grupo: OTRAS
@@ -2890,20 +2890,20 @@ anios:
         grupo: TRASTORNO DE PERSONALIDAD
         concepto: ''
       P6241010:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: AUTISMO
       P6241020:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ASPERGER
       P6241030:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: SÍNDROME DE RETT
       P6241040:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTORNO DESINTEGRATIVO DE LA INFANCIA
       P6241050:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTONO GENERALIZADO DEL DESARROLLO NO ESPECÍFICO
       P6231600:
         grupo: EPILEPSIA
         concepto: ''
@@ -3027,20 +3027,20 @@ anios:
         grupo: TRASTORNO DE PERSONALIDAD
         concepto: ''
       P6241060:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: AUTISMO
       P6241070:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: ASPERGER
       P6241080:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: SÍNDROME DE RETT
       P6241090:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTORNO DESINTEGRATIVO DE LA INFANCIA
       P6241100:
-        grupo: PROGRAMA DE REHABILITACIÓN TIPO II
-        concepto: ''
+        grupo: TRASTORNO GENERALIZADOS DEL DESARROLLO
+        concepto: TRASTONO GENERALIZADO DEL DESARROLLO NO ESPECÍFICO
       P6232700:
         grupo: EPILEPSIA
         concepto: ''
@@ -4470,23 +4470,23 @@ anios:
         grupo: Número de personas en control en el programa
         concepto: ''
       P6241200:
-        grupo: Programa de rehabilitación tipo II
-        concepto: ''
+        grupo: Violencia física
+        concepto: Victima
       P6241210:
-        grupo: Programa de rehabilitación tipo II
-        concepto: ''
+        grupo: Violencia física
+        concepto: Agresor/a
       P6241220:
-        grupo: Programa de rehabilitación tipo II
-        concepto: ''
+        grupo: Violencia sexual
+        concepto: Victima
       P6241230:
-        grupo: Programa de rehabilitación tipo II
-        concepto: ''
+        grupo: Violencia sexual
+        concepto: Agresor/a
       P6241240:
-        grupo: Programa de rehabilitación tipo II
-        concepto: ''
+        grupo: Violencia psicologica
+        concepto: Victima
       P6241250:
-        grupo: Programa de rehabilitación tipo II
-        concepto: ''
+        grupo: Violencia psicologica
+        concepto: Agresor/a
       P6221500:
         grupo: Abuso sexual
         concepto: ''
@@ -4624,23 +4624,23 @@ anios:
         grupo: NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA
         concepto: ''
       P6241260:
-        grupo: Programa de rehabilitación tipo II
-        concepto: ''
+        grupo: Violencia fisica
+        concepto: Victima
       P6241270:
-        grupo: Programa de rehabilitación tipo II
-        concepto: ''
+        grupo: Violencia fisica
+        concepto: Agresor/a
       P6241280:
-        grupo: Programa de rehabilitación tipo II
-        concepto: ''
+        grupo: Violencia sexual
+        concepto: Victima
       P6241290:
-        grupo: Programa de rehabilitación tipo II
-        concepto: ''
+        grupo: Violencia sexual
+        concepto: Agresor/a
       P6241300:
-        grupo: Programa de rehabilitación tipo II
-        concepto: ''
+        grupo: Violencia psicológica
+        concepto: Victima
       P6241310:
-        grupo: '0'
-        concepto: datos
+        grupo: Violencia psicológica
+        concepto: Agresor/a
       P6223140:
         grupo: Abuso sexual
         concepto: ''
