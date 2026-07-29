@@ -296,7 +296,7 @@ def tabla_rem(
     total; con `False`, el detalle, que permite desagregar por edad a cambio de más
     supresión.
     """
-    dimensiones = dimensiones or ["comuna_cut", "periodo", "etiqueta"]
+    dimensiones = dimensiones or ["comuna_cut", "periodo", "etiqueta_norm"]
     faltan = [d for d in (*dimensiones, "valor") if d not in silver.columns]
     if faltan:
         raise KeyError(f"El silver del REM no tiene las columnas {faltan}")
@@ -317,6 +317,22 @@ def tabla_rem(
         .sort_values(dimensiones)
         .reset_index(drop=True)
     )
+
+    # Se agrupa por la llave normalizada, pero se publica una etiqueta legible: la
+    # variante más frecuente en los datos. Elegirla por frecuencia y no por criterio
+    # propio hace que la decisión sea reproducible y no dependa de quién la tomó.
+    if "etiqueta_norm" in dimensiones and "etiqueta" in sub.columns:
+        canonica = (
+            sub.groupby(["etiqueta_norm", "etiqueta"]).size()
+            .reset_index(name="n")
+            .sort_values(["etiqueta_norm", "n"], ascending=[True, False])
+            .drop_duplicates("etiqueta_norm")
+            .set_index("etiqueta_norm")["etiqueta"]
+        )
+        df.insert(
+            list(df.columns).index("etiqueta_norm"),
+            "etiqueta", df["etiqueta_norm"].map(canonica),
+        )
 
     df["source_id"] = source_id
     df["source_version"] = source_version

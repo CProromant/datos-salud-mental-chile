@@ -18,6 +18,7 @@ from ..territorio import (
     cargar_dpa,
     formatear_cut_comuna,
     normalizar_serie_comunas,
+    normalizar_texto,
 )
 
 
@@ -185,9 +186,18 @@ def normalizar_rem(
     out["etiqueta"] = concepto.where(concepto != "", grupo)
     reporte["conceptos_sin_etiqueta"] = int((out["etiqueta"] == "").sum())
 
+    # El formulario escribe el mismo concepto con distinta grafía según el año:
+    # «DEPRESIÓN MODERADA» y «Depresión moderada», «Síndrome de Rett» y «Síndrome de
+    # rett», y hasta erratas propias como «post traumatico» sin tilde. Sin una llave
+    # normalizada quedan como conceptos distintos: quien filtre por una forma pierde las
+    # filas de la otra, y el total nacional se parte en dos sin que nada lo advierta.
+    out["etiqueta_norm"] = out["etiqueta"].map(normalizar_texto).str.upper()
+    reporte["etiquetas_distintas"] = int(out["etiqueta"].nunique())
+    reporte["etiquetas_normalizadas"] = int(out["etiqueta_norm"].nunique())
+
     dimensiones = [
         "comuna_cut", "region_cut", "periodo", "codigo_prestacion", "grupo", "concepto",
-        "etiqueta", "grupo_edad", "sexo", "es_total_etario",
+        "etiqueta", "etiqueta_norm", "grupo_edad", "sexo", "es_total_etario",
     ]
     agregado = (
         out.groupby(dimensiones, dropna=False)["valor"]

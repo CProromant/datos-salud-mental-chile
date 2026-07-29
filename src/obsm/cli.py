@@ -647,7 +647,11 @@ def cmd_rem_gold(args) -> int:
     print(f"{len(archivos)} años en silver ({anios[0]}-{anios[-1]}), "
           f"{len(silver):,} filas")
 
-    dimensiones = ["comuna_cut", "periodo", "etiqueta"]
+    # Se agrupa por la llave NORMALIZADA, no por la etiqueta cruda: el formulario
+    # escribe el mismo concepto con distinta grafía según el año y agrupar por el texto
+    # tal cual parte el total nacional en dos (A-012). `tabla_rem` devuelve igual una
+    # etiqueta legible para publicar.
+    dimensiones = ["comuna_cut", "periodo", "etiqueta_norm"]
     if args.por_edad:
         dimensiones += ["grupo_edad", "sexo"]
 

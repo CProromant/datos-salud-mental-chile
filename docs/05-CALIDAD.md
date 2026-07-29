@@ -457,6 +457,74 @@ contradecía. Ahora atrapa cualquier excepción por año.
 es un mecanismo de recuperación. Los errores que cuestan caro son precisamente los que no
 se anticiparon.
 
+### A-011 · rem_salud_mental · 2026-07-28
+
+**Qué se observó:** la serie nacional de trastornos de ansiedad mostraba una caída del 99 %
+en un solo año y una recuperación al siguiente.
+
+| año | personas |
+|---|---|
+| 2018 | 257.266 |
+| **2019** | **1.589** |
+| 2020 | 226.703 |
+
+**Verificación:** no es epidemiología, es el lector de diccionarios. En la hoja P6 de 2019
+los códigos aparecen **dos veces**: en las filas 73-104 con su grupo y su concepto, y otra
+vez en las filas 118-139 sin ninguno de los dos —un listado al final del formulario—. El
+extractor guardaba en un diccionario, así que ganaba la última aparición. Los veintidós
+códigos de ansiedad quedaron con el grupo que venía arrastrado desde el encabezado anterior
+(«Programa de rehabilitación tipo II») y el concepto en blanco, y al agrupar por etiqueta
+sus 234.027 casos se fueron a otra fila.
+
+**El dato nunca se perdió: se perdió su nombre.** Para un observatorio eso es igual de
+grave, porque un número sin etiqueta no se puede leer, comparar ni corregir. Y el síntoma
+—una caída seguida de una recuperación— es exactamente lo que un lector interpretaría como
+el efecto de una política o de la pandemia.
+
+**Decisión:** ante un código repetido gana la aparición que trae concepto; las repeticiones
+se registran en el log. Corregidos cuatro años: 2019 (22 etiquetas), 2025 (12), 2021 (10) y
+2017 (2). Tras el arreglo, 2019 da 234.027, entre sus dos vecinos.
+
+**Cómo apareció, que es lo importante.** Todo lo anterior se probó sobre 2023, y en 2023
+las etiquetas están bien: el defecto era **invisible** con un solo año. Lo destapó mirar la
+serie completa en el tiempo.
+
+**Lección:** verificar una serie exige mirarla entera. Un año aislado valida el lector, no
+la serie; y una anomalía temporal que se explica sola por «la pandemia» o «un cambio de
+política» merece la misma desconfianza que cualquier otro resultado cómodo.
+
+### A-012 · rem_salud_mental · 2026-07-28
+
+**Qué se observó:** al preparar la ficha del dataset, el mismo concepto aparecía dos veces
+en la tabla publicable:
+
+```
+NUMERO DE PERSONAS EN CONTROL EN EL PROGRAMA   202.768
+Número de personas en control en el programa   845.850
+```
+
+**Verificación:** el formulario escribe los conceptos con distinta grafía según el año.
+Veintidós conceptos estaban partidos, incluidas erratas de la propia fuente: «post
+traumatico» sin tilde en unos años y con tilde en otros, «Síndrome de rett» con minúscula.
+En total, 116 etiquetas que eran 70 conceptos.
+
+**Por qué importa más de lo que parece.** Quien filtre por `"Depresión moderada"` pierde en
+silencio las filas de `"DEPRESIÓN MODERADA"`. El total nacional se parte en dos y nada lo
+advierte: ambas cifras son plausibles por separado.
+
+**Decisión:** silver agrega `etiqueta_norm` —mayúsculas, sin tildes— y gold agrupa por esa
+llave. La etiqueta que se publica es la **variante más frecuente en los datos**: elegirla
+por frecuencia y no por criterio propio hace que la decisión sea reproducible y que se
+mueva sola si la fuente estandariza su escritura.
+
+**Un tropiezo en el arreglo, que vale más que el arreglo.** La primera corrección cambió el
+valor por defecto de `tabla_rem`, pero el CLI pasa las dimensiones explícitamente: se
+modificó un default que nadie usaba. La corrida terminó sin error y con **exactamente las
+mismas 229.892 filas** que antes. Ese número idéntico fue la única señal.
+
+**Lección:** verificar no es «corrió sin error», es «cambió lo que esperaba que cambiara».
+Un arreglo que deja la salida byte por byte igual no arregló nada.
+
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.
