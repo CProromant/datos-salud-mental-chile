@@ -20,13 +20,14 @@ oficiales y los deja descargables.
 Preguntas que hoy no tienen respuesta fácil y que estos datos contestan:
 
 - **¿Cuánta gente está en tratamiento por depresión en mi comuna?**
-  117.121 personas con depresión moderada a diciembre de 2023, en 327 comunas.
+  108.496 personas con depresión moderada a diciembre de 2025, en ~330 comunas — y la
+  serie completa desde 2014.
 - **¿Cómo se compara la tasa de suicidio de una comuna con el resto?**
   Serie 2002-2023 para las 346 comunas, ajustada por edad y suavizada.
 - **¿Cuántos años de vida se pierden por suicidio?**
   38,8 por cada muerte — el suicidio concentra muerte joven.
 - **¿Cuánta gente hay en el programa de salud mental de atención primaria?**
-  1.004.789 personas a diciembre de 2023.
+  1.048.618 personas a diciembre de 2025, contra 756.956 en 2014.
 
 Y una que **no** contesta, a propósito: *¿qué comuna está peor?* En la mayoría de las
 comunas la diferencia con la vecina es indistinguible del ruido. Los datos incluyen la
@@ -37,7 +38,7 @@ medida de esa incertidumbre justamente para que no se hagan rankings.
 | Serie | Qué mide | Cobertura | Estado |
 |---|---|---|---|
 | **Mortalidad por suicidio** | muertes, tasas cruda / estandarizada / suavizada, años de vida perdidos | 346 comunas, 2002-2023, anual | [descargable](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) |
-| **Población bajo control en salud mental** | personas en tratamiento por diagnóstico | ~330 comunas, semestral | en el repositorio, sin publicar |
+| **Población bajo control en salud mental** | personas en tratamiento por diagnóstico | 345 comunas, 2014-2025, semestral | [descargable](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) |
 
 La segunda es la importante para la mayoría de las preguntas: **la mortalidad no sirve para
 medir depresión o ansiedad**, porque casi nadie muere de eso. En el archivo de defunciones
@@ -133,11 +134,11 @@ Detalle en [`docs/02-ARQUITECTURA.md`](docs/02-ARQUITECTURA.md).
 
 | | |
 |---|---|
-| Tests | 394 pasando |
+| Tests | 400 pasando |
 | Lint y tipos | limpios |
 | Fuentes verificadas con descarga real | 5 de 17 |
 | Anclas de reconciliación automáticas | 5 de 5 cuadrando |
-| Anomalías documentadas | 9 |
+| Anomalías documentadas | 12 |
 
 Una fuente está `verificada` solo cuando alguien **abrió el archivo y lo entendió** — no
 cuando el servidor respondió 200.
