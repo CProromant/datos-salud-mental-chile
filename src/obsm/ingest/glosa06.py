@@ -39,6 +39,7 @@ import pandas as pd
 
 from ..errors import SchemaDriftError
 from ..quality import detectar_filas_total
+from .base import Ingestor
 
 log = logging.getLogger(__name__)
 
@@ -244,3 +245,72 @@ def parsear_tabla_especialidades(paginas: list[str]) -> tuple[pd.DataFrame, dict
         f"El informe probablemente se rediseñó. Revisar el PDF y actualizar el parser con "
         f"un fixture del formato nuevo: NO relajar la búsqueda hasta que pase."
     )
+
+
+#: El trimestre, escrito de las dos formas que usan los informes. El valor es el mes de
+#: **cierre** del trimestre, porque el corte de la lista es el último día: «III trimestre
+#: 2025» son los datos al 30 de septiembre.
+TRIMESTRES = {
+    "I": "03", "II": "06", "III": "09", "IV": "12",
+    "PRIMER": "03", "SEGUNDO": "06", "TERCER": "09", "CUARTO": "12",
+}
+
+#: Las dos formas observadas en dos informes consecutivos: romanos («III trimestre 2025») y
+#: ordinales en palabra («primer trimestre de 2026»). Ninguna es estable, así que se
+#: aceptan ambas y un tercer formato tiene que fallar, no adivinarse.
+PATRONES_PERIODO = (
+    re.compile(r"\b(I{1,3}|IV)\s+trimestre\s+(?:de[l]?\s+)?(\d{4})\b", re.I),
+    re.compile(r"\b(primer|segundo|tercer|cuarto)\s+trimestre\s+(?:de[l]?\s+)?(\d{4})\b", re.I),
+)
+
+
+def periodo_del_informe(paginas: list[str]) -> str:
+    """Trimestre del informe en ISO, con el mes de cierre: `"2025-09"`.
+
+    Se lee del contenido y no del nombre del archivo. Los nombres publicados son
+    `1764018133827_Glosa-06-LE-III-trimestre-2025.pdf` y
+    `Glosa-06-letra-a-b-c-i-j-k-comun-a-la-partida-1er-trimestre-1.pdf`: no comparten
+    patrón, uno lleva prefijo de trece dígitos y el otro no dice el año. El contenido sí.
+    """
+    texto = " ".join(" ".join(p.split()) for p in paginas[:4])
+    for patron in PATRONES_PERIODO:
+        m = patron.search(texto)
+        if m:
+            mes = TRIMESTRES[m.group(1).upper()]
+            return f"{m.group(2)}-{mes}"
+    raise SchemaDriftError(
+        "[glosa06] no se pudo leer el trimestre del informe. Se buscan las dos formas "
+        "observadas —romanos («III trimestre 2025») y ordinales («primer trimestre de "
+        "2026»)— en las primeras páginas. Un formato nuevo hay que agregarlo con su test: "
+        "deducir el período del nombre del archivo no sirve, porque los nombres "
+        "publicados no comparten patrón."
+    )
+
+
+class Glosa06(Ingestor):
+    """Ingestor del informe trimestral. Una fila por especialidad, con su trimestre."""
+
+    source_id = "glosa06"
+    columnas_requeridas = ("periodo", "especialidad_fuente", "especialidad_norm", "registros")
+    columnas_opcionales = ("etiqueta", "es_salud_mental")
+
+    def _leer(self, ruta: Path) -> pd.DataFrame:
+        paginas = extraer_paginas(Path(ruta))
+        tabla, reporte = parsear_tabla_especialidades(paginas)
+        tabla.insert(0, "periodo", periodo_del_informe(paginas))
+        tabla.attrs["reporte_parseo"] = reporte
+        return tabla
+
+    def _posproceso(self, df: pd.DataFrame) -> pd.DataFrame:
+        out = df.copy()
+        out["registros"] = pd.to_numeric(out["registros"], errors="coerce").astype("Int64")
+        rep = df.attrs.get("reporte_parseo", {})
+        dif = rep.get("diferencia_con_total")
+        if dif:
+            log.warning(
+                "[%s] %s: el detalle difiere del total declarado en %+d registros (%.2f %%). "
+                "Ver A-018.", self.source_id, out["periodo"].iloc[0], dif,
+                100 * abs(dif) / max(rep.get("total_declarado") or 1, 1),
+            )
+        out.attrs["reporte_parseo"] = rep
+        return out

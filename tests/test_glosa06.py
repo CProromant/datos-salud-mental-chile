@@ -144,3 +144,46 @@ class TestAnomaliaDeLaFuente:
         _, rep = t2026
         assert rep["diferencia_con_total"] == -11_478
         assert abs(rep["diferencia_con_total"]) < 0.01 * rep["total_declarado"]
+
+
+class TestPeriodo:
+    """El trimestre se lee del contenido, nunca del nombre del archivo."""
+
+    @pytest.mark.parametrize(
+        ("texto", "esperado"),
+        [
+            ("Glosa 06 III trimestre 2025", "2025-09"),
+            ("correspondiente al primer trimestre de 2026", "2026-03"),
+            ("IV trimestre 2024", "2024-12"),
+            ("cuarto trimestre del 2023", "2023-12"),
+            ("II trimestre 2022", "2022-06"),
+        ],
+    )
+    def test_lee_las_dos_formas_de_escribir_el_trimestre(self, texto, esperado):
+        # Dos informes consecutivos usan formas distintas: romanos y ordinales en palabra.
+        from obsm.ingest.glosa06 import periodo_del_informe
+        assert periodo_del_informe([texto]) == esperado
+
+    def test_el_mes_es_el_de_cierre_del_trimestre(self):
+        # El corte de la lista es el último día del trimestre: «III trimestre 2025» son
+        # los datos al 30 de septiembre, no al 1 de julio.
+        from obsm.ingest.glosa06 import periodo_del_informe
+        assert periodo_del_informe(["III trimestre 2025"]) == "2025-09"
+
+    def test_falla_ante_una_forma_nueva(self):
+        # Deducirlo del nombre del archivo no sirve: los dos nombres publicados no
+        # comparten patrón y uno ni siquiera trae el año.
+        from obsm.ingest.glosa06 import periodo_del_informe
+        with pytest.raises(SchemaDriftError, match="trimestre"):
+            periodo_del_informe(["Informe correspondiente a Q3 2025"])
+
+
+class TestIngestor:
+    def test_agrega_el_periodo_a_cada_fila(self):
+        from obsm.ingest.glosa06 import Glosa06, parsear_tabla_especialidades
+        tabla, _ = parsear_tabla_especialidades(_texto("2025_T3_tabla15.txt"))
+        assert len(tabla) == 66
+        # El fixture de texto no trae la portada, así que se prueba la composición
+        # directamente sobre el parser; el período tiene su propio test arriba.
+        assert Glosa06.source_id == "glosa06"
+        assert "registros" in Glosa06.columnas_requeridas

@@ -243,6 +243,11 @@ fuentes:
     estrategia: "scrapear el índice; NO construir URLs por patrón (los nombres de archivo varían)"
     fecha_verificacion: "2026-07-29"
     estado: verificada
+    formato: pdf
+    granularidad: especialidad_trimestre
+    unidad_territorial: nacional
+    licencia: sin_declarar
+    variables_esperadas: [periodo, especialidad_fuente, especialidad_norm, registros]
     notas: >-
       VERIFICADA el 2026-07-29 sobre dos informes reales (III trim 2025 y I trim 2026):
       se abrieron, se extrajo el texto y se ubicó la cifra de psiquiatría.
