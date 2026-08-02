@@ -28,7 +28,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-pdf = ["pdfplumber>=0.11", "camelot-py>=0.11"]
+# PyMuPDF lee los informes trimestrales de la Glosa 06, que son texto y no escaneo.
+# Se prefirió sobre camelot —que arrastra ghostscript y opencv— porque extrae limpio
+# sin esas dependencias del sistema. Se importa como `fitz`.
+pdf = ["pymupdf>=1.24"]
 almacen = ["duckdb>=0.10"]
 dev = ["pytest>=8.0", "ruff>=0.5", "mypy>=1.8"]
 

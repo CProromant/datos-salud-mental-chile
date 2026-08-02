@@ -1,0 +1,168 @@
+Ministerio de Salud 
+Informe Glosa 06 
+Primer Trimestre 2026 
+ 
+26 
+ 
+Distribución por especialidad 
+ 
+Al 31 de marzo de 2026, las especialidades médicas con mayor número de interconsultas en lista de 
+espera continúan siendo oftalmología (18,53%), otorrinolaringología (13,78%) y ginecología (7,82%), 
+las que en conjunto concentran el 40,13% del total de solicitudes pendientes para CNE médica en el 
+país. 
+ 
+En comparación con igual período de 2025, se observa una disminución en el volumen total de 
+interconsultas médicas en espera, pasando de 2.186.319 a 1.981.653 registros, lo que representa 
+una reducción de 9,36%. 
+ 
+Tabla 15. Número de registros en lista de espera para CNE médica según especialidades al 31 de marzo 
+del 2026 
+Especialidad médica* 
+N° de registros 
+Oftalmología 
+367.278
+Otorrinolaringología 
+273.089
+Ginecología 
+154.937
+Traumatología y ortopedia 
+123.560
+Cirugía general 
+106.151
+Urología 
+102.921
+Cardiología 
+70.765
+Dermatología 
+69.189
+Neurología adulta 
+66.073
+Gastroenterología adulta 
+62.028
+Medicina interna 
+59.199
+Neurología pediátrica 
+53.291
+Neurocirugía 
+51.493
+Cirugía vascular periférica 
+50.338
+Cirugía digestiva 
+28.052
+Endocrinología adulta 
+26.661
+Medicina física y rehabilitación (fisiatría adulta) 
+23.917
+Psiquiatría adulta 
+23.134
+Enfermedades respiratorias del adulto (broncopulmonar) 
+20.536
+Obstetricia y ginecología 
+20.444
+Coloproctología 
+20.303
+Obstetricia 
+18.690
+Pediatría 
+16.429
+Anestesiología 
+16.279
+Reumatología 
+15.333
+Traumatología y ortopedia pediátrica 
+14.836
+Cirugía pediátrica 
+14.139
+Psiquiatría pediátrica y de la adolescencia 
+12.585
+Nefrología adulta 
+12.383
+Hematología 
+11.179
+Endocrinología pediátrica 
+6.348
+Cirugía plástica y reparadora 
+6.015
+
+Ministerio de Salud 
+Informe Glosa 06 
+Primer Trimestre 2026 
+ 
+27 
+ 
+Cirugía de cabeza, cuello y maxilofacial 
+6.004
+Cardiología pediátrica 
+5.364
+Gastroenterología pediátrica 
+5.313
+Genética clínica 
+4.558
+Nutriólogo 
+4.088
+Infectología 
+3604
+Geriatría 
+3.520
+Inmunología 
+3426
+Urología pediátrica 
+2.569
+Ginecología pediátrica y de la adolescencia 
+2.565
+Enfermedades respiratorias pediátricas (broncopulmonar pediátrico) 
+2.544
+Diabetología 
+2.346
+Nutriólogo pediátrico 
+2.000
+Nefrología pediátrica 
+1.946
+Oncología médica 
+1.791
+Cirugía de mama 
+1701
+Medicina física y rehabilitación pediátrica (fisiatría pediátrica) 
+1599
+Cirugía de tórax 
+1.496
+Ginecología oncológica 
+1148
+Infectología pediátrica 
+938
+Medicina familiar 
+824
+Neonatología 
+752
+Cirugía cardiovascular 
+735
+Hemato-oncología pediátrica 
+672
+Reumatología pediátrica 
+593
+Cirugía plástica y reparadora pediátrica 
+477
+Medicina reproductiva e infertilidad 
+463
+Radioterapia oncológica 
+370
+Medicina del adolescente 
+165
+Medicina paliativa y de manejo del dolor 
+158
+Medicina familiar del niño 
+120
+Medicina materno infantil 
+93
+Medicina nuclear 
+57
+Enfermedades de transmisión sexual 
+51
+Neurorradiología 
+28
+Total CNE Médica 
+1.981.653
+ Fuente: Sistema de Gestión de Tiempos de Espera (SIGTE). Fecha de corte: 31/03/2026. Fecha de extracción: 14/04/2026. 
+*El listado de especialidades médicas considera las subespecialidades pediátricas. 
+ 
+ 

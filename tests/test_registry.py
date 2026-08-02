@@ -258,10 +258,11 @@ class TestDependenciasDeclaradas:
         requisitos = list(proyecto.get("dependencies", []))
         for extra in proyecto.get("optional-dependencies", {}).values():
             requisitos += extra
-        # `pyyaml` se importa como `yaml`, `camelot-py` como `camelot`.
+        # Varios paquetes se importan con otro nombre: `pyyaml` como `yaml`,
+        # `pymupdf` como `fitz`.
         declarados = {r.split(">")[0].split("=")[0].split("[")[0].strip().lower()
                       for r in requisitos}
-        declarados |= {"yaml", "camelot"}
+        declarados |= {"yaml", "fitz"}
 
         propios = {"obsm", "tests"}
         estandar = set(sys.stdlib_module_names)

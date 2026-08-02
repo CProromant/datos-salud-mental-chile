@@ -809,6 +809,37 @@ un test falla, la primera pregunta no es «¿qué le pasa al código?» sino «�
 en qué me lo basé?». Acá la respuesta fue que dos reglas del mismo documento se contradicen
 en un borde que nadie había pisado.
 
+### A-018 · glosa06 · 2026-07-29
+
+**Qué se observó:** al parsear la tabla de especialidades del informe del I trimestre de
+2026, la suma del detalle da **1.970.175** y el propio informe declara **1.981.653**.
+Faltan 11.478 registros, un 0,58 %.
+
+**Verificación:** el parser captura **todos los números presentes en el texto**, comprobado
+línea por línea: lo único con cifra que queda fuera son el pie de página y la propia fila de
+total. El informe del III trimestre de 2025, procesado con el mismo código, cuadra
+**exacto**: 2.051.482 = 2.051.482, diferencia 0.
+
+O sea que el hueco no es del parser. **La tabla de especialidades del informe de 2026 no
+suma su propio total declarado.** No es truncamiento por umbral —la especialidad más chica
+que lista tiene 28 registros y la de 2025 tenía 7— así que no se trata de un corte de cola.
+
+**Por qué importa poco para psiquiatría y mucho para el resto.** Las dos especialidades de
+salud mental están entre las mayores de la tabla y se publican con su cifra completa; la
+serie que este proyecto necesita no está afectada. Lo que no se puede hacer con esta tabla
+es **calcular participaciones**: un «psiquiatría es el X % de la lista de espera» computado
+sobre un denominador que no cuadra consigo mismo es un número inventado con aspecto de dato.
+
+**Decisión:** se declara y no se corrige. El reporte del parser trae `total_declarado`,
+`suma_detalle` y `diferencia_con_total` en cada corrida, y sobre 0,5 % emite advertencia.
+Repartir los 11.478 faltantes entre las especialidades listadas sería inventar.
+
+**Lección: el ancla más barata es la que la fuente ya trae.** El total declarado de la
+propia tabla no costó nada obtener y encontró dos cosas en una sesión: primero una fila que
+el parser se inventaba —el pie de página emparejado con el número de página, exactamente
++27— y después un defecto del informe. Una fuente que publica su propio total está
+ofreciendo una verificación gratis; no usarla es desperdiciarla.
+
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.
