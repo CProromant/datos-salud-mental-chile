@@ -279,7 +279,7 @@ Relacionado de Diagnóstico y del Programa de Atención Primaria, sin distinguir
 
 No es un defecto del dato ni una limitación del pipeline: **el presupuesto no está
 estructurado para responder la pregunta.** Cambió el alcance de la Fase 4 y la definición de
-[I-07](04-INDICADORES.md#i-07--gasto-real-per-cápita-en-salud-por-servicio-de-salud).
+[I-07](04-INDICADORES.md#i-07).
 
 - **Trampa 1 — no hay URL estable.** Cada corte mensual es un dataset CKAN con UUID propio.
   Construir la ruta por patrón falla; hay que consultar la API de `datos.gob.cl`.

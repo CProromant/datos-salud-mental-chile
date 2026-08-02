@@ -160,7 +160,7 @@ diagnóstico.
 Formato de entrada:
 
 ```
-### A-001 · <fuente> · <fecha de detección>
+### A-001 · <fuente> · <fecha de detección> {#a-001}
 Qué se observó:
 Reproducción: (comando)
 Hipótesis:
@@ -168,7 +168,7 @@ Verificación:
 Decisión: [conservar | marcar | excluir con nota]
 ```
 
-### A-001 · capas cartográficas de comunas · 2026-07-27
+### A-001 · capas cartográficas de comunas · 2026-07-27 {#a-001}
 
 **Qué se observó:** la capa «Comunas de Chile» del Centro de Datos OCUC (ArcGIS Hub,
 `e3a1f8c4aa014429847c2944e3d92406_0`), publicada bajo el título «División Político
@@ -202,7 +202,7 @@ más sanas del país, sin un solo error en pantalla.
 
 
 
-### A-002 · deis_defunciones · 2026-07-27
+### A-002 · deis_defunciones · 2026-07-27 {#a-002}
 
 **Qué se observó:** la serie oficial de defunciones DEIS cubre 1990–2023, pero los códigos
 de causa de los primeros años no son CIE-10.
@@ -238,7 +238,7 @@ filas del período, tanto en `DIAG1` como en `DIAG2`. Hasta resolverlo, **la ser
 suicidio no puede empezar antes de 1997**. Una versión anterior de este documento afirmaba
 que `E950` se publicaba como `9509`: era una conjetura no verificada y se retiró.
 
-### A-004 · deis_defunciones · 2026-07-27
+### A-004 · deis_defunciones · 2026-07-27 {#a-004}
 
 **Qué se observó:** el código de suicidio no está en la columna de causa básica.
 
@@ -272,7 +272,7 @@ básica con `DIAG2` vacío) leen ambos la columna correcta. La procedencia queda
 estructura real de punta a punta por `silver` y exige un conteo distinto de cero. Ningún
 indicador de mortalidad por causa externa debe darse por bueno sin un test que cuente.
 
-### A-003 · deis_defunciones · 2026-07-27
+### A-003 · deis_defunciones · 2026-07-27 {#a-003}
 
 **Qué se observó:** `COD_COMUNA` trae 4 caracteres en 1.551.470 filas y 5 en 1.630.976.
 
@@ -283,7 +283,7 @@ izquierda (`8304` por `08304`, Laja). Es el problema que `CLAUDE.md §5` anticip
 `territorio.formatear_cut_comuna`. Hay un test que verifica que el problema siga presente
 en el fixture, para que nadie «arregle» la fuente por el lado equivocado.
 
-### A-005 · reconciliación · 2026-07-27
+### A-005 · reconciliación · 2026-07-27 {#a-005}
 
 **Qué se observó:** al contrastar los totales anuales del archivo de causas contra la serie
 «Defunciones por Semana Epidemiológica» del propio DEIS, 4 de 14 años caen fuera del ±0,5 %.
@@ -328,7 +328,7 @@ registros de sexo no asignado. La cifra comparable es la de titular, 122.218.
 **Lección:** un ancla de reconciliación es tan buena como su definición temporal. Dos
 productos del mismo organismo pueden no ser comparables entre sí.
 
-### A-006 · deis_defunciones · 2026-07-27
+### A-006 · deis_defunciones · 2026-07-27 {#a-006}
 
 **Qué se observó:** al ingerir el archivo real (869 MB) el proceso no llegaba a arrancar.
 
@@ -343,7 +343,7 @@ los ingestores. Corrida completa: 3.182.446 filas en 11 min 12 s.
 **Lección:** ningún fixture de 15 filas puede exponer esto. Hay defectos que solo existen a
 escala real, y por eso la ingesta contra la fuente real es parte de verificar, no un extra.
 
-### A-007 · deis_defunciones · 2026-07-27
+### A-007 · deis_defunciones · 2026-07-27 {#a-007}
 
 **Qué se observó:** silver corrió sobre los 3.182.446 registros reales y reportó
 `cut_invalidos: 0`. Ese cero era demasiado limpio para una serie de 34 años que cruza la
@@ -376,7 +376,7 @@ de supuesto.
 **Lección:** un indicador de calidad que sale perfecto a la primera hay que auditarlo antes
 que celebrarlo. Acá el `0` no medía lo que su nombre decía que medía.
 
-### A-008 · ine_proyecciones · 2026-07-27
+### A-008 · ine_proyecciones · 2026-07-27 {#a-008}
 
 **Qué se observó:** al verificar el denominador se constató que las proyecciones comunales
 del INE (base 2017) empiezan en **2002**, mientras la serie de defunciones va de 1990 a 2023.
@@ -400,7 +400,7 @@ que es exactamente la lectura contraria a «no hay población para dividir».
 `COD_COMUNA` en DEIS (A-003). Con `zfill(5)` el join es perfecto; sin él se pierden en
 silencio todas las comunas de las regiones 01 a 09.
 
-### A-009 · ine_proyecciones · 2026-07-27
+### A-009 · ine_proyecciones · 2026-07-27 {#a-009}
 
 **Qué se observó:** al ingerir el archivo real aparecieron **8.060 celdas con población
 cero** (0,42 % de 1.905.768). Un test del propio ingestor afirmaba que eso no podía pasar.
@@ -432,7 +432,7 @@ test escrito contra ese fixture confirma la creencia del autor en vez de la fuen
 segunda vez en este proyecto; por eso la ingesta contra el archivo real es parte de
 verificar y no un extra.
 
-### A-010 · rem_salud_mental · 2026-07-28
+### A-010 · rem_salud_mental · 2026-07-28 {#a-010}
 
 **Qué se observó:** la ingesta de los doce años murió en el primero, 2014, con
 `TypeError: cannot safely cast non-equivalent float64 to int64`.
@@ -457,7 +457,7 @@ contradecía. Ahora atrapa cualquier excepción por año.
 es un mecanismo de recuperación. Los errores que cuestan caro son precisamente los que no
 se anticiparon.
 
-### A-011 · rem_salud_mental · 2026-07-28
+### A-011 · rem_salud_mental · 2026-07-28 {#a-011}
 
 **Qué se observó:** la serie nacional de trastornos de ansiedad mostraba una caída del 99 %
 en un solo año y una recuperación al siguiente.
@@ -493,7 +493,7 @@ serie completa en el tiempo.
 la serie; y una anomalía temporal que se explica sola por «la pandemia» o «un cambio de
 política» merece la misma desconfianza que cualquier otro resultado cómodo.
 
-### A-012 · rem_salud_mental · 2026-07-28
+### A-012 · rem_salud_mental · 2026-07-28 {#a-012}
 
 **Qué se observó:** al preparar la ficha del dataset, el mismo concepto aparecía dos veces
 en la tabla publicable:
@@ -525,7 +525,7 @@ mismas 229.892 filas** que antes. Ese número idéntico fue la única señal.
 **Lección:** verificar no es «corrió sin error», es «cambió lo que esperaba que cambiara».
 Un arreglo que deja la salida byte por byte igual no arregló nada.
 
-### A-013 · fonasa_inscritos · 2026-07-28
+### A-013 · fonasa_inscritos · 2026-07-28 {#a-013}
 
 **Qué se observó:** buscando el denominador de cobertura de APS, la serie de población
 inscrita de SINIM trae comunas con valor `0` y población real de decenas de miles. Tocopilla
@@ -565,7 +565,7 @@ deja de ser visible y empieza a ser plausible. Antes de usar una serie larga com
 denominador, hay que mirar el **vocabulario de lo no numérico año por año**, no solo si
 parsea.
 
-### A-014 · silver → gold · 2026-07-28
+### A-014 · silver → gold · 2026-07-28 {#a-014}
 
 **Qué se observó:** al validar `fonasa_inscritos` contra las proyecciones del INE, la
 cobertura nacional daba **33 %** en vez del ~73 % esperado. El denominador estaba al doble:
@@ -616,7 +616,7 @@ Censo 2024»— y ya estaba ocurriendo en otra fuente, sin síntoma. Un guard qu
 justifica por un escenario futuro conviene encenderlo igual: lo primero que hace es decir
 cuántas veces el escenario ya pasó.
 
-### A-015 · fonasa_inscritos · 2026-07-28 (corregido el 2026-07-29)
+### A-015 · fonasa_inscritos · 2026-07-28 (corregido el 2026-07-29) {#a-015}
 
 > **Esta anomalía se documentó mal el primer día y la corrección es más importante que el
 > hallazgo.** Se dejó el texto original tachado abajo, no por prolijidad: el error de
@@ -716,7 +716,7 @@ otro universo, y 2019 es el año en que SINIM empezó a publicar la cifra munici
 
 </details>
 
-### A-016 · deis_establecimientos · 2026-07-29
+### A-016 · deis_establecimientos · 2026-07-29 {#a-016}
 
 **Qué se observó:** la verificación de hash de `obsm.io.descargar` abortó la primera ingesta
 del maestro de establecimientos. El archivo bajado con `curl` minutos antes y el bajado por
@@ -763,7 +763,7 @@ no teníamos y que cambia cómo hay que tratarla. Un chequeo que falla por un mo
 al previsto sigue siendo un chequeo que sirvió; lo que no se puede hacer es apagarlo o
 actualizar el hash sin mirar, que es la reacción natural y habría escondido el hallazgo.
 
-### A-017 · política de supresión · 2026-07-29
+### A-017 · política de supresión · 2026-07-29 {#a-017}
 
 **Qué se observó:** escribiendo el test de la tabla de listas de espera se esperaba que un
 cero sobreviviera a la supresión, y no sobrevivió. Con un grupo de valores `[3, 0, 900]` y
@@ -809,7 +809,7 @@ un test falla, la primera pregunta no es «¿qué le pasa al código?» sino «�
 en qué me lo basé?». Acá la respuesta fue que dos reglas del mismo documento se contradicen
 en un borde que nadie había pisado.
 
-### A-018 · glosa06 · 2026-07-29
+### A-018 · glosa06 · 2026-07-29 {#a-018}
 
 **Qué se observó:** al parsear la tabla de especialidades del informe del I trimestre de
 2026, la suma del detalle da **1.970.175** y el propio informe declara **1.981.653**.
@@ -840,7 +840,7 @@ el parser se inventaba —el pie de página emparejado con el número de página
 +27— y después un defecto del informe. Una fuente que publica su propio total está
 ofreciendo una verificación gratis; no usarla es desperdiciarla.
 
-### A-019 · rem_salud_mental · 2026-07-29
+### A-019 · rem_salud_mental · 2026-07-29 {#a-019}
 
 **Qué se observó:** al construir I-05 se buscó dónde estaban ya publicados los conteos de
 ideación e intento suicida, y resultó que **ya se publican**: `poblacion_control_salud_mental.csv`

@@ -108,7 +108,7 @@ servicios, así que suprimir una sola celda la dejaría reconstruible por resta.
 se puede saber cuánto se espera por psiquiatría en una región**: el desglose por
 especialidad solo lo publica el PDF de la Glosa 06, que a su vez no publica días de espera.
 Las dos fuentes son complementarias y ninguna las cruza, aunque la letra b) de la propia
-glosa obligue a hacerlo. Ver [I-06](04-INDICADORES.md#i-06--espera-en-psiquiatría-adulto-e-infanto-adolescente).
+glosa obligue a hacerlo. Ver [I-06](04-INDICADORES.md#i-06).
 
 **No mide necesidad.** Mide demanda que llegó a registrarse. Un Servicio con lista corta
 puede tener buena capacidad o puede tener gente que dejó de pedir hora.

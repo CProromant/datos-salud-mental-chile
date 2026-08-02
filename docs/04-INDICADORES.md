@@ -9,7 +9,7 @@ producción con reconciliación pasando.
 
 ---
 
-## I-01 · Tasa de mortalidad por suicidio
+## I-01 · Tasa de mortalidad por suicidio {#i-01}
 
 - **Estado:** activo (Fase 1) — calculado sobre datos reales 2002-2023, reconciliado
 - **Numerador:** defunciones con causa básica en el agrupador `SUICIDIO` (X60–X84 + Y87.0),
@@ -58,7 +58,7 @@ producción con reconciliación pasando.
 
 ---
 
-## I-02 · Años de vida potencial perdidos por suicidio
+## I-02 · Años de vida potencial perdidos por suicidio {#i-02}
 
 - **Estado:** activo (Fase 1) — 38,8 años perdidos por muerte en las celdas publicables
 - **Cálculo:** Σ max(0, 80 − edad al fallecer), agregado por comuna y año.
@@ -78,7 +78,7 @@ producción con reconciliación pasando.
 
 ---
 
-## I-03 · Cobertura del programa de salud mental en APS
+## I-03 · Cobertura del programa de salud mental en APS {#i-03}
 
 - **Estado:** implementado (Fase 2). Se produce con `obsm rem cobertura`; ficha del dataset
   en [`DATASET-cobertura-salud-mental-aps.md`](DATASET-cobertura-salud-mental-aps.md).
@@ -128,7 +128,7 @@ no viaja cuando alguien copia la celda.
 
 ---
 
-## I-04 · Intensidad de tratamiento
+## I-04 · Intensidad de tratamiento {#i-04}
 
 - **Estado:** definido (Fase 2)
 - **Cálculo:** controles de salud mental / personas bajo control, por comuna y semestre.
@@ -138,7 +138,7 @@ no viaja cuando alguien copia la celda.
 
 ---
 
-## I-05 · Ingresos por ideación e intento suicida
+## I-05 · Ingresos por ideación e intento suicida {#i-05}
 
 - **Estado:** definido (Fase 2)
 - **Fuente:** secciones correspondientes del REM, por comuna y mes.
@@ -148,7 +148,7 @@ no viaja cuando alguien copia la celda.
 
 ---
 
-## I-06 · Espera en psiquiatría adulto e infanto-adolescente
+## I-06 · Espera en psiquiatría adulto e infanto-adolescente {#i-06}
 
 - **Estado:** definido (Fase 3). Fuentes verificadas el 2026-07-29; sin implementar.
 - **Fuentes:** `glosa06` (PDF trimestral) para el desglose por especialidad;
@@ -175,7 +175,7 @@ no viaja cuando alguien copia la celda.
 
 ---
 
-## I-07 · Gasto real per cápita en salud, por Servicio de Salud
+## I-07 · Gasto real per cápita en salud, por Servicio de Salud {#i-07}
 
 - **Estado:** redefinido el 2026-07-29. Fuente `dipres_ejecucion` verificada; sin implementar.
 - **Numerador:** ejecución presupuestaria del capítulo correspondiente al Servicio de Salud,
@@ -227,7 +227,7 @@ pero da el denominador de la discusión: sobre cuánto se está repartiendo.
 Y documenta, con la cifra medida, **por qué la primera pregunta no tiene respuesta** — que
 es en sí mismo el tipo de hallazgo para el que existe este observatorio (`docs/00`).
 
-## I-08 · Densidad de psiquiatras por 100.000
+## I-08 · Densidad de psiquiatras por 100.000 {#i-08}
 
 - **Estado:** definido (Fase 4)
 - **Nivel máximo de publicación: regional.** El registro indica inscripción, no lugar ni
@@ -237,7 +237,7 @@ es en sí mismo el tipo de hallazgo para el que existe este observatorio (`docs/
 
 ---
 
-## I-09 · Índice de brecha demanda-oferta
+## I-09 · Índice de brecha demanda-oferta {#i-09}
 
 - **Estado:** definido (Fase 5)
 - **Cálculo:** demanda esperada (prevalencia estimada × población por grupo etario) versus
@@ -250,7 +250,7 @@ es en sí mismo el tipo de hallazgo para el que existe este observatorio (`docs/
 
 ---
 
-## I-10 · Alerta de desviación de serie
+## I-10 · Alerta de desviación de serie {#i-10}
 
 - **Estado:** definido (Fase 5)
 - **Método:** CUSUM sobre residuos de un modelo estacional simple, en series mensuales.

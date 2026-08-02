@@ -309,7 +309,7 @@ evidencia de la imposibilidad, y decirlo en la ficha.
 | indicadores activos con ficha y verificación externa | 3 (I-01, I-02, I-03) | 2 |
 | anclas de reconciliación automáticas | 5, todas cuadrando | 5 |
 | anomalías documentadas con reproducción y decisión | 19 | 9 |
-| tests | 553 | 323 |
+| tests | 556 | 323 |
 | fallos silenciosos detectados **antes** de producción | 8, cada uno con su test | 5 |
 
 La última fila es la que importa y conviene leerla con cuidado: son defectos que no lanzaban

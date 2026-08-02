@@ -48,8 +48,8 @@ medida de esa incertidumbre justamente para que no se hagan rankings.
 
 | Serie | Qué mide | Cobertura | Estado |
 |---|---|---|---|
-| **Mortalidad por suicidio** | muertes, tasas cruda / estandarizada / suavizada, años de vida perdidos | 346 comunas, 2002-2023, anual | [descargable](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) |
-| **Población bajo control en salud mental** | personas en tratamiento por diagnóstico | 345 comunas, 2014-2025, semestral | [descargable](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) |
+| **Mortalidad por suicidio** | muertes, tasas cruda / estandarizada / suavizada, años de vida perdidos | 346 comunas, 2002-2023, anual | [descargable](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) · [ficha](docs/DATASET-suicidio-comunal.md) |
+| **Población bajo control en salud mental** | personas en tratamiento por diagnóstico | 345 comunas, 2014-2025, semestral | [descargable](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) · [ficha](docs/DATASET-poblacion-control-salud-mental.md) |
 | **Cobertura en atención primaria** | personas en control por mil inscritos | 185 comunas, 2014-2025, semestral | [ficha lista](docs/DATASET-cobertura-salud-mental-aps.md), sin publicar |
 | **Listas de espera** | registros, personas y días de espera | 29 Servicios de Salud, 2019-2025, trimestral | [ficha lista](docs/DATASET-listas-espera-servicio-salud.md), sin publicar |
 | **Espera por especialidad** | registros en espera, incluida psiquiatría | nacional, 2025-2026, trimestral | [ficha lista](docs/DATASET-espera-por-especialidad.md), sin publicar |
@@ -59,10 +59,11 @@ medir depresión o ansiedad**, porque casi nadie muere de eso. En el archivo de 
 los trastornos del ánimo son once muertes al año en todo Chile; en el de atención primaria
 son ciento ocho mil personas en tratamiento solo por depresión moderada.
 
-La tercera es nueva y todavía **no está publicada**. Se reproduce con `obsm rem cobertura` y
-su [ficha](docs/DATASET-cobertura-salud-mental-aps.md) está escrita; lo que falta es el
-release. Se anuncia acá porque cambia lo que el proyecto puede responder, y porque **la mitad
-de sus filas no traen cobertura a propósito** — conviene leer la ficha antes de usarla.
+**Las tres últimas todavía no están publicadas.** Se reproducen con `obsm`, cada una tiene
+su ficha escrita y lo que falta es el release. Se anuncian acá porque cambian lo que el
+proyecto puede responder, y porque ninguna se lee bien sin su ficha: la de cobertura tiene
+**la mitad de sus filas sin valor a propósito**, la de listas de espera **no baja a comuna**,
+y la de especialidad **no cruza con territorio** porque ninguna fuente pública lo hace.
 
 ## Empezar en dos minutos
 
@@ -157,7 +158,7 @@ Detalle en [`docs/02-ARQUITECTURA.md`](docs/02-ARQUITECTURA.md).
 
 | | |
 |---|---|
-| Tests | 553+ pasando |
+| Tests | 556+ pasando |
 | Lint y tipos | limpios |
 | Fuentes verificadas con descarga real | 11 de 19 |
 | Anclas de reconciliación automáticas | 5 de 5 cuadrando |
@@ -196,11 +197,18 @@ sobre el sistema— y borrarlas falsifica el diagnóstico.
 | [`docs/00-PROBLEMA.md`](docs/00-PROBLEMA.md) | para qué existe y quién lo usa |
 | [`docs/01-FUENTES.md`](docs/01-FUENTES.md) | cada fuente y sus trampas conocidas |
 | [`docs/02-ARQUITECTURA.md`](docs/02-ARQUITECTURA.md) | las capas y qué puede hacer cada una |
+| [`docs/03-DICCIONARIO.md`](docs/03-DICCIONARIO.md) | el esquema canónico: nombres, tipos y qué significa cada nulo |
 | [`docs/04-INDICADORES.md`](docs/04-INDICADORES.md) | fórmulas, límites y qué NO significan |
 | [`docs/05-CALIDAD.md`](docs/05-CALIDAD.md) | anclas de reconciliación y anomalías |
 | [`docs/06-ETICA-Y-DATOS.md`](docs/06-ETICA-Y-DATOS.md) | los límites que no se negocian |
+| [`docs/07-PUBLICACION.md`](docs/07-PUBLICACION.md) | versionado, checklist de release y licencias |
+| [`docs/08-RIESGOS.md`](docs/08-RIESGOS.md) | qué puede salir mal, con dueño y mitigación |
+| [`docs/09-GOBERNANZA.md`](docs/09-GOBERNANZA.md) | quién decide qué, y quién puede vetar |
+| [`CHANGELOG.md`](CHANGELOG.md) | qué cambió en cada versión y si afecta series ya publicadas |
+| [`CLAUDE.md`](CLAUDE.md) | reglas operativas del repositorio: los siete no negociables |
 | [`docs/adr/`](docs/adr/) | decisiones tomadas, con lo que se descartó y por qué |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | cómo contribuir |
+| [`docs/PROMPTS.md`](docs/PROMPTS.md) | playbook de sesiones: una tarea con criterio de término verificable |
 
 Si vas a tocar código: `docs/00`, `docs/02` y `docs/06`. El último no es negociable.
 

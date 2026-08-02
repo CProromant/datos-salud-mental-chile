@@ -401,3 +401,101 @@ class TestParserDelCLI:
             if not tiene:
                 sin_func.append(nombre)
         assert not sin_func, f"subcomandos sin función: {sin_func}"
+
+
+class TestEnlacesDeLaDocumentacion:
+    """Ningún enlace interno roto, y ningún documento invisible desde el README.
+
+    Se agrega porque una revisión manual encontró diez anclas rotas y cuatro documentos
+    normativos —diccionario, publicación, riesgos y gobernanza— que no se alcanzaban desde
+    la portada. Un enlace roto no rompe nada al correr; simplemente el lector no llega, y
+    eso no aparece en ninguna suite hasta que alguien lo busca a mano.
+    """
+
+    @staticmethod
+    def _encabezados_y_anclas(p):
+        """Anclas de un documento, saltando los bloques de código cercados.
+
+        Sin saltarlos, la plantilla de anomalía que vive dentro de un bloque en
+        `docs/05-CALIDAD.md` se cuenta como un encabezado `A-001` duplicado, y un
+        comentario de bash `# los tres insumos` cuenta como segundo H1.
+        """
+        import re
+        import unicodedata
+
+        out, en_bloque = set(), False
+        for linea in p.read_text(encoding="utf-8").splitlines():
+            if linea.lstrip().startswith("```"):
+                en_bloque = not en_bloque
+                continue
+            if en_bloque:
+                continue
+            m = re.match(r"^#{1,6}\s+(.*?)\s*$", linea)
+            if not m:
+                continue
+            titulo = m.group(1)
+            explicita = re.search(r"\{#([^}]+)\}", titulo)
+            if explicita:
+                out.add(explicita.group(1))
+                titulo = titulo[: explicita.start()].strip()
+            s = "".join(
+                c for c in unicodedata.normalize("NFKD", titulo.lower())
+                if not unicodedata.combining(c)
+            )
+            out.add(re.sub(r"\s+", "-", re.sub(r"[^\w\s-]", "", s).strip()))
+        return out
+
+    def _markdown(self):
+        raiz = self._raiz()
+        return sorted(raiz.glob("*.md")) + sorted(raiz.glob("docs/**/*.md"))
+
+    @staticmethod
+    def _raiz():
+        import pathlib
+        return pathlib.Path(__file__).resolve().parents[1]
+
+    def test_ningun_enlace_interno_roto(self):
+        import re
+
+        rotos = []
+        for doc in self._markdown():
+            for m in re.finditer(r"\[([^\]]*)\]\(([^)]+)\)", doc.read_text(encoding="utf-8")):
+                destino = m.group(2).strip()
+                if destino.startswith(("http://", "https://", "mailto:")):
+                    continue
+                ruta, _, ancla = destino.partition("#")
+                base = (doc.parent / ruta).resolve() if ruta else doc.resolve()
+                if not base.exists():
+                    rotos.append(f"{doc.name}: [{m.group(1)[:20]}]({destino}) — no existe")
+                elif ancla and base.suffix == ".md" and ancla not in self._encabezados_y_anclas(base):
+                    rotos.append(f"{doc.name}: [{m.group(1)[:20]}]({destino}) — ancla ausente")
+        assert not rotos, "enlaces rotos:\n  " + "\n  ".join(rotos)
+
+    def test_todo_documento_se_alcanza_desde_el_readme(self):
+        import re
+
+        raiz = self._raiz()
+        enlazados = {
+            m.group(1)
+            for m in re.finditer(r"\]\(([^)]+)\)", (raiz / "README.md").read_text(encoding="utf-8"))
+        }
+        existentes = {f"docs/{p.name}" for p in (raiz / "docs").glob("*.md")}
+        existentes |= {p.name for p in raiz.glob("*.md")} - {"README.md"}
+        huerfanos = sorted(existentes - enlazados)
+        assert not huerfanos, f"documentos que el README no enlaza: {huerfanos}"
+
+    def test_cada_documento_tiene_exactamente_un_titulo_principal(self):
+        import re
+
+        malos = []
+        for doc in self._markdown():
+            en_bloque, h1 = False, 0
+            for linea in doc.read_text(encoding="utf-8").splitlines():
+                if linea.lstrip().startswith("```"):
+                    en_bloque = not en_bloque
+                    continue
+                if not en_bloque and re.match(r"^# \S", linea):
+                    h1 += 1
+            if h1 != 1:
+                malos.append(f"{doc.name}: {h1} títulos H1")
+        assert not malos, "\n  ".join(malos)
