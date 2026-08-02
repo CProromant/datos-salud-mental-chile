@@ -48,8 +48,8 @@ medida de esa incertidumbre justamente para que no se hagan rankings.
 
 | Serie | Qué mide | Cobertura | Estado |
 |---|---|---|---|
-| **Mortalidad por suicidio** | muertes, tasas cruda / estandarizada / suavizada, años de vida perdidos | 346 comunas, 2002-2023, anual | [descargable](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) · [ficha](docs/DATASET-suicidio-comunal.md) |
-| **Población bajo control en salud mental** | personas en tratamiento por diagnóstico | 345 comunas, 2014-2025, semestral | [descargable](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) · [ficha](docs/DATASET-poblacion-control-salud-mental.md) |
+| **Mortalidad por suicidio** | muertes, tasas cruda / estandarizada / suavizada, años de vida perdidos | 346 comunas, 2002-2023, anual | [CSV](https://github.com/CProromant/datos-salud-mental-chile/releases/latest/download/suicidio_comunal.csv) · [ficha](docs/DATASET-suicidio-comunal.md) |
+| **Población bajo control en salud mental** | personas en tratamiento por diagnóstico | 345 comunas, 2014-2025, semestral | [CSV](https://github.com/CProromant/datos-salud-mental-chile/releases/latest/download/poblacion_control_salud_mental.csv) · [ficha](docs/DATASET-poblacion-control-salud-mental.md) |
 | **Cobertura en atención primaria** | personas en control por mil inscritos | 185 comunas, 2014-2025, semestral | [ficha lista](docs/DATASET-cobertura-salud-mental-aps.md), sin publicar |
 | **Listas de espera** | registros, personas y días de espera | 29 Servicios de Salud, 2019-2025, trimestral | [ficha lista](docs/DATASET-listas-espera-servicio-salud.md), sin publicar |
 | **Espera por especialidad** | registros en espera, incluida psiquiatría | nacional, 2025-2026, trimestral | [ficha lista](docs/DATASET-espera-por-especialidad.md), sin publicar |
@@ -58,6 +58,9 @@ La segunda es la importante para la mayoría de las preguntas: **la mortalidad n
 medir depresión o ansiedad**, porque casi nadie muere de eso. En el archivo de defunciones
 los trastornos del ánimo son once muertes al año en todo Chile; en el de atención primaria
 son ciento ocho mil personas en tratamiento solo por depresión moderada.
+
+Los enlaces `CSV` bajan el archivo de la **última versión publicada** directamente; el
+[release completo](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) trae además el ZIP con todo el conjunto y sus manifiestos.
 
 **Las tres últimas todavía no están publicadas.** Se reproducen con `obsm`, cada una tiene
 su ficha escrita y lo que falta es el release. Se anuncian acá porque cambian lo que el
