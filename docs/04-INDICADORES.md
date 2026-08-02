@@ -189,19 +189,19 @@ no viaja cuando alguien copia la celda.
 **El presupuesto no permite aislarlo, y está medido.** En toda la partida 16 del corte a
 junio de 2026 hay **tres glosas** que nombran salud mental:
 
-| Glosa | Nivel | Monto |
+| Glosa | Nivel | Ejecutado a junio 2026 |
 |---|---|---|
-| Colocación Pacientes con Enfermedades Mentales | Sub-Asignación | 13 MM$ |
-| Programa de Apoyo a la Salud Mental Infantil | Asignación | 4 MM$ |
-| Centros de Prevención de Alcoholismo y Salud Mental | Asignación | ~0 MM$ |
+| Colocación Pacientes con Enfermedades Mentales | Sub-Asignación | 12,69 mil MM$ |
+| Centros de Prevención de Alcoholismo y Salud Mental | Asignación | 0,01 mil MM$ |
+| *(«Programa de Apoyo a la Salud Mental Infantil» aparece como ingreso por transferencia, no como gasto)* | | |
 
-**17 MM$ sobre 51.878 MM$ ejecutados: 0,03 %.** El resto del gasto que financia salud
+**12,70 mil MM$ sobre 25,24 billones de gasto ejecutado: 0,05 %.** El resto del gasto que financia salud
 mental —consultas de psiquiatría, hospitalización, programas de APS, farmacia— está dentro
 de FONASA, del pago por Grupo Relacionado de Diagnóstico y del Programa de Atención
 Primaria, sin distinguirse.
 
-La ficha anterior prometía «publicar rango, no punto». Con un 0,03 % identificable no hay
-con qué construir un piso creíble, y un rango que va de 0,03 % a «no se sabe» no es un
+La ficha anterior prometía «publicar rango, no punto». Con un 0,05 % identificable no hay
+con qué construir un piso creíble, y un rango que va de 0,05 % a «no se sabe» no es un
 rango: es la ausencia del dato con otro nombre.
 
 - **Qué NO significa:**

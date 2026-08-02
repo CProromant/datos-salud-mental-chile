@@ -884,6 +884,47 @@ suicidio llegó primero por ahí, y el REM lo trajo por otro lado —una etiquet
 que ningún guardia mirara. Vale preguntarse, para cada regla implementada, por cuántas
 puertas distintas puede entrar aquello que prohíbe.
 
+### A-020 · dipres_ejecucion · 2026-07-29 {#a-020}
+
+**Qué se observó:** al leer el diccionario de datos que DIPRES publica junto al CSV —después
+de haber commiteado el hallazgo de Fase 4— apareció que los montos vienen **«expresados en
+Miles»**. Las cifras absolutas que había publicado estaban mal por un factor de mil.
+
+**Y al revisarlas aparecieron dos errores más, peores:**
+
+| | Lo que publiqué | Lo correcto |
+|---|---|---|
+| Unidad | «MM$», sin corresponder a nada | miles de pesos en el origen |
+| Denominador | 51.878 (ingresos + gastos) | 25,24 billones (solo gasto) |
+| Identificable | 17 | 12,70 mil MM$ |
+| Fracción | 0,03 % | **0,05 %** |
+
+El denominador era el peor de los tres. En el presupuesto chileno los subtítulos 01-15 son
+**ingresos** y los 21 en adelante **gastos**; sumarlos cuenta el mismo peso dos veces, una
+al entrar y otra al salir. Daba 51,88 billones para medio año de Salud, que es más que todo
+el presupuesto anual del Gobierno Central. **La cifra era absurda y la publiqué igual**,
+porque venía expresada en una unidad que yo mismo había inventado y que no permitía
+contrastarla contra nada conocido.
+
+**El hallazgo sobrevive**, y esa es la parte incómoda: 0,03 % y 0,05 % sostienen la misma
+conclusión, así que ninguna de las tres equivocaciones cambiaba el titular. Un error que no
+mueve la conclusión es precisamente el que nadie revisa.
+
+**Lo que lo destapó** fue leer el diccionario de datos **que la fuente publica en el mismo
+directorio**, y que yo había bajado en la misma sesión sin abrir.
+
+### Lecciones
+
+1. **Una cifra absoluta hay que poder contrastarla con algo conocido.** «51.878 MM$» no se
+   parecía a nada; «51,9 billones para medio año de Salud» se compara de inmediato con el
+   presupuesto del país y se cae sola. Escribir la unidad correcta no es prolijidad: es lo
+   que habilita la comprobación.
+2. **Un ratio puede estar bien con numerador y denominador mal.** El 0,03 % era casi
+   correcto por casualidad, y esa casualidad sostuvo tres errores.
+3. **Leer el diccionario que la fuente publica cuesta dos minutos.** Es la tercera vez en
+   este proyecto que la respuesta estaba en documentación de la propia fuente sin abrir —
+   antes fueron los nombres de las variables de SINIM (A-015) y el manual del REM.
+
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.

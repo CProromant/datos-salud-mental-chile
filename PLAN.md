@@ -219,11 +219,12 @@ nace sabiendo que ninguna de las dos cosas es estable.
 > permite calcularlo, y ahora está medido.** En toda la partida 16 hay tres glosas que
 > nombran salud mental —«Colocación Pacientes con Enfermedades Mentales», «Programa de
 > Apoyo a la Salud Mental Infantil» y «Centros de Prevención de Alcoholismo y Salud
-> Mental»— que suman **17 MM$ sobre 51.878 ejecutados: 0,03 %**. El resto vive dentro de
+> Mental»— que suman **12,70 mil MM$ sobre 25,24 billones de gasto ejecutado: 0,05 %**.
+> El resto vive dentro de
 > FONASA, del pago por GRD y de la atención primaria, sin distinguirse.
 >
 > El plan anticipaba «publicar rango, no punto». La realidad es más dura: **no hay con qué
-> acotar el rango.** Un 0,03 % identificable no permite ni un piso creíble.
+> acotar el rango.** Un 0,05 % identificable no permite ni un piso creíble.
 >
 > Esto no es un obstáculo del proyecto: es el hallazgo. `docs/00` lista el financiamiento
 > como uno de los once problemas de la salud mental chilena, y esto lo convierte en un dato
@@ -246,7 +247,7 @@ nace sabiendo que ninguna de las dos cosas es estable.
 más una nota metodológica que documente, con la cifra medida, por qué el gasto en salud
 mental no es separable.
 
-**Riesgo principal:** que alguien tome la fracción identificable —0,03 %— como si fuera el
+**Riesgo principal:** que alguien tome la fracción identificable —0,05 %— como si fuera el
 gasto en salud mental. Mitigación: no publicar esa cifra como indicador, solo como
 evidencia de la imposibilidad, y decirlo en la ficha.
 
@@ -308,7 +309,7 @@ evidencia de la imposibilidad, y decirlo en la ficha.
 | fuentes verificadas con descarga real | 11 de 19 | 4 de 17 |
 | indicadores activos con ficha y verificación externa | 3 (I-01, I-02, I-03) | 2 |
 | anclas de reconciliación automáticas | 5, todas cuadrando | 5 |
-| anomalías documentadas con reproducción y decisión | 19 | 9 |
+| anomalías documentadas con reproducción y decisión | 20 | 9 |
 | tests | 556 | 323 |
 | fallos silenciosos detectados **antes** de producción | 8, cada uno con su test | 5 |
 

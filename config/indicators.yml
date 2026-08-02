@@ -80,9 +80,9 @@ indicadores:
   - id: I-07
     nombre: "Gasto real per cápita en salud, por Servicio de Salud"
     redefinido: "2026-07-29"
-    # El nombre perdió «en salud mental» porque el presupuesto no lo separa: 0,03 % de la
+    # El nombre perdió «en salud mental» porque el presupuesto no lo separa: 0,05 % del
     # partida 16 lleva glosa de salud mental. Ver docs/04 y la ficha de dipres_ejecucion.
-    no_viable: "gasto en salud mental — el presupuesto no lo desagrega (0,03 % etiquetado)"
+    no_viable: "gasto en salud mental — el presupuesto no lo desagrega (0,05 % etiquetado)"
     estado: definido
     fase: 4
     fuente: dipres_ejecucion

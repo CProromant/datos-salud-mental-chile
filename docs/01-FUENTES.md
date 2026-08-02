@@ -267,13 +267,13 @@ abrieron, se extrajo el texto y se ubicó la cifra de psiquiatría.
 
 En toda la partida 16 hay **tres glosas** que nombran salud mental:
 
-| Glosa | Nivel | Monto |
+| Glosa | Nivel | Ejecutado a junio 2026 |
 |---|---|---|
-| Colocación Pacientes con Enfermedades Mentales | Sub-Asignación | 13 MM$ |
-| Programa de Apoyo a la Salud Mental Infantil | Asignación | 4 MM$ |
-| Centros de Prevención de Alcoholismo y Salud Mental | Asignación | ~0 MM$ |
+| Colocación Pacientes con Enfermedades Mentales | Sub-Asignación | 12,69 mil MM$ |
+| Centros de Prevención de Alcoholismo y Salud Mental | Asignación | 0,01 mil MM$ |
+| *(«Programa de Apoyo a la Salud Mental Infantil» aparece como ingreso por transferencia, no como gasto)* | | |
 
-**17 MM$ sobre 51.878 MM$ ejecutados: 0,03 %.** El resto —consultas de psiquiatría,
+**12,70 mil MM$ sobre 25,24 billones de gasto ejecutado: 0,05 %.** El resto —consultas de psiquiatría,
 hospitalización, programas de APS, farmacia— vive dentro de FONASA, del pago por Grupo
 Relacionado de Diagnóstico y del Programa de Atención Primaria, sin distinguirse.
 
@@ -283,8 +283,7 @@ estructurado para responder la pregunta.** Cambió el alcance de la Fase 4 y la 
 
 - **Trampa 1 — no hay URL estable.** Cada corte mensual es un dataset CKAN con UUID propio.
   Construir la ruta por patrón falla; hay que consultar la API de `datos.gob.cl`.
-- **Trampa 2 — «MENTAL» como subcadena captura «InstruMENTAL Quirúrgico».** Son 10 MM$ de
-  material quirúrgico e inflan la cifra identificable un 50 % (de 17 a 26 MM$). Hay que usar
+- **Trampa 2 — «MENTAL» como subcadena captura «InstruMENTAL Quirúrgico».** Es material quirúrgico e infla la cifra identificable a la mitad. Hay que usar
   frontera de palabra, igual que `quality._RE_TOTAL_PREFIJO` hace con «Totoral».
 - **Trampa 3 — los montos traen punto de miles** y ningún decimal.
 - **Uso previsto:** gasto total en salud por habitante y Servicio de Salud, deflactado con

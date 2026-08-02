@@ -365,16 +365,15 @@ fuentes:
       La partida 16 baja hasta sub-asignación: 8.058 filas, con los 29 Servicios de Salud
       como capítulos separados.
       HALLAZGO QUE CAMBIA EL ALCANCE DE LA FASE: el gasto en salud mental **no es
-      separable**. En toda la partida 16 hay TRES glosas que lo nombran —«Colocación
-      Pacientes con Enfermedades Mentales» (13 MM$), «Programa de Apoyo a la Salud Mental
-      Infantil» (4 MM$) y «Centros de Prevención de Alcoholismo y Salud Mental» (~0)— que
-      suman 17 MM$ sobre 51.878 MM$ ejecutados: **0,03 %**. El resto vive dentro de FONASA,
+      separable**. En toda la partida 16 hay TRES glosas que lo nombran —«Colocación Pacientes con Enfermedades
+      Mentales» (12,69 mil MM$) y «Centros de Prevención de Alcoholismo y Salud Mental»
+      (0,01), que suman 0,05 % del gasto ejecutado de la partida.
       del pago por GRD y de la atención primaria, sin distinguirse. No es un defecto del
       dato: es que el presupuesto no está estructurado para responder la pregunta.
       TRAMPA 1: no hay URL estable. Cada mes es un dataset CKAN nuevo con UUID propio;
       construir la ruta por patrón falla y hay que consultar la API.
       TRAMPA 2: al buscar glosas de salud mental, «MENTAL» como subcadena captura
-      «InstruMENTAL Quirúrgico» —material quirúrgico, 10 MM$— e infla la cifra un 50 %.
+      «InstruMENTAL Quirúrgico», que es material quirúrgico, e infla la cifra identificable.
       Hay que usar frontera de palabra, igual que `quality._RE_TOTAL_PREFIJO` con «Totoral».
       TRAMPA 3: los montos vienen con punto de miles y sin decimales.
 

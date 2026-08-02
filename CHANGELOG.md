@@ -61,12 +61,12 @@ en la atención primaria de cada comuna**. Tres fuentes nuevas y el indicador I-
   desde 2017, partida 16 hasta sub-asignación con los 29 Servicios de Salud separados. Es la
   fuente mejor publicada del proyecto.
 - **Alcance de Fase 4 corregido, con la cifra medida.** El gasto en salud mental **no es
-  separable**: tres glosas de la partida 16 lo nombran y suman 17 MM$ sobre 51.878
-  ejecutados, un **0,03 %**. El resto vive dentro de FONASA, del pago por GRD y de la
+  separable**: las glosas de la partida 16 que lo nombran suman 12,70 mil MM$ sobre
+  25,24 billones de gasto ejecutado, un **0,05 %**. El resto vive dentro de FONASA, del pago por GRD y de la
   atención primaria. I-07 pasa a «gasto real per cápita **en salud**» y su ficha documenta,
   con la medición, por qué la pregunta original no tiene respuesta en esta fuente.
 - Una trampa que vale por sí sola: buscar «MENTAL» como subcadena captura «InstruMENTAL
-  Quirúrgico» e infla la cifra un 50 %.
+  Quirúrgico» e infla la cifra identificable.
 
 ### Fase 3, espera por especialidad
 - **`obsm glosa06 <pdf>...`**: parser del informe trimestral e ingestor. Es la única fuente
