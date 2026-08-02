@@ -57,7 +57,10 @@ indicadores:
 
   - id: I-05
     nombre: "Ingresos por ideación e intento suicida"
-    estado: definido
+    requiere_recursos_ayuda: true      # docs/06; la firma de la función lo exige
+    revision_clinica: pendiente        # docs/06; obligatoria antes de publicar
+    quiebre_serie: "2019-06"           # antes el REM no registraba estos conceptos
+    estado: implementado
     fase: 2
     fuente: rem_salud_mental
     unidad: conteo

@@ -153,10 +153,18 @@ todo consumidor de la API recibe junto con los datos.
 > ansiedad que no existía. La regla que salió de ahí: un ingestor probado contra un año no
 > está probado.
 >
-> **Lo que no se hizo:** ingresos por intento e ideación suicida, que era parte del criterio
-> de término. Los conceptos existen en el REM desde 2020 y están en la tabla publicada como
-> conteos; lo que falta es la ficha de indicador y el tratamiento de quiebre de serie. Queda
-> declarado como deuda, no como hecho.
+> **La deuda de ingresos por intento e ideación suicida quedó saldada el 2026-07-29.**
+> `gold.tabla_ideacion_intento` (I-05) los publica desde 2019-06, que es cuando el REM
+> empezó a registrarlos, con el quiebre de serie recortado y las salvaguardas de `docs/06`
+> impuestas por código: la función **exige** recursos de ayuda y se niega a producir la
+> tabla sin ellos.
+>
+> Construirla destapó A-019: esos conteos **ya se publicaban** dentro de
+> `poblacion_control_salud_mental.csv`, entre setenta conceptos, sin ninguna de las cuatro
+> obligaciones que `docs/06` impone a las salidas con suicidio. No por omisión deliberada:
+> el guardia existía y miraba códigos CIE-10, y el REM trae el suicidio por una etiqueta de
+> texto. La política se hace cumplir sobre la puerta por la que el dato entra, no sobre la
+> que uno imaginó.
 
 ---
 
@@ -279,8 +287,8 @@ desagregar. Mitigación: publicar rango, no punto, y decirlo en la ficha del ind
 | fuentes verificadas con descarga real | 10 de 19 | 4 de 17 |
 | indicadores activos con ficha y verificación externa | 3 (I-01, I-02, I-03) | 2 |
 | anclas de reconciliación automáticas | 5, todas cuadrando | 5 |
-| anomalías documentadas con reproducción y decisión | 18 | 9 |
-| tests | 541 | 323 |
+| anomalías documentadas con reproducción y decisión | 19 | 9 |
+| tests | 553 | 323 |
 | fallos silenciosos detectados **antes** de producción | 8, cada uno con su test | 5 |
 
 La última fila es la que importa y conviene leerla con cuidado: son defectos que no lanzaban

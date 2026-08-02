@@ -12,6 +12,7 @@ from __future__ import annotations
 import pandas as pd
 
 from .. import PIPELINE_VERSION
+from ..errors import SuppressionViolationError
 from ..indicators.tasas import (
     POBLACION_ESTANDAR_OMS_80,
     POR_DEFECTO,
@@ -736,6 +737,119 @@ def tabla_espera_especialidad(
             "Ver A-018 en docs/05-CALIDAD.md.",
             "La serie tiene solo los trimestres cuyo PDF se pudo descargar. Los nombres de "
             "archivo publicados no siguen patrón y hay que conseguirlos uno a uno.",
+        ],
+    }
+    return publicable, meta
+
+
+#: Conceptos del REM que cuentan personas en control por conducta suicida. La llave es la
+#: etiqueta normalizada; el valor, el nombre publicable.
+CONCEPTOS_CONDUCTA_SUICIDA = {
+    "IDEACION": "Ideación suicida",
+    "INTENTO": "Intento suicida",
+}
+
+#: Primer corte en que el REM registra estos conceptos. Antes no es que fueran cero: no se
+#: preguntaban. Una serie que arranque antes lee un quiebre de formulario como una epidemia.
+PRIMER_PERIODO_CONDUCTA_SUICIDA = "2019-06"
+
+
+def tabla_ideacion_intento(
+    silver: pd.DataFrame,
+    recursos_ayuda: list[str],
+    k: int = K_SUPRESION_ACTIVIDAD,
+    source_id: str = "rem_salud_mental",
+    source_version: str | None = None,
+) -> tuple[pd.DataFrame, dict]:
+    """Personas en control por ideación e intento suicida, con las salvaguardas de docs/06.
+
+    **`recursos_ayuda` es obligatorio y el código se niega a producir la tabla sin él.**
+    `docs/06` exige que toda salida pública que incluya suicidio lleve enlace a recursos de
+    ayuda vigentes en Chile, **verificados en la fecha de publicación**, porque un número
+    desactualizado en un producto sobre suicidio es un daño concreto. Hacerlo obligatorio en
+    la firma convierte esa regla en algo que no se puede olvidar: no hay valor por defecto
+    que un descuido pueda dejar pasar, y este módulo no los inventa porque no le consta que
+    estén vigentes hoy.
+
+    **Lo que esta serie NO es.** Personas bajo control por ideación o intento es un *stock*
+    de quién está en tratamiento, no un conteo de eventos. Que suba puede significar más
+    conducta suicida, más detección, o más gente que llegó a atenderse — y las tres tienen
+    implicancias de política opuestas. La serie nacional pasa de 3.624 a 17.023 en ideación
+    entre 2019 y 2025; leer eso como «la ideación se quintuplicó» es casi seguramente un
+    error de lectura.
+
+    **El quiebre de serie es duro.** El REM no registraba estos conceptos antes de
+    2019-06. No aparecen como cero: no existían en el formulario. La tabla se recorta ahí y
+    lo declara.
+    """
+    if not recursos_ayuda:
+        raise SuppressionViolationError(
+            "[rem_salud_mental] `recursos_ayuda` es obligatorio para publicar una tabla "
+            "que incluye conducta suicida (docs/06). Deben ser recursos vigentes en Chile "
+            "verificados en la fecha de publicación; el pipeline no los inventa ni trae "
+            "valores por defecto, porque un número de ayuda desactualizado en un producto "
+            "sobre suicidio es un daño concreto y no un detalle de forma."
+        )
+
+    faltan = [c for c in ("comuna_cut", "periodo", "etiqueta_norm", "valor")
+              if c not in silver.columns]
+    if faltan:
+        raise KeyError(f"El silver del REM no tiene las columnas {faltan}")
+
+    sub = silver[silver["etiqueta_norm"].isin(CONCEPTOS_CONDUCTA_SUICIDA)]
+    if "es_total_etario" in sub.columns:
+        sub = sub[sub["es_total_etario"]]
+    if "sexo" in sub.columns:
+        sub = sub[sub["sexo"] == "ambos"]
+
+    antes = len(sub)
+    sub = sub[sub["periodo"] >= PRIMER_PERIODO_CONDUCTA_SUICIDA]
+    recortadas = antes - len(sub)
+
+    df = (
+        sub.groupby(["comuna_cut", "periodo", "etiqueta_norm"], dropna=False)["valor"]
+        .sum().reset_index().rename(columns={"valor": "personas"})
+    )
+    df["concepto"] = df["etiqueta_norm"].map(CONCEPTOS_CONDUCTA_SUICIDA)
+    df["source_id"] = source_id
+    df["source_version"] = source_version
+    df["pipeline_version"] = PIPELINE_VERSION
+    df["fecha_calculo"] = ahora_iso()
+    verificar_politica_publicacion(df)
+
+    publicable, reporte_sup = suprimir_celdas_pequenas(
+        df, "personas", k=k, grupo=["periodo", "etiqueta_norm"]
+    )
+    publicable = publicable.sort_values(
+        ["periodo", "etiqueta_norm", "comuna_cut"]
+    ).reset_index(drop=True)
+
+    meta = {
+        "fuente": source_id,
+        "filas": len(publicable),
+        "conceptos": list(CONCEPTOS_CONDUCTA_SUICIDA.values()),
+        "primer_periodo": PRIMER_PERIODO_CONDUCTA_SUICIDA,
+        "filas_anteriores_al_quiebre_descartadas": recortadas,
+        "supresion": {
+            "k": reporte_sup.k,
+            "filas_suprimidas": reporte_sup.filas_suprimidas,
+            "porcentaje": reporte_sup.porcentaje_suprimido,
+        },
+        "recursos_ayuda": list(recursos_ayuda),
+        "revision_clinica": "PENDIENTE — docs/06 la exige antes de publicar",
+        "advertencias": [
+            "ES UN STOCK, NO UN CONTEO DE EVENTOS. Son personas bajo control en el "
+            "programa, no intentos ocurridos en el período. No se suman los cortes.",
+            "UNA SUBIDA NO SIGNIFICA MÁS CONDUCTA SUICIDA. Puede ser más detección, más "
+            "acceso o un cambio de registro. La serie nacional de ideación pasa de 3.624 "
+            "(2019) a 17.023 (2025) y esa magnitud es difícil de atribuir a la conducta.",
+            f"LA SERIE EMPIEZA EN {PRIMER_PERIODO_CONDUCTA_SUICIDA}. Antes el REM no "
+            f"registraba estos conceptos: no son ceros, no existían en el formulario.",
+            "Solo cubre la red pública. Quien se atiende en el sistema privado no aparece.",
+            "No permite rankear comunas: con eventos poco frecuentes en territorios chicos, "
+            "un orden ordena ruido y estigmatiza.",
+            "REVISIÓN CLÍNICA PENDIENTE. docs/06 la exige antes de cualquier publicación "
+            "que incluya suicidio.",
         ],
     }
     return publicable, meta

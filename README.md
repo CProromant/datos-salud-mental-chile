@@ -157,11 +157,11 @@ Detalle en [`docs/02-ARQUITECTURA.md`](docs/02-ARQUITECTURA.md).
 
 | | |
 |---|---|
-| Tests | 541+ pasando |
+| Tests | 553+ pasando |
 | Lint y tipos | limpios |
 | Fuentes verificadas con descarga real | 10 de 19 |
 | Anclas de reconciliación automáticas | 5 de 5 cuadrando |
-| Anomalías documentadas | 18 |
+| Anomalías documentadas | 19 |
 
 Una fuente está `verificada` solo cuando alguien **abrió el archivo y lo entendió** — no
 cuando el servidor respondió 200.

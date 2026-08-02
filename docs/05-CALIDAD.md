@@ -840,6 +840,50 @@ el parser se inventaba —el pie de página emparejado con el número de página
 +27— y después un defecto del informe. Una fuente que publica su propio total está
 ofreciendo una verificación gratis; no usarla es desperdiciarla.
 
+### A-019 · rem_salud_mental · 2026-07-29
+
+**Qué se observó:** al construir I-05 se buscó dónde estaban ya publicados los conteos de
+ideación e intento suicida, y resultó que **ya se publican**: `poblacion_control_salud_mental.csv`
+los incluye desde el release `2026.07.1`, en 6.334 filas, como dos de sus setenta conceptos.
+
+**Por qué es un problema.** `docs/06` impone obligaciones a **toda salida pública que
+incluya suicidio**:
+
+> - Nota metodológica (…)
+> - Advertencia de interpretación (…)
+> - **Enlace a recursos de ayuda vigentes en Chile, verificados en la fecha de publicación.**
+> - **Revisión humana.** Ninguna publicación que incluya suicidio sale sin revisión de una
+>   persona con competencia en salud mental.
+
+La tabla publicada no cumple ninguna de las cuatro para estos conceptos. No porque alguien
+las omitiera: **porque nadie notó que esa tabla contenía suicidio.** Entró como «población
+bajo control en salud mental», que suena a actividad asistencial, y las dos filas sensibles
+viajaron dentro sin activar ninguna revisión.
+
+**El modo de fallo, que es el interesante.** La política estaba escrita, era clara y estaba
+implementada en `cie10.es_publicable` y `quality.verificar_politica_publicacion` — pero esos
+guardias miran **agrupadores CIE-10 y nombres de columna prohibidos**, y acá el suicidio no
+entra por un código CIE-10 sino por una etiqueta de texto del formulario REM. El guardia
+existía, era correcto, y no cubría esta puerta.
+
+**Decisión:**
+
+1. `gold.tabla_ideacion_intento` (I-05) exige `recursos_ayuda` en su firma y **se niega a
+   producir la tabla sin ellos**, además de declarar la revisión clínica como pendiente. Es
+   la única regla de `docs/06` que el proyecto hace cumplir por código y no por costumbre.
+2. La tabla ya publicada **queda como está hasta la próxima versión del dataset**: retirarla
+   sin reemplazo dejaría a quien la citó sin fuente, y `docs/07` obliga a mantener disponible
+   la versión anterior. Lo que corresponde es publicar la versión nueva con las salvaguardas
+   y declarar el cambio en el CHANGELOG.
+3. **Pendiente para el comité:** decidir si `poblacion_control_salud_mental.csv` debe excluir
+   estos dos conceptos y remitir a I-05, o incorporar las salvaguardas a la tabla completa.
+
+**Lección: una política de publicación se hace cumplir sobre la puerta por la que el dato
+entra, no sobre la que uno imaginó.** El proyecto vigilaba los códigos CIE-10 porque el
+suicidio llegó primero por ahí, y el REM lo trajo por otro lado —una etiqueta de texto— sin
+que ningún guardia mirara. Vale preguntarse, para cada regla implementada, por cuántas
+puertas distintas puede entrar aquello que prohíbe.
+
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.
