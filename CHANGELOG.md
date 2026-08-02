@@ -4,6 +4,31 @@ Formato: [Keep a Changelog]. Versionado de datos `AAAA.MM.N`, de código SemVer.
 Un cambio metodológico que altere series ya publicadas exige versión mayor y mantener
 disponible la versión anterior.
 
+## [0.3.0] — Tres series nuevas: cobertura, espera y psiquiatría
+
+**Preparado y verificado; pendiente de publicar.** Los artefactos están en `dist/` con sus
+`SHA256SUMS.txt` y el comando en `dist/publicar.sh`.
+
+Cinco series ahora. Las tres nuevas:
+
+| Serie | Cobertura | Cifra de referencia |
+|---|---|---|
+| `cobertura_salud_mental_aps.csv` | 185 comunas, 2014-2025 | mediana 51,7 en control por mil inscritos |
+| `listas_espera_servicio_salud.csv` | 29 Servicios, 2019-2025 | 264 días de mediana nacional |
+| `espera_por_especialidad.csv` | nacional, 2025-2026 | 23.134 adultos esperando psiquiatra |
+
+### Checklist de release (docs/07)
+- `make test` y `make lint` en verde: 556 tests, ruff y mypy limpios.
+- Anclas de reconciliación: **5 de 5** cuadran.
+- Checklist ético de `docs/06`: **cero celdas visibles entre 1 y 4** en las tres, ninguna
+  dimensión prohibida, procedencia completa en todas las filas.
+- Revisión clínica y recursos de ayuda: **no aplican** — ninguna de las tres incluye
+  suicidio. I-05, que sí lo incluye, queda fuera de este release por esa razón.
+- DOI: no se genera. Zenodo quedó descartado.
+
+### Lo que no cambia
+Las dos series ya publicadas se regeneran idénticas. Este release agrega, no reemplaza.
+
 ## [No publicado] — El denominador (cierre de Fase 2)
 
 Lo que faltaba para que los conteos del REM significaran algo: **cuánta gente hay inscrita
