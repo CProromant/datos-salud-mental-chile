@@ -218,3 +218,112 @@ class TestSilverListaEspera:
         _, rep = normalizar_listaespera(bronze, establecimientos=maestro)
         assert rep["servicios_sin_maestro"] == ["DEL_LIBERTADOR_BOHIGGINS"]
         assert rep["servicios_verificados"] == 1
+
+
+class TestGoldListaEspera:
+    """La tabla publicable. Su riesgo propio es la supresión: el nacional es la suma
+    exacta de los 29 servicios, así que suprimir una celda sin complementaria la deja
+    reconstruible por resta."""
+
+    @pytest.fixture()
+    def gold(self, bronze):
+        from obsm.transform.gold import tabla_listas_espera
+        from obsm.transform.silver import normalizar_listaespera
+        s, _ = normalizar_listaespera(bronze)
+        return tabla_listas_espera(s, k=5)
+
+    def test_pasa_de_doce_columnas_a_una_fila_por_lista(self, gold):
+        g, meta = gold
+        assert set(g["lista"]) == {"consulta", "quirurgica", "ges"}
+        assert set(["registros", "pacientes", "promedio_dias", "mediana_dias"]) <= set(g.columns)
+        assert len(g) == len(set(zip(g["servicio_clave"], g["periodo"], g["lista"], strict=True)))
+
+    def test_arrastra_procedencia(self, gold):
+        g, _ = gold
+        for col in ("source_id", "source_version", "pipeline_version", "fecha_calculo"):
+            assert col in g.columns
+
+    def test_marca_donde_la_mediana_no_existe(self, gold):
+        # Sin esto, una serie de tendencia arranca en 2019 comparando contra vacío.
+        g, _ = gold
+        assert not g[g["anio"] == 2019]["mediana_disponible"].any()
+        assert g[g["anio"] == 2025]["mediana_disponible"].all()
+
+    def test_el_nacional_no_se_suprime_a_si_mismo(self, gold):
+        # Es un total, no un par de los servicios: meterlo en el grupo de supresión lo
+        # haría candidato a suprimirse.
+        g, _ = gold
+        assert not g.loc[g["es_nacional"], "suprimido"].any()
+
+    def test_no_baja_a_comuna(self, gold):
+        g, _ = gold
+        assert "comuna_cut" not in g.columns
+
+    def test_declara_que_no_hay_desglose_por_especialidad(self, gold):
+        # Es la limitación que hace que esta serie no responda por psiquiatría, y tiene
+        # que viajar con el dato y no solo en la documentación.
+        _, meta = gold
+        assert any("especialidad" in a for a in meta["advertencias"])
+
+
+class TestSupresionListaEspera:
+    def test_suprime_bajo_k(self):
+        from obsm.transform.gold import tabla_listas_espera
+        # Un servicio con 3 garantías retrasadas y otro con 900. El 3 está bajo k=5.
+        s = pd.DataFrame({
+            "servicio_clave": ["A", "B", "C"],
+            "periodo": ["2025-06"] * 3,
+            "anio": [2025] * 3,
+            "es_nacional": [False] * 3,
+            "ges_registros": pd.array([3, 40, 900], dtype="Int64"),
+            "ges_pacientes": pd.array([3, 35, 800], dtype="Int64"),
+            "ges_promedio": pd.array([10.0, 30.0, 55.5], dtype="Float64"),
+            "ges_mediana": pd.array([9.0, 28.0, 50.0], dtype="Float64"),
+        })
+        g, meta = tabla_listas_espera(s, k=5)
+        por_serv = g.set_index("servicio_clave")
+        assert pd.isna(por_serv.loc["A", "registros"]), "3 está bajo k=5"
+        assert por_serv.loc["C", "registros"] == 900, "900 no corre riesgo"
+        assert meta["supresion"]["filas_suprimidas"] >= 1
+
+    def test_un_cero_puede_caer_como_complementaria_y_esta_documentado(self):
+        from obsm.transform.gold import tabla_listas_espera
+        # `docs/06` dice a la vez «el cero sí se publica» y que la complementaria es «la
+        # menor de las celdas restantes». Cuando la menor ES un cero, las dos reglas
+        # chocan y gana la segunda, que es la implementada. Este test fija la conducta
+        # real para que un cambio de política sea deliberado y no un efecto lateral.
+        # Ver A-017 en docs/05-CALIDAD.md.
+        s = pd.DataFrame({
+            "servicio_clave": ["A", "B", "C"],
+            "periodo": ["2025-06"] * 3,
+            "anio": [2025] * 3,
+            "es_nacional": [False] * 3,
+            "ges_registros": pd.array([3, 0, 900], dtype="Int64"),
+            "ges_pacientes": pd.array([3, 0, 800], dtype="Int64"),
+            "ges_promedio": pd.array([10.0, 0.0, 55.5], dtype="Float64"),
+            "ges_mediana": pd.array([9.0, 0.0, 50.0], dtype="Float64"),
+        })
+        g, _ = tabla_listas_espera(s, k=5)
+        por_serv = g.set_index("servicio_clave")
+        assert pd.isna(por_serv.loc["B", "registros"]), (
+            "hoy el cero se suprime como complementaria; si esto cambia, es una decisión "
+            "de política y exige versión nueva del dataset (docs/07)"
+        )
+
+    def test_la_supresion_complementaria_impide_la_resta(self):
+        from obsm.transform.gold import tabla_listas_espera
+        # Con una sola celda suprimida y el resto visible, quien conozca el total del
+        # grupo la reconstruye restando. Por eso se suprime una segunda.
+        s = pd.DataFrame({
+            "servicio_clave": ["A", "B", "C"],
+            "periodo": ["2025-06"] * 3,
+            "anio": [2025] * 3,
+            "es_nacional": [False] * 3,
+            "ges_registros": pd.array([2, 40, 900], dtype="Int64"),
+            "ges_pacientes": pd.array([2, 35, 800], dtype="Int64"),
+            "ges_promedio": pd.array([10.0, 30.0, 55.0], dtype="Float64"),
+            "ges_mediana": pd.array([9.0, 28.0, 50.0], dtype="Float64"),
+        })
+        g, meta = tabla_listas_espera(s, k=5)
+        assert int(g["suprimido"].sum()) == 2, "la de riesgo más la complementaria"
+        assert meta["supresion"]["complementarias"] == 1

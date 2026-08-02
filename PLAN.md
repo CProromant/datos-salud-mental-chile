@@ -179,8 +179,8 @@ Dos fuentes, complementarias y ninguna suficiente por sí sola:
 | Mediana de días | ❌ nunca por especialidad | ✅ desde 2022 |
 | Serie | trimestral | trimestral, 2019-2025 |
 
-1. **Ingestor de `listaespera_minsal`.** JSON limpio, 780 filas, sin parsear PDF. Es el
-   trabajo barato y el que más serie aporta.
+- [x] **1. Ingestor de `listaespera_minsal`.** Hecho: `obsm espera` produce 2.340 filas
+      publicables, 29 Servicios × 26 trimestres × 3 listas, con ficha de dataset.
 2. **Parser del PDF de la Glosa 06** para la tabla de especialidades. Frágil por diseño:
    declara el layout detectado y falla si no reconoce ninguno.
 3. Serie histórica desde el primer informe en formato estable.

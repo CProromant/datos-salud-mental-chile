@@ -794,6 +794,136 @@ def cmd_rem_cobertura(args) -> int:
     return 0
 
 
+#: Los 29 Servicios de Salud tal como los nombra el visualizador de listas de espera, más
+#: el agregado nacional. Se declaran acá y no se deducen del HTML: la lista es estable y
+#: raspar la página para obtenerla agrega un punto de falla a cambio de nada.
+#: `O’Higgins` lleva apóstrofo TIPOGRÁFICO (U+2019): con el recto, el servidor da 404.
+SERVICIOS_LISTA_ESPERA = (
+    "Arica y Parinacota", "Tarapacá", "Antofagasta", "Atacama", "Coquimbo",
+    "Valparaíso-San Antonio", "Viña del Mar-Quillota", "Aconcagua",
+    "Metropolitano Norte", "Metropolitano Occidente", "Metropolitano Central",
+    "Metropolitano Oriente", "Metropolitano Sur", "Metropolitano Sur Oriente",
+    "O’Higgins", "del Maule", "Ñuble", "Concepción", "Talcahuano", "Biobío",
+    "Arauco", "Araucanía Norte", "Araucanía Sur", "Los Ríos", "Osorno",
+    "del Reloncaví", "Chiloé", "Aysén", "Magallanes",
+)
+
+
+def _descargar_listas_espera(destino: Path) -> bool:
+    """Baja los 30 JSON del visualizador y los junta en un archivo. False si falta alguno.
+
+    **Se aborta ante cualquier fallo en vez de escribir lo que se pudo.** La fila nacional
+    es exactamente la suma de los 29 servicios; una serie incompleta produce un total que
+    no cuadra con sus partes, y eso no se ve roto, se ve como un dato.
+    """
+    import json  # noqa: PLC0415
+
+    import requests  # noqa: PLC0415
+
+    from .io import (  # noqa: PLC0415
+        USER_AGENT_NAVEGADOR,
+        _usar_almacen_de_certificados_del_sistema,
+    )
+
+    # Mismo defecto que `repositoriodeis.minsal.cl`: el servidor sirve una cadena de
+    # certificados incompleta y `certifi` no la resuelve. `truststore` delega al almacén
+    # del sistema, que es lo que hace el navegador. NUNCA `verify=False`.
+    if not _usar_almacen_de_certificados_del_sistema():
+        print("AVISO: truststore no está instalado; la descarga fallará con un SSLError "
+              "que parece un problema de red y no lo es.", file=sys.stderr)
+
+    from .ingest.listaespera_minsal import slug_servicio  # noqa: PLC0415
+
+    base = "https://www.listaesperasalud.cl/data/data_{}.json"
+    filas: list = []
+    fallidos: list[tuple[str, str]] = []
+    for nombre in ("NACIONAL", *(f"Servicio de Salud {s}" for s in SERVICIOS_LISTA_ESPERA)):
+        slug = "NACIONAL" if nombre == "NACIONAL" else slug_servicio(nombre)
+        try:
+            r = requests.get(
+                base.format(slug), timeout=60,
+                headers={"User-Agent": USER_AGENT_NAVEGADOR},
+            )
+            r.raise_for_status()
+            filas.extend(r.json())
+        except Exception as exc:  # noqa: BLE001
+            fallidos.append((nombre, str(exc)[:70]))
+    if fallidos:
+        print(f"ERROR: {len(fallidos)} servicios no se pudieron descargar:", file=sys.stderr)
+        for n, e in fallidos:
+            print(f"  {n}: {e}", file=sys.stderr)
+        print("Una serie incompleta produce un total nacional que no cuadra con la suma de "
+              "sus partes. No se escribe nada.", file=sys.stderr)
+        return False
+    destino.write_text(json.dumps(filas, ensure_ascii=False), encoding="utf-8")
+    print(f"descargados {len(SERVICIOS_LISTA_ESPERA) + 1} archivos -> {destino.name} "
+          f"({len(filas):,} filas)")
+    return True
+
+
+def cmd_espera(args) -> int:
+    """Descarga, ingiere y publica la serie de listas de espera por Servicio de Salud.
+
+    Un comando y no cuatro porque la fuente son 30 archivos JSON pequeños: separar la
+    descarga de la ingesta obligaría a inventar un formato intermedio para juntarlos.
+    """
+    import json
+
+    import pandas as pd
+
+    from .ingest.listaespera_minsal import ListaEsperaMinsal
+    from .io import DIR_DATOS, ahora_iso, elegir_tabla, ruta_capa
+    from .transform.gold import tabla_listas_espera
+    from .transform.silver import normalizar_listaespera
+
+    reg = cargar_registro(args.config)
+    fuente = reg.get("listaespera_minsal")
+
+    dir_raw = DIR_DATOS / "raw" / fuente.id
+    dir_raw.mkdir(parents=True, exist_ok=True)
+    destino_raw = dir_raw / "listaespera_todos.json"
+
+    if destino_raw.exists() and not args.forzar_descarga:
+        print(f"usando el archivo en caché: {destino_raw.name}")
+    elif not _descargar_listas_espera(destino_raw):
+        return 1
+
+    bronze, manifiesto = ListaEsperaMinsal(fuente).ingerir(destino_raw)
+
+    est_bronze = elegir_tabla("bronze", "deis_establecimientos")
+    establecimientos = pd.read_parquet(est_bronze) if est_bronze else None
+    if establecimientos is None:
+        print("AVISO: sin bronze de deis_establecimientos; no se verifican los nombres de "
+              "los Servicios de Salud contra el maestro.")
+    silver, rep_silver = normalizar_listaespera(bronze, establecimientos=establecimientos)
+    destino_silver = ruta_capa("silver", fuente.id, "listaespera.parquet")
+    destino_silver.parent.mkdir(parents=True, exist_ok=True)
+    silver.to_parquet(destino_silver, index=False)
+    print(f"silver: {rep_silver['filas_salida']:,} filas, {rep_silver['servicios']} servicios, "
+          f"{rep_silver['periodos']} trimestres "
+          f"({rep_silver['rango'][0]} a {rep_silver['rango'][1]})")
+    if rep_silver.get("servicios_sin_maestro"):
+        print(f"  AVISO: servicios sin equivalente en DEIS: "
+              f"{rep_silver['servicios_sin_maestro']}")
+
+    gold, meta = tabla_listas_espera(
+        silver, k=args.k, source_version=fuente.source_version or f"consultado {ahora_iso()[:10]}"
+    )
+    meta["manifiesto_sha256"] = manifiesto.sha256
+    destino = ruta_capa("gold", fuente.id, "listas_espera_servicio_salud.csv")
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    gold.to_csv(destino, index=False)
+    destino.with_suffix(".meta.json").write_text(
+        json.dumps(meta, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
+    )
+    print(f"\ngold escrito: {destino} ({len(gold):,} filas)")
+    print(f"  supresión k={meta['supresion']['k']}: {meta['supresion']['filas_suprimidas']} "
+          f"celdas ({meta['supresion']['complementarias']} complementarias)")
+    for aviso in meta["advertencias"]:
+        print(f"  AVISO: {aviso}")
+    return 0
+
+
 def _parser_rem(sub) -> None:
     """Subcomandos del REM. Aparte para que `construir_parser` no crezca sin control."""
     p_rem = sub.add_parser("rem", help="utilidades del REM")
@@ -881,6 +1011,13 @@ def construir_parser() -> argparse.ArgumentParser:
     bg.set_defaults(func=cmd_build_gold)
 
     _parser_rem(sub)
+
+    e = sub.add_parser("espera", help="listas de espera por Servicio de Salud (Fase 3)")
+    e.add_argument("--k", type=int, default=5,
+                   help="umbral de supresión (5 = actividad)")
+    e.add_argument("--forzar-descarga", action="store_true",
+                   help="vuelve a bajar los 30 archivos aunque estén en caché")
+    e.set_defaults(func=cmd_espera)
 
     r = sub.add_parser("run", help="pipeline de Fase 1 completo, en un comando")
     r.add_argument("--agrupador", default="SUICIDIO")

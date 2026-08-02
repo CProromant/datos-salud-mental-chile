@@ -763,6 +763,52 @@ no teníamos y que cambia cómo hay que tratarla. Un chequeo que falla por un mo
 al previsto sigue siendo un chequeo que sirvió; lo que no se puede hacer es apagarlo o
 actualizar el hash sin mirar, que es la reacción natural y habría escondido el hallazgo.
 
+### A-017 · política de supresión · 2026-07-29
+
+**Qué se observó:** escribiendo el test de la tabla de listas de espera se esperaba que un
+cero sobreviviera a la supresión, y no sobrevivió. Con un grupo de valores `[3, 0, 900]` y
+k=5, la salida suprime **el 3 y el 0**.
+
+**Verificación: el código hace exactamente lo que dice la política.** La tensión está dentro
+de `docs/06`, que afirma las dos cosas:
+
+> «**El cero sí se publica.** "Cero muertes" no identifica a nadie y sí informa. Suprimir
+> ceros sería confundir privacidad con opacidad.»
+
+> «**Supresión complementaria.** Si en un grupo queda una sola celda suprimida y el total
+> del grupo es conocido, la celda se reconstruye por resta. En ese caso se suprime además
+> **la menor** de las celdas restantes.»
+
+Cuando la menor de las celdas restantes **es** un cero, las dos reglas piden cosas opuestas.
+`quality.suprimir_celdas_pequenas` implementa la segunda al pie de la letra.
+
+**Las dos alternativas protegen igual.** Con el grupo `[3, 0, 900]` y total conocido 903:
+
+| Se suprime | Visible | Lo que se deduce |
+|---|---|---|
+| 3 y 0 (hoy) | 900 | los dos suprimidos suman 3 — no se separan |
+| 3 y 900 | 0 | los dos suprimidos suman 903 — no se separan |
+
+Ninguna permite aislar la celda de riesgo. La diferencia es qué información se pierde: hoy
+se pierde un cero —que es informativo y no identifica a nadie— y con la alternativa se
+perdería el 900.
+
+**Decisión: no se cambia acá.** `docs/09` es explícito en que la política de publicación se
+modifica por decisión registrada y **no para resolver un caso puntual**, y esto apareció
+justamente resolviendo un caso puntual. Además `docs/07` obliga a versión nueva del dataset
+cuando cambia una metodología que altera series publicadas: la tabla de suicidio comunal
+tiene 4.856 celdas suprimidas y algunas serían ceros.
+
+Queda como **pregunta abierta para el comité**, con un test que fija la conducta actual
+(`test_un_cero_puede_caer_como_complementaria_y_esta_documentado`) para que un cambio futuro
+sea deliberado y no un efecto lateral de otra cosa.
+
+**Lección:** el test se escribió esperando lo que la documentación prometía en su frase más
+memorable, y falló contra lo que la misma documentación ordena tres párrafos después. Cuando
+un test falla, la primera pregunta no es «¿qué le pasa al código?» sino «¿qué esperaba yo y
+en qué me lo basé?». Acá la respuesta fue que dos reglas del mismo documento se contradicen
+en un borde que nadie había pisado.
+
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.
