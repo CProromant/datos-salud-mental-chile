@@ -4,10 +4,9 @@ Formato: [Keep a Changelog]. Versionado de datos `AAAA.MM.N`, de código SemVer.
 Un cambio metodológico que altere series ya publicadas exige versión mayor y mantener
 disponible la versión anterior.
 
-## [0.3.0] — Tres series nuevas: cobertura, espera y psiquiatría
+## [0.3.0] — 2026-08-02 — Tres series nuevas: cobertura, espera y psiquiatría
 
-**Preparado y verificado; pendiente de publicar.** Los artefactos están en `dist/` con sus
-`SHA256SUMS.txt` y el comando en `dist/publicar.sh`.
+**Publicado.** Trece archivos, 106 MB. Descargas verificadas contra `SHA256SUMS.txt`.
 
 Cinco series ahora. Las tres nuevas:
 
