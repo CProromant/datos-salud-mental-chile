@@ -4,6 +4,74 @@ Formato: [Keep a Changelog]. Versionado de datos `AAAA.MM.N`, de código SemVer.
 Un cambio metodológico que altere series ya publicadas exige versión mayor y mantener
 disponible la versión anterior.
 
+## [No publicado] — El denominador (cierre de Fase 2)
+
+Lo que faltaba para que los conteos del REM significaran algo: **cuánta gente hay inscrita
+en la atención primaria de cada comuna**. Tres fuentes nuevas y el indicador I-03.
+
+### Agregado
+- **`fonasa_inscritos`** — población inscrita validada en salud municipal, 345 comunas ×
+  25 años (2001-2025), vía SINIM/SUBDERE. El dato lo produce FONASA pero no lo publica como
+  archivo: su portal de datos abiertos es un WordPress con un plugin de gráficos.
+- **`fonasa_padron_aps`** — el padrón por establecimiento, que fue lo que permitió entender
+  el desajuste de universos de A-015.
+- **`deis_establecimientos`** — maestro de establecimientos, **CC0**. Responde quién
+  administra la APS de cada comuna: 210 comunas enteramente municipales, 114 mixtas y
+  20 sin ningún establecimiento municipal.
+- **I-03, cobertura del programa de salud mental en APS**
+  (`gold.tabla_cobertura`): personas en control por mil inscritos. Mediana nacional de
+  **51,7 por mil** en diciembre de 2025. Calculable en **185 de 345 comunas**; el resto
+  declara por qué no.
+- Tres comprobaciones independientes sobre el denominador, ninguna de las cuales borra ni
+  imputa: coherencia con los tramos de beneficiarios, refutación por el propio numerador
+  (quien está en control está inscrito) y fracción del padrón sobre la población comunal.
+- `obsm rem cobertura`: el comando que produce la tabla. Se niega a correr si falta
+  cualquiera de las cuatro capas silver y nombra el comando que falta, en vez de producir
+  una tabla parcial.
+- Ficha del dataset en `docs/DATASET-cobertura-salud-mental-aps.md`.
+
+### Corregido
+- **A-013:** desde ~2019 SINIM escribe `0` donde antes escribía `Sin Servicio`. Son 30
+  comunas y 120 celdas; un `0` en un denominador da cobertura infinita. Se resuelven a nulo
+  usando la serie completa de la comuna, que es evidencia que una sola fila no tiene.
+- **A-014:** el CLI elegía el silver con `sorted(...)[-1]`, o sea por orden alfabético del
+  nombre de archivo. `io.elegir_tabla` lo reemplaza en los seis sitios y **lanza con dos o
+  más candidatos sin desempate explícito**. Al encenderlo aparecieron dos almacenes
+  ambiguos reales: dos parquet idénticos del INE, y —el caso que la anomalía anticipaba en
+  teoría— dos versiones **distintas** del bronze de FONASA, donde la correcta se venía
+  eligiendo por accidente alfabético.
+- **A-016:** el maestro de DEIS se regenera en vivo. Dos descargas separadas por minutos
+  dieron hashes distintos y 1.996 filas con el nivel de atención reescrito —DEIS estaba
+  unificando su glosario—. La fuente quedó **sin `sha256`** a propósito, verificándose por
+  contrato de esquema.
+
+### Corregido en la documentación
+- **A-015 se documentó mal el primer día y la corrección quedó registrada junto al error.**
+  Se concluyó que una fuente publicaba cifras corruptas; los valores estaban bien. La teoría
+  encajaba con cero excepciones en 4.863 celdas, y ese ajuste casi perfecto venía de que dos
+  variables miden universos que casi coinciden, no de que una contenga a la otra. Bastaba
+  leer sus nombres completos: «Municipal» y «Beneficiaria».
+
+### Métricas
+- 463 tests (eran 337). 8 de 18 fuentes verificadas con descarga real. 3 indicadores activos.
+- 16 anomalías documentadas.
+
+### Reconocimiento de Fase 3 (sin implementar)
+- **`listaespera_minsal`** verificada: fuente que no estaba en el catálogo. JSON por
+  Servicio de Salud en `listaesperasalud.cl`, serie trimestral 2019-2025, con registros,
+  pacientes, promedio y mediana de días. 780 filas, 30 series. Nacional al 2025-06:
+  2.699.409 registros esperando consulta de especialidad, mediana 264 días.
+- **`glosa06`** verificada sobre dos informes reales. Es texto, no escaneo. Trae psiquiatría
+  adulta (22.963) e infanto-adolescente (13.960) al 30-09-2025.
+- **Alcance de Fase 3 corregido.** El criterio pedía mediana de días de psiquiatría por
+  Servicio de Salud y **ninguna fuente pública lo publica**: el desglose por especialidad
+  nunca trae días, y las medianas por Servicio agregan todas las especialidades. La letra b)
+  de la propia glosa exige ese cruce. El criterio de término se reescribió para prometer lo
+  que las fuentes permiten, y la limitación quedó en la ficha de I-06.
+
+### Pendiente antes de publicar esta serie
+- Licencias de la microdata de DEIS, el REM, SUBDERE y las dos fuentes de FONASA.
+
 ## [0.2.0] — 2026-07-27 — Primera serie publicable (Fase 1)
 
 Primer release con datos. La serie es la **tasa comunal de mortalidad por suicidio,

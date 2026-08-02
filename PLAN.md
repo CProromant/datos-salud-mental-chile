@@ -110,13 +110,17 @@ no se corrigen a mano.
 La parte fea del proyecto y la de mayor valor diferencial: nadie tiene el REM de salud
 mental consolidado, limpio y comparable entre años.
 
-1. Mapear las secciones de salud mental en los manuales REM año por año (cambian de número
-   y de desglose). El mapeo vive en `config/`, no en código.
-2. Ingestor por serie, con el contrato declarado y falla ruidosa ante cambio de esquema.
-3. Silver: personas bajo control, ingresos, egresos por alta clínica, controles por
-   profesional, todo con `comuna_cut` y `establecimiento_deis`.
-4. Indicadores: cobertura sobre población inscrita, razón control/ingreso, abandono
-   estimado, intensidad de tratamiento.
+- [x] **1. Mapear las secciones** de salud mental en los manuales REM año por año. El mapeo
+      vive en `config/rem_secciones.yml`, generado desde los diccionarios oficiales; 14 años
+      mapeados (2009/2012 encriptados, 2013 sin la hoja).
+- [x] **2. Ingestor por serie** con contrato declarado y falla ruidosa. `rem_salud_mental`
+      filtra por `CodigoPrestacion` mientras lee: solo el 7,8 % del archivo es la sección P6.
+- [x] **3. Silver:** personas bajo control por `comuna_cut` × período × concepto × grupo
+      etario. Faltan ingresos, egresos por alta clínica y controles por profesional.
+- [x] **4. Cobertura sobre población inscrita** (I-03). Requirió tres fuentes nuevas
+      —`fonasa_inscritos`, `fonasa_padron_aps` y `deis_establecimientos`— y descubrir que el
+      denominador solo sirve en 185 de 345 comunas (A-015). Faltan razón control/ingreso,
+      abandono estimado e intensidad.
 
 **Término:** serie comunal **semestral** 2014–presente para al menos: personas bajo control
 en programa de salud mental por grupo etario, e ingresos por intento e ideación suicida.
@@ -137,21 +141,63 @@ en programa de salud mental por grupo etario, e ingresos por intento e ideación
 reales. Mitigación: marcar quiebres de serie explícitamente en una tabla de `quiebres` que
 todo consumidor de la API recibe junto con los datos.
 
+> **Estado al 2026-07-29. Fase 2 cerrada en lo esencial.** Serie semestral 2014-2025 de
+> población bajo control publicada y verificada: 1.048.618 personas en el programa a
+> diciembre de 2025, 108.496 con depresión moderada. Y el indicador que la fase prometía sin
+> saber si sería posible —cobertura sobre población inscrita— existe y se calcula en 185 de
+> 345 comunas.
+>
+> **Lo que la fase costó de más.** Siete anomalías nuevas (A-010 a A-016). Tres de ellas
+> —A-010, A-011, A-012— eran **invisibles procesando un solo año** y solo aparecieron sobre
+> la serie completa: una etiqueta partida por su grafía hacía ver una caída del 99 % en
+> ansiedad que no existía. La regla que salió de ahí: un ingestor probado contra un año no
+> está probado.
+>
+> **Lo que no se hizo:** ingresos por intento e ideación suicida, que era parte del criterio
+> de término. Los conceptos existen en el REM desde 2020 y están en la tabla publicada como
+> conteos; lo que falta es la ficha de indicador y el tratamiento de quiebre de serie. Queda
+> declarado como deuda, no como hecho.
+
 ---
 
 ## Fase 3 — Espera y acceso: Glosa 06 y GES (semanas 10–12)
 
-1. Scraper del listado de informes trimestrales + parser PDF con `pdfplumber`/`camelot`.
-2. Extraer, para las especialidades de psiquiatría adulto e infanto-adolescente: casos en
-   espera, mediana y percentil 90 de días, por Servicio de Salud.
-3. Serie histórica desde el primer informe disponible en formato estable.
-4. Indicador de garantías GES de salud mental retrasadas.
+> **Alcance corregido el 2026-07-29, después de bajar la fuente.** El criterio anterior
+> pedía «casos en espera, mediana y percentil 90 de días, **por Servicio de Salud**» para
+> psiquiatría. **Eso no lo publica nadie.** Verificado sobre dos informes reales: el
+> desglose por especialidad nunca trae días, y las medianas por Servicio agregan todas las
+> especialidades. Las dos dimensiones no se cruzan en ninguna fuente pública, aunque la
+> letra b) de la propia glosa exige el cruce. Dejarlo escrito como criterio era prometer lo
+> que no se puede cumplir.
 
-**Término:** serie trimestral por Servicio de Salud, con verificación manual de tres
-trimestres al azar contra el PDF original.
+Dos fuentes, complementarias y ninguna suficiente por sí sola:
+
+| | `glosa06` (PDF) | `listaespera_minsal` (JSON) |
+|---|---|---|
+| Especialidad | ✅ psiquiatría adulta e infantil | ❌ agrega todas |
+| Servicio de Salud | ❌ solo nacional | ✅ los 29 |
+| Mediana de días | ❌ nunca por especialidad | ✅ desde 2022 |
+| Serie | trimestral | trimestral, 2019-2025 |
+
+1. **Ingestor de `listaespera_minsal`.** JSON limpio, 780 filas, sin parsear PDF. Es el
+   trabajo barato y el que más serie aporta.
+2. **Parser del PDF de la Glosa 06** para la tabla de especialidades. Frágil por diseño:
+   declara el layout detectado y falla si no reconoce ninguno.
+3. Serie histórica desde el primer informe en formato estable.
+4. Indicador de garantías GES de salud mental retrasadas.
+5. **Solicitar por Transparencia los «archivos digitales complementarios»** que el informe
+   declara en su letra I). Si traen especialidad por establecimiento, el criterio original
+   vuelve a ser alcanzable; si no, esta fase llega hasta donde llega la fuente.
+
+**Término:** dos series trimestrales verificadas contra su fuente original — espera por
+Servicio de Salud (todas las especialidades) y espera en psiquiatría adulta e infantil
+(nacional) — con la limitación del cruce declarada en la ficha del indicador, no escondida.
 
 **Riesgo principal:** el parser rompe con cada rediseño del informe. Mitigación: el test de
-oro es un fixture por layout conocido; el parser declara qué layout detectó.
+oro es un fixture por layout conocido; el parser declara qué layout detectó. Ya se
+identificaron dos cambios entre 2025 y 2026 —la etiqueta de la especialidad cambia de caja
+y de género, y el orden de la tabla pasa de alfabético a por magnitud—, así que el parser
+nace sabiendo que ninguna de las dos cosas es estable.
 
 ---
 
@@ -206,10 +252,14 @@ desagregar. Mitigación: publicar rango, no punto, y decirlo en la ficha del ind
 4. **Las licencias de las fuentes.** Resuelto para el INE el 2026-07-27: publica bajo
    CC BY-SA 4.0, y como sus proyecciones son el denominador de toda tasa, su cláusula
    CompartirIgual obliga al derivado. El proyecto adoptó CC BY-SA 4.0 para `gold`
-   (ADR 0005). **Siguen sin confirmar DEIS y SUBDERE**: una fuente bajo CC BY o dominio
-   público no da problema, pero una con cláusula no comercial obligaría a reabrir la
-   decisión antes de publicar. Es una dependencia externa porque no se resuelve
-   programando, se resuelve leyendo o preguntando al organismo.
+   (ADR 0005). Resuelto para `deis_establecimientos` el 2026-07-29: **CC0**, la primera
+   fuente del proyecto con licencia libre declarada — y prueba de que MINSAL sí declara
+   licencia cuando quiere, lo que fortalece el caso para pedirla sobre las demás.
+   **Siguen sin confirmar la microdata de DEIS, el REM, SUBDERE y las dos de FONASA**: una
+   fuente bajo CC BY o dominio público no da problema, pero una con cláusula no comercial
+   obligaría a reabrir la decisión antes de publicar. Es una dependencia externa porque no
+   se resuelve programando, se resuelve leyendo o preguntando al organismo. La vía concreta
+   es una solicitud por Ley de Transparencia; está pendiente y no cuesta trabajo técnico.
 
 ## Métricas del propio proyecto
 
@@ -219,19 +269,36 @@ desagregar. Mitigación: publicar rango, no punto, y decirlo en la ficha del ind
 - Uso: descargas, citas, consultas de la API.
 - Fallos silenciosos detectados en producción: objetivo cero, y cada uno genera un test.
 
-**Marcador al 2026-07-27** (fin de Fase 1, salvo el comando único):
+**Marcador al 2026-07-29** (fin de Fase 2):
 
-| métrica | valor |
-|---|---|
-| fuentes verificadas con descarga real | 4 de 17 |
-| indicadores activos con ficha y verificación externa | 2 (I-01, I-02) |
-| anclas de reconciliación automáticas | 5, todas cuadrando |
-| anomalías documentadas con reproducción y decisión | 9 |
-| tests | 323 |
-| fallos silenciosos detectados **antes** de producción | 5, cada uno con su test |
+| métrica | valor | al 2026-07-27 |
+|---|---|---|
+| fuentes verificadas con descarga real | 8 de 18 | 4 de 17 |
+| indicadores activos con ficha y verificación externa | 3 (I-01, I-02, I-03) | 2 |
+| anclas de reconciliación automáticas | 5, todas cuadrando | 5 |
+| anomalías documentadas con reproducción y decisión | 16 | 9 |
+| tests | 463 | 323 |
+| fallos silenciosos detectados **antes** de producción | 8, cada uno con su test | 5 |
 
-La última fila es la que importa y conviene leerla con cuidado: son cinco defectos que no
-lanzaban excepción y que habrían publicado números plausibles y falsos. Ninguno lo encontró
-el CI. Los destaparon correr contra el archivo real, auditar un resultado demasiado limpio,
-y escribir un ejemplo ejecutable. El objetivo declarado —cero fallos silenciosos en
-producción— sigue en pie; lo que este marcador mide es cuántos se atajaron antes.
+La última fila es la que importa y conviene leerla con cuidado: son defectos que no lanzaban
+excepción y que habrían publicado números plausibles y falsos. Ninguno lo encontró el CI. Los
+destaparon correr contra el archivo real, auditar un resultado demasiado limpio, y escribir
+un ejemplo ejecutable. El objetivo declarado —cero fallos silenciosos en producción— sigue en
+pie; lo que este marcador mide es cuántos se atajaron antes.
+
+> **Lección de Fase 2 (2026-07-29), que no es sobre datos sino sobre método.** El defecto más
+> caro de la fase no fue de código: fue concluir que una fuente publicaba cifras corruptas
+> cuando estaban bien (A-015). La teoría predecía un patrón nítido y la serie lo confirmaba
+> con **cero excepciones en 4.863 celdas**, y ese ajuste casi perfecto fue precisamente lo
+> que la hizo convincente. Venía de que dos variables medían universos que casi coinciden,
+> no de que una contuviera a la otra.
+>
+> Lo que faltó era lo más barato disponible: **leer el nombre completo de las variables**.
+> Decían «Municipal» y «Beneficiaria». Se prefirió inferir el significado de la forma de los
+> números antes que leer la etiqueta.
+>
+> Corolario operativo, al lado del de Fase 0 sobre el andamiaje desconectado: **un ajuste
+> excelente contra los datos no valida la premisa**, y cuando un intermediario parece
+> contradecirse, la pregunta no es qué le pasa al intermediario sino qué dice quien produjo
+> el dato. Bajar la fuente original resolvió en una tarde lo que dos días de razonamiento
+> sobre SINIM habían resuelto al revés.
