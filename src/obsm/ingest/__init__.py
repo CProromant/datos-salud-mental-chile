@@ -5,6 +5,7 @@ from .deis_defunciones import DeisDefunciones
 from .deis_establecimientos import DeisEstablecimientos
 from .fonasa_inscritos import FonasaInscritos
 from .ine_proyecciones import IneProyecciones
+from .listaespera_minsal import ListaEsperaMinsal
 from .rem_poblacion_control import RemPoblacionControl
 
 #: source_id -> clase de ingestor. Una fuente sin entrada acá no es ingerible aún.
@@ -13,6 +14,7 @@ INGESTORES: dict[str, type[Ingestor]] = {
     DeisEstablecimientos.source_id: DeisEstablecimientos,
     FonasaInscritos.source_id: FonasaInscritos,
     IneProyecciones.source_id: IneProyecciones,
+    ListaEsperaMinsal.source_id: ListaEsperaMinsal,
     RemPoblacionControl.source_id: RemPoblacionControl,
 }
 
@@ -23,6 +25,7 @@ __all__ = [
     "FonasaInscritos",
     "IneProyecciones",
     "Ingestor",
+    "ListaEsperaMinsal",
     "RemPoblacionControl",
     "renombrar_columnas",
 ]

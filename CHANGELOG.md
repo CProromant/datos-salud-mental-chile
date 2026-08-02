@@ -56,7 +56,18 @@ en la atención primaria de cada comuna**. Tres fuentes nuevas y el indicador I-
 - 463 tests (eran 337). 8 de 18 fuentes verificadas con descarga real. 3 indicadores activos.
 - 16 anomalías documentadas.
 
-### Reconocimiento de Fase 3 (sin implementar)
+### Fase 3, primer ingestor
+- **`listaespera_minsal` ingerido.** 780 filas, 30 series, 26 trimestres (2019-03 a
+  2025-06). Nacional al 2025-06: 2.699.409 registros esperando consulta de especialidad,
+  mediana 264 días. Por Servicio: Metropolitano Norte 437 días contra Aconcagua 123.
+- Tres trampas que el fixture no tenía y el archivo real sí, cada una con test:
+  `promedio` y `mediana` son **días** y traen decimales legítimos (519 de 692 celdas de
+  `ges_promedio`) —el caso inverso a A-010, donde los decimales estaban en un conteo y sí
+  eran un error—; el campo `servicio` es un slug (`ARICA_Y_PARINACOTA`) y no el nombre de
+  despliegue; y el de O'Higgins lleva apóstrofo tipográfico U+2019, con el que responde 200
+  y sin el que da 404.
+
+### Reconocimiento de Fase 3
 - **`listaespera_minsal`** verificada: fuente que no estaba en el catálogo. JSON por
   Servicio de Salud en `listaesperasalud.cl`, serie trimestral 2019-2025, con registros,
   pacientes, promedio y mediana de días. 780 filas, 30 series. Nacional al 2025-06:
