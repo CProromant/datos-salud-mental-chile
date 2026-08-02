@@ -551,6 +551,128 @@ def tabla_cobertura(
     return df, meta
 
 
+#: Las tres listas de espera que publica el visualizador, con su nombre legible.
+LISTAS_ESPERA = {
+    "consulta": "Consulta nueva de especialidad (No GES)",
+    "quirurgica": "Intervención quirúrgica (No GES)",
+    "ges": "Garantías de oportunidad GES retrasadas",
+}
+
+#: Primer año con medianas publicadas. Antes de esto la fuente no las calculaba, y el nulo
+#: no es un dato faltante al azar.
+PRIMER_ANIO_CON_MEDIANA = 2022
+
+
+def tabla_listas_espera(
+    silver: pd.DataFrame,
+    k: int = K_SUPRESION_ACTIVIDAD,
+    source_id: str = "listaespera_minsal",
+    source_version: str | None = None,
+) -> tuple[pd.DataFrame, dict]:
+    """Listas de espera por Servicio de Salud y trimestre, publicable.
+
+    Pasa la grilla ancha de silver —doce columnas de lista × métrica— a una fila por
+    `servicio × periodo × lista`, que es la forma en que se lee y se grafica sin tener que
+    recordar qué prefijo significa qué.
+
+    **La unidad territorial es el Servicio de Salud, no la comuna**, y no se baja a comuna:
+    repartir la mediana de un Servicio entre sus comunas es una inferencia ecológica.
+    `silver.mapa_servicio_comuna` permite hacerlo explícitamente a quien lo necesite, y
+    muestra por qué no puede venir regalado: cuatro comunas pertenecen a dos Servicios.
+
+    **Supresión con k=5 sobre `registros`, y hace falta de verdad.** Las garantías GES
+    retrasadas bajan a valores de una cifra: 39 celdas entre 1 y 9. Que la unidad sea un
+    Servicio de medio millón de personas hace el riesgo remoto, pero la política de
+    `docs/06` no se relaja caso a caso (`docs/09`): eso es precisamente lo que la vuelve
+    una política. **La supresión complementaria no es opcional acá**: la fila nacional es
+    exactamente la suma de los 29 servicios —verificado, diferencia 0 en
+    `consulta_registros`—, así que suprimir una sola celda la deja reconstruible por resta.
+
+    El cero **sí se publica**: cero garantías retrasadas no identifica a nadie y es la
+    información más útil de la columna.
+    """
+    faltan = [c for c in ("servicio_clave", "periodo") if c not in silver.columns]
+    if faltan:
+        raise KeyError(f"El silver de listas de espera no tiene las columnas {faltan}")
+
+    partes = []
+    for lista, nombre in LISTAS_ESPERA.items():
+        cols = {
+            f"{lista}_registros": "registros",
+            f"{lista}_pacientes": "pacientes",
+            f"{lista}_promedio": "promedio_dias",
+            f"{lista}_mediana": "mediana_dias",
+        }
+        presentes = {k_: v for k_, v in cols.items() if k_ in silver.columns}
+        if not presentes:
+            continue
+        sub = silver[["servicio_clave", "periodo", *presentes]].rename(columns=presentes)
+        sub.insert(2, "lista", lista)
+        sub.insert(3, "lista_nombre", nombre)
+        partes.append(sub)
+    df = pd.concat(partes, ignore_index=True)
+
+    df["anio"] = df["periodo"].str.slice(0, 4).astype("Int64")
+    df["es_nacional"] = df["servicio_clave"].eq("NACIONAL")
+    # La mediana no existe antes de 2022 y el nulo no es un faltante al azar. Se marca para
+    # que una serie de tendencia sepa dónde empieza en vez de deducirlo de los huecos.
+    df["mediana_disponible"] = df["anio"] >= PRIMER_ANIO_CON_MEDIANA
+
+    df["source_id"] = source_id
+    df["source_version"] = source_version
+    df["pipeline_version"] = PIPELINE_VERSION
+    df["fecha_calculo"] = ahora_iso()
+    verificar_politica_publicacion(df)
+
+    # La fila nacional queda fuera del grupo de supresión: es un total, no un par de los
+    # servicios, y meterla en el grupo la haría candidata a suprimirse a sí misma.
+    servicios = df.loc[~df["es_nacional"]].copy()
+    nacional = df.loc[df["es_nacional"]].copy()
+    publicable, reporte_sup = suprimir_celdas_pequenas(
+        servicios, "registros", k=k, grupo=["periodo", "lista"]
+    )
+    nacional["suprimido"] = False
+    publicable = (
+        pd.concat([publicable, nacional], ignore_index=True)
+        .sort_values(["lista", "periodo", "servicio_clave"])
+        .reset_index(drop=True)
+    )
+
+    con_mediana = publicable["mediana_dias"].notna()
+    meta = {
+        "fuente": source_id,
+        "filas": len(publicable),
+        "servicios": int(publicable.loc[~publicable["es_nacional"], "servicio_clave"].nunique()),
+        "periodos": int(publicable["periodo"].nunique()),
+        "rango": [publicable["periodo"].min(), publicable["periodo"].max()],
+        "listas": list(LISTAS_ESPERA),
+        "supresion": {
+            "k": reporte_sup.k,
+            "filas_suprimidas": reporte_sup.filas_suprimidas,
+            "complementarias": reporte_sup.filas_suprimidas_complementarias,
+            "porcentaje": reporte_sup.porcentaje_suprimido,
+        },
+        "cobertura_mediana": round(float(con_mediana.mean()), 3),
+        "advertencias": [
+            "La unidad territorial es el Servicio de Salud, NO la comuna. Repartir estos "
+            "valores entre las comunas de un Servicio es una inferencia ecológica; cuatro "
+            "comunas además pertenecen a dos Servicios a la vez.",
+            f"La mediana de días no existe antes de {PRIMER_ANIO_CON_MEDIANA}: la fuente no "
+            f"la calculaba. Una tendencia que arranque antes compara contra vacío. La "
+            f"columna `mediana_disponible` lo declara fila por fila.",
+            "«Registros» no es «personas»: una persona puede tener varias interconsultas en "
+            "espera. Ambas columnas están y no son intercambiables.",
+            "La espera se cuenta desde la emisión de la interconsulta, no desde que la "
+            "persona empezó a necesitar atención: subestima la espera vivida.",
+            "Una baja puede deberse a depuración administrativa de la lista y no a más "
+            "atención.",
+            "No hay desglose por especialidad: estas cifras suman todas. Para psiquiatría "
+            "hay que ir al PDF de la Glosa 06, que a su vez no publica días de espera.",
+        ],
+    }
+    return publicable, meta
+
+
 def _advertencias(df: pd.DataFrame, pct_suprimido: float) -> list[str]:
     avisos = []
     if pct_suprimido > 0.5:

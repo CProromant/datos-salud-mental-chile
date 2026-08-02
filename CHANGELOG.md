@@ -56,6 +56,20 @@ en la atención primaria de cada comuna**. Tres fuentes nuevas y el indicador I-
 - 463 tests (eran 337). 8 de 18 fuentes verificadas con descarga real. 3 indicadores activos.
 - 16 anomalías documentadas.
 
+### Fase 3, primera serie
+- **`obsm espera`**: un comando que baja los 30 JSON, ingiere, normaliza y escribe gold.
+  2.340 filas: 29 Servicios de Salud más el nacional × 26 trimestres × 3 listas.
+  Se aborta si falla cualquiera de las 30 descargas, porque la fila nacional es la suma
+  exacta de los servicios y una serie incompleta da un total que no cuadra con sus partes.
+- Ficha del dataset en `docs/DATASET-listas-espera-servicio-salud.md`.
+- La tabla no baja a comuna: su unidad es el Servicio de Salud, y cuatro comunas pertenecen
+  a dos Servicios a la vez. `silver.mapa_servicio_comuna` permite bajarla explícitamente.
+- **A-017:** `docs/06` dice a la vez «el cero sí se publica» y que la supresión
+  complementaria toma «la menor de las celdas restantes». Cuando la menor es un cero, las
+  dos reglas chocan. El código implementa la segunda. No se cambia acá —`docs/09` prohíbe
+  modificar la política para resolver un caso puntual— y queda un test que fija la conducta
+  actual para que un cambio futuro sea deliberado.
+
 ### Fase 3, primer ingestor
 - **`listaespera_minsal` ingerido.** 780 filas, 30 series, 26 trimestres (2019-03 a
   2025-06). Nacional al 2025-06: 2.699.409 registros esperando consulta de especialidad,

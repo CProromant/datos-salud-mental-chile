@@ -33,6 +33,10 @@ Preguntas que hoy no tienen respuesta fácil y que estos datos contestan:
   (diciembre de 2025). Se puede calcular en 185 de las 345 comunas, y el dato dice
   explícitamente por qué en las otras no.
 
+- **¿Cuánto se espera por una consulta de especialidad, y dónde más?**
+  264 días de mediana a junio de 2025, sobre 2,7 millones de interconsultas. Entre
+  Servicios de Salud va de 123 días (Aconcagua) a 437 (Metropolitano Norte).
+
 Y una que **no** contesta, a propósito: *¿qué comuna está peor?* En la mayoría de las
 comunas la diferencia con la vecina es indistinguible del ruido. Los datos incluyen la
 medida de esa incertidumbre justamente para que no se hagan rankings.
@@ -44,6 +48,7 @@ medida de esa incertidumbre justamente para que no se hagan rankings.
 | **Mortalidad por suicidio** | muertes, tasas cruda / estandarizada / suavizada, años de vida perdidos | 346 comunas, 2002-2023, anual | [descargable](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) |
 | **Población bajo control en salud mental** | personas en tratamiento por diagnóstico | 345 comunas, 2014-2025, semestral | [descargable](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) |
 | **Cobertura en atención primaria** | personas en control por mil inscritos | 185 comunas, 2014-2025, semestral | [ficha lista](docs/DATASET-cobertura-salud-mental-aps.md), sin publicar |
+| **Listas de espera** | registros, personas y días de espera | 29 Servicios de Salud, 2019-2025, trimestral | [ficha lista](docs/DATASET-listas-espera-servicio-salud.md), sin publicar |
 
 La segunda es la importante para la mayoría de las preguntas: **la mortalidad no sirve para
 medir depresión o ansiedad**, porque casi nadie muere de eso. En el archivo de defunciones
