@@ -144,7 +144,7 @@ fuentes:
     periodicidad: mensual
     prioridad: 1
     fase: 2
-    depende_de: [maestro_establecimientos]
+    depende_de: [deis_establecimientos]
     mapeo_secciones: "config/rem_secciones.yml"
     notas: >
       VERIFICADA el 2026-07-27: no solo respondió el servidor, se abrió el archivo, se
@@ -170,16 +170,59 @@ fuentes:
       Para inspeccionar sin descargar 220 MB por año, usar `io.listar_zip_remoto` y
       `io.extraer_de_zip_remoto`.
 
-  - id: maestro_establecimientos
+  - id: deis_establecimientos
     nombre: "Maestro de establecimientos de salud"
     organismo: "DEIS / MINSAL"
-    dominio: "deis.minsal.cl"
-    origen_url: por_confirmar
-    estado: no_verificada
+    dominio: "datos.gob.cl"
+    url_indice: "https://datos.gob.cl/dataset/establecimientos-de-salud-vigentes"
+    url_archivo: "https://datos.gob.cl/dataset/3bf4cf7c-f638-4735-9a01-f65faae4beca/resource/2c44d782-3365-44e3-aefb-2c8b8363a1bc/download/establecimientos_20260721.csv"
+    nombre_local: "establecimientos_20260721.csv"
+    origen_url: verificada_en_sesion
+    fecha_verificacion: "2026-07-29"
+    estado: verificada
+    # SIN `sha256` A PROPÓSITO, y no es un descuido. El archivo se genera en vivo: dos
+    # descargas separadas por minutos el 2026-07-29 dieron hashes distintos, 5.707 vs 5.717
+    # establecimientos y 1.996 filas con el nivel de atención reescrito. Fijar un hash acá
+    # haría fallar toda ingesta futura con un mensaje que culpa a una corrupción inexistente.
+    # Lo que sí se verifica: el contrato de columnas y las glosas conocidas, en el ingestor.
+    # Ver docs/05-CALIDAD.md#a-016.
+    verificacion: "contrato de esquema; el hash no aplica (archivo regenerado en vivo)"
+    source_version: "corte continuo; consultado 2026-07-29"
     formato: csv
+    granularidad: establecimiento
+    unidad_territorial: comuna
+    periodicidad: continua
+    # La ÚNICA fuente del proyecto con licencia libre declarada. El portal la publica como
+    # Creative Commons CCZero, sin restricción de uso ni obligación de atribución.
+    licencia: cc0
     prioridad: 1
     fase: 2
-    notas: "Se publica como corte actual. Construir versión con vigencias o las series se rompen."
+    variables_esperadas:
+      [establecimiento_deis, comuna_cut_fuente, dependencia, nivel_atencion,
+       sistema_salud, vigente]
+    notas: >-
+      Responde quién administra la APS de cada comuna, que es de lo que depende que un
+      denominador de cobertura signifique algo. Medido sobre el corte del 2026-07-21: de
+      344 comunas con APS pública, 204 la tienen enteramente municipal, 120 son mixtas y
+      20 no tienen ningún establecimiento municipal (Tocopilla, Andacollo, Isla de Pascua,
+      Llaillay, Hualaihué, Coyhaique, Aisén y otras). Esas 20 coinciden con las que SINIM
+      marca «Sin Servicio»: dos fuentes independientes sobre las mismas comunas.
+      TRAMPAS, verificadas sobre el archivo completo:
+      (1) Dos columnas de código. `EstablecimientoCodigo` es la vigente y calza con las
+      1.889 del padrón de FONASA; `EstablecimientoCodigoAntiguo` usa otro formato
+      (`03-216`) y da CERO coincidencias. Elegir por orden de aparición toma la mala.
+      (2) El nivel de atención tenía dos grafías simultáneas: «Primer Nivel» y «Primario»,
+      «Secundario» y «Segundo Nivel», «Terciario» y «Tercer Nivel». El 2026-07-29 DEIS las
+      unificó **entre dos descargas nuestras**, así que el archivo de hoy trae una sola. El
+      ingestor sigue aceptando ambas: una copia bajada antes de ese día trae las viejas, y
+      filtrar por una sola grafía perdía el 18 % de la APS. Ver A-016.
+      (3) `EstadoFuncionamiento` cambia de caja: «Vigente en Operación Habitual» (5.086) y
+      «Vigente en operación habitual» (209). Comparar exacto descarta 209 vigentes.
+      (4) Es UTF-8. Leerlo como latin-1 no falla, produce `OperaciÃ³n`, y esos
+      establecimientos desaparecen silenciosamente de cualquier filtro.
+      (5) Es un CORTE ACTUAL sin vigencias. Aplicarlo a años pasados atribuye al pasado la
+      organización de hoy; para una serie hay que reconstruir vigencias con `fecha_inicio`
+      y `fecha_cierre`, que todavía no se hace.
 
   - id: glosa06
     nombre: "Lista de espera No GES y garantías GES retrasadas (Glosa 06, Partida 16)"
@@ -198,7 +241,77 @@ fuentes:
     prioridad: 1
     fase: 3
     estrategia: "scrapear el índice; NO construir URLs por patrón (los nombres de archivo varían)"
-    notas: "Casos != personas. La espera se cuenta desde la emisión de la interconsulta."
+    fecha_verificacion: "2026-07-29"
+    estado: verificada
+    notas: >-
+      VERIFICADA el 2026-07-29 sobre dos informes reales (III trim 2025 y I trim 2026):
+      se abrieron, se extrajo el texto y se ubicó la cifra de psiquiatría.
+      Casos != personas. La espera se cuenta desde la emisión de la interconsulta.
+      ES TEXTO, NO ESCANEO: 55-56 páginas producidas desde Word; PyMuPDF extrae limpio y
+      detecta 40-76 tablas. No hace falta OCR.
+      LO QUE SÍ TRAE: la Tabla 15 desglosa registros por especialidad, con
+      «PSIQUIATRÍA ADULTO» 22.963 y «PSIQUIATRÍA PEDIÁTRICA Y DE LA ADOLESCENCIA» 13.960
+      al 30-09-2025; 23.134 y 12.585 al 31-03-2026.
+      LO QUE NO TRAE, y es el límite de la fase: el desglose por especialidad **nunca**
+      incluye días de espera. Verificado en los dos informes: ninguna página contiene a la
+      vez una especialidad y la palabra «mediana». Las medianas están en la Tabla 12, por
+      Servicio de Salud y con todas las especialidades sumadas. Las dos dimensiones no se
+      cruzan en ninguna parte, pese a que la letra b) de la propia glosa exige «una tabla
+      desglosada por cada una de las especialidades, que incluya (…) el promedio y la
+      mediana de días de espera».
+      TRAMPA 1: la etiqueta de la especialidad cambia de caja y de género entre informes
+      («PSIQUIATRÍA ADULTO» / «Psiquiatría adulta»). Es A-012 otra vez: agrupar por la
+      llave normalizada, nunca por la cadena cruda.
+      TRAMPA 2: el orden de la tabla cambia —alfabético en 2025, por magnitud en 2026—,
+      así que anclar en la posición de la fila rompe al primer informe nuevo.
+      PENDIENTE: el informe declara en su letra I) que el detalle por establecimiento va en
+      «archivos digitales complementarios» que NO están enlazados en el sitio. Conseguirlos
+      por Transparencia es lo único que permitiría cruzar especialidad con territorio.
+
+  - id: listaespera_minsal
+    nombre: "Visualizador de listas de espera de salud (series trimestrales)"
+    organismo: "MINSAL, Subsecretaría de Redes Asistenciales"
+    dominio: "listaesperasalud.cl"
+    url_indice: "https://www.listaesperasalud.cl/"
+    # Un JSON por Servicio de Salud, más `data_NACIONAL.json`. Sin sesión ni token.
+    # El nombre del archivo es el del servicio en mayúsculas, sin tildes y con `_`.
+    patron_url: "https://www.listaesperasalud.cl/data/data_{SERVICIO}.json"
+    origen_url: verificada_en_sesion
+    fecha_verificacion: "2026-07-29"
+    estado: verificada
+    formato: json
+    granularidad: servicio_salud_trimestre
+    unidad_territorial: servicio_salud
+    periodicidad: trimestral
+    cobertura_temporal: "2019-03 a 2025-06"
+    licencia: sin_declarar
+    prioridad: 1
+    fase: 3
+    variables_esperadas:
+      [servicio, trimestre, consulta_registros, consulta_pacientes, consulta_promedio,
+       consulta_mediana, quirurgica_registros, quirurgica_pacientes, quirurgica_promedio,
+       quirurgica_mediana, ges_registros, ges_pacientes, ges_promedio, ges_mediana]
+    notas: >-
+      VERIFICADA el 2026-07-29 bajando los 29 servicios más el nacional: 780 filas,
+      30 series, 26 trimestres. Es la fuente que tiene la dimensión que al PDF de la
+      Glosa 06 le falta —mediana de días por Servicio de Salud— y le falta la que el PDF
+      sí tiene. Son complementarias y **ninguna las cruza**.
+      QUÉ TRAE: tres listas (consulta nueva de especialidad, intervención quirúrgica,
+      garantías GES retrasadas) × cuatro métricas (registros, pacientes, promedio y mediana
+      de días). Nacional al 2025-06: 2.699.409 registros en espera de consulta de
+      especialidad, mediana 264 días.
+      QUÉ NO TRAE: **especialidad**. Las claves agregan todas las especialidades, así que
+      no permite aislar psiquiatría. Para eso hay que ir al PDF (`glosa06`).
+      TRAMPA 1 — la mediana no existe antes de 2022. Cobertura por año: 0 % en 2019-2021,
+      50 % en 2022, 100 % desde 2023. Toda serie de medianas empieza en 2022, y una
+      tendencia que arranque antes está comparando contra vacío.
+      TRAMPA 2 — `ges_pacientes` está en el 3 % de las celdas y `ges_mediana` cae al 3 % en
+      2025. La lista GES es la peor cubierta de las tres.
+      TRAMPA 3 — el nombre de archivo de O'Higgins lleva **apóstrofo tipográfico** (U+2019),
+      no el recto. `data_SERVICIO_DE_SALUD_O’HIGGINS.json` responde 200 y con `'` da 404.
+      Es la misma familia de trampas que `territorio.ALIAS` ya cubre para los nombres de
+      comuna, ahora en una ruta HTTP.
+      SIN sha256: los archivos se actualizan cada trimestre.
 
   - id: prestadores_individuales
     nombre: "Registro Nacional de Prestadores Individuales"
@@ -375,13 +488,114 @@ fuentes:
     fase: 4
 
   - id: fonasa_inscritos
-    nombre: "Población inscrita validada en APS"
-    organismo: "FONASA / MINSAL"
-    origen_url: por_confirmar
-    estado: no_verificada
+    nombre: "Población inscrita validada en servicios de salud municipal (FONASA)"
+    organismo: "FONASA, publicado por SUBDERE en SINIM"
+    dominio: "datos.sinim.gov.cl"
+    # El dato lo produce FONASA al validar la población para el per cápita, pero FONASA
+    # no lo publica como archivo: su portal de datos abiertos es un WordPress con un
+    # plugin de gráficos, sin API ni índice de archivos (verificado 2026-07-28).
+    # SINIM sí lo expone como descarga. Es la misma variable, con fuente declarada FONASA.
+    # Descarga directa, sin cookie de sesión: verificada el 2026-07-28 y byte por byte
+    # idéntica a la que entrega el portal con sesión iniciada.
+    # Los parámetros son ids opacos de SINIM, no valores con significado propio:
+    #   area[]=2            04. SALUD MUNICIPAL
+    #   subarea[]=30,25     A. ANTECEDENTES GENERALES + B. COBERTURA
+    #   variables[]         464 HPISM   total inscrito (el dato que se quiere)
+    #                       466 HPVM6   inscritos menores de 6      \
+    #                       470 HPV2064 inscritos de 20 a 64         > tramos disjuntos
+    #                       471 HPVM64  inscritos mayores de 64     /
+    #     Los tres tramos NO son adorno: su suma es una cota inferior del total y es lo
+    #     que permite detectar que el total está roto sin recurrir a nada externo (A-015).
+    #     Se bajan en la misma petición porque separarlos arriesga mezclar dos versiones.
+    #   periodos[]          26=2025, 25=2024 ... 2=2001. Van unidos por coma en UN
+    #                       parámetro: repetir `periodos[]` devuelve solo el primer año.
+    #   regiones[]=T y municipios[]=T  todas.
+    url_archivo: "https://datos.sinim.gov.cl/datos_municipales/obtener_datos_municipales.php?area%5B%5D=2&subarea%5B%5D=30%2C25&variables%5B%5D=464%2C466%2C470%2C471&periodos%5B%5D=26%2C25%2C24%2C23%2C22%2C21%2C20%2C19%2C18%2C17%2C16%2C15%2C14%2C13%2C12%2C11%2C10%2C9%2C8%2C7%2C6%2C5%2C4%2C3%2C2&regiones%5B%5D=T&municipios%5B%5D=T&corrmon=0"
+    url_indice: "https://datos.sinim.gov.cl/datos_municipales.php"
+    # El endpoint no tiene nombre de archivo útil; este es el que se usa en raw/ y bronze/.
+    nombre_local: "sinim_poblacion_inscrita_y_tramos_2001_2025.xls"
+    origen_url: verificada_en_sesion
+    fecha_verificacion: "2026-07-28"
+    # 1.807.616 bytes, 345 comunas x 25 años x 4 variables. Cambia cuando SINIM incorpore
+    # 2026 o reciba el 2023 que falta: eso es versión nueva, no descarga corrupta.
+    sha256: "30c85a5d36656c07b0d1a77a0d37bc247c64231f9a35f57ecb595eba97b9a37c"
+    source_version: "SINIM 2026-07-28 (serie 2001-2025)"
+    estado: verificada
+    formato: spreadsheetml_2003   # se sirve como .xls pero es XML; no lo abre xlrd
+    granularidad: comuna_anio
+    unidad_territorial: comuna
+    periodicidad: anual
+    cobertura_temporal: "2001-2025"
+    licencia: sin_declarar
     prioridad: 2
     fase: 2
-    notas: "Denominador correcto para cobertura de APS."
+    variables_esperadas: [comuna_cut, anio, poblacion_inscrita]
+    notas: >-
+      Denominador para cobertura de APS. 345 comunas x 25 años; 14.807.159 inscritos en
+      2025, 73,3 % de la población proyectada por el INE.
+      TRAMPAS, todas verificadas contra la descarga del 2026-07-28:
+      (1) La celda trae cuatro valores no numéricos: «Costo Fijo» (comuna financiada por
+      costo fijo y no por per cápita), «Sin Servicio» (la APS no la administra el
+      municipio sino el Servicio de Salud), «No Recepcionado» y «No Aplica». Ninguno es
+      cero y ninguno es dato faltante al azar.
+      (2) Desde ~2019 SINIM dejó de escribir «Sin Servicio» y escribe 0. Son 36 comunas,
+      25 de ellas en 2025 (Mejillones, Tocopilla, Andacollo, Isla de Pascua, Llaillay,
+      Coinco, Graneros, Hualaihué y otras). Un 0 acá NO es cero inscritos: es que el
+      denominador no existe para esa comuna. Ver docs/05-CALIDAD.md#a-013.
+      (3) El año 2023 viene «No Recepcionado» en las 345 comunas: no hay dato.
+      (4) Es población inscrita en APS MUNICIPAL. No cubre la APS dependiente del
+      Servicio de Salud, así que no es el universo completo de la APS pública.
+      (5) 118 comunas superan el 100 % de la población INE en 2025. No es error
+      necesariamente: la gente se inscribe donde trabaja, y la proyección INE es base
+      2017. Es otra razón para migrar a base Censo 2024.
+      (6) Desde 2020, once comunas con historial «Costo Fijo» publican cifras de una o dos
+      cifras sobre miles de habitantes: Quirihue declaró 9.204 inscritos en 2014 y 33 en
+      2025. Como denominador comunal producen coberturas de 300 %. Se marcan con
+      `denominador_implausible` y NO se borran. Ver docs/05-CALIDAD.md#a-015.
+
+  - id: fonasa_padron_aps
+    nombre: "Padrón de inscritos en APS por establecimiento, tramo, edad y sexo"
+    organismo: "FONASA"
+    dominio: "www.fonasa.gob.cl"
+    # Descubierta el 2026-07-29. NO está en `datosabiertos.fonasa.cl` —ese portal es un
+    # WordPress con un plugin de gráficos, sin archivos— sino en el sitio institucional.
+    # Buscar en el portal que se llama «datos abiertos» y concluir que no existe fue un
+    # error de esta sesión; la lista de archivos vive en /beneficiarios-y-prestaciones/.
+    url_indice: "https://nuevo.fonasa.gob.cl/beneficiarios-y-prestaciones/"
+    url_archivo: "https://www.fonasa.gob.cl/wp-content/uploads/2024/09/Inscritos-APS-2022.zip"
+    archivo_extraido: "Inscritos APS 2022.csv"
+    ejemplos_url_observados:
+      - "https://www.fonasa.gob.cl/wp-content/uploads/2024/09/Resultados-Inscritos-201908.zip"
+      - "https://www.fonasa.gob.cl/wp-content/uploads/2024/09/Resultados-Inscritos-202009.zip"
+      - "https://www.fonasa.gob.cl/wp-content/uploads/2024/09/Poblacion-Inscrita-EAPS-a-Sep-2021.zip"
+    origen_url: verificada_en_sesion
+    fecha_verificacion: "2026-07-29"
+    estado: verificada
+    formato: [zip, csv]
+    granularidad: establecimiento_tramo_edad_sexo
+    unidad_territorial: comuna
+    periodicidad: anual
+    cobertura_temporal: "2019, 2020, 2021, 2022"
+    licencia: sin_declarar
+    prioridad: 1
+    fase: 2
+    variables_esperadas:
+      [PERIODO, SERVICIO_SALUD, REGION, COMUNA, COD_CENTRO, NOMBRE_CENTRO,
+       NOMBRE_DEPENDENCIA, TRAMO, EDAD_TRAMO, SEXO, TOTAL_INSCRITOS]
+    notas: >-
+      Muy superior a `fonasa_inscritos` en detalle: 243.520 filas para Sep-2022, con 1.889
+      establecimientos, 23 grupos etarios, sexo y tramo A/B/C/D. Total nacional 13.585.016.
+      41 MB descomprimido, encoding latin-1, CSV con comillas.
+      Las 321 comunas presentes resuelven contra la DPA sin una sola excepción por nombre.
+      LÍMITE CENTRAL, y es el mismo de SINIM: cubre APS **municipal** (13.446.800) y «Otra
+      Institución» (138.216), pero NO los establecimientos dependientes del Servicio de
+      Salud. Faltan 24 comunas completas, de las cuales 22 son las que SINIM marca
+      «Sin Servicio», y en otras el padrón es parcial: Quirihue aparece con 11 inscritos
+      porque su único establecimiento municipal es una posta rural. Ver docs/05-CALIDAD.md#a-015.
+      COBERTURA TEMPORAL: llega hasta 2022. Para 2023-2025 el único denominador disponible
+      sigue siendo `fonasa_inscritos` (SINIM).
+      `TRAMO` incluye una categoría `X` (787.606 personas) cuyo significado no se ha
+      verificado; no usarla como tramo socioeconómico sin aclararlo.
 
   - id: encavi
     nombre: "Encuesta Nacional de Calidad de Vida y Salud 2023-2024"

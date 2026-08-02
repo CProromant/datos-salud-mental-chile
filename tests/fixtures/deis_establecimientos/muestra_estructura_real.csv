@@ -1,0 +1,13 @@
+EstablecimientoCodigoAntiguo;EstablecimientoCodigo;RegionCodigo;RegionGlosa;SeremiSaludGlosa_ServicioDeSaludGlosa;TipoEstablecimientoGlosa;EstablecimientoGlosa;DependenciaAdministrativa;NivelAtencionEstabglosa;ComunaCodigo;ComunaGlosa;TipoSistemaSaludGlosa;EstadoFuncionamiento;FechaInicioFuncionamientoEstab;FechaCierre
+01-101;101300;01;Tarapacá;Servicio de Salud Iquique;Centro de Salud Familiar;Centro de Salud Familiar Aguirre;Municipal;Primer Nivel;1101;Iquique;Público;Vigente en Operación Habitual;01/01/1990;
+01-102;101302;01;Tarapacá;Servicio de Salud Iquique;Centro de Salud Familiar;Centro de Salud Familiar Cirujano Videla;Municipal;Primario;1101;Iquique;Público;Vigente en operación habitual;01/01/1992;
+02-216;103216;02;Antofagasta;SEREMI de Salud de Antofagasta;Clínica;Clínica Privada Del Norte;Privado;Primer Nivel;2301;Tocopilla;Privado;Vigente en Operación Habitual;01/01/2005;
+02-217;103217;02;Antofagasta;Servicio de Salud Antofagasta;Hospital;Hospital Marcos Macuada (Tocopilla);Servicio de Salud;Primer Nivel;2301;Tocopilla;Público;Vigente en Operación Habitual;01/01/1950;
+16-201;116201;16;Ñuble;Servicio de Salud Ñuble;Posta de Salud Rural;Posta De Salud Rural Los Remates;Municipal;Primer Nivel;16201;Quirihue;Público;Vigente en Operación Habitual;01/01/1970;
+16-202;116202;16;Ñuble;Servicio de Salud Ñuble;Hospital;Hospital De Quirihue;Servicio de Salud;Primer Nivel;16201;Quirihue;Público;Vigente en Operación Habitual;01/01/1940;
+05-201;105201;05;Valparaíso;Servicio de Salud Valparaíso San Antonio;Hospital;Hospital Hanga Roa;Servicio de Salud;Primario;5201;Isla de Pascua;Público;Vigente en Operación Habitual;01/01/1960;
+13-101;113101;13;Metropolitana de Santiago;Servicio de Salud Metropolitano Central;Centro de Salud Familiar;Centro de Salud Familiar Ignacio Domeyko;Municipal;Primer Nivel;13101;Santiago;Público;Vigente en Operación Habitual;01/01/1995;
+13-999;113999;13;Metropolitana de Santiago;Servicio de Salud Metropolitano Central;Consultorio General Urbano;Consultorio Cerrado De Prueba;Municipal;Primer Nivel;13101;Santiago;Público;Cerrado;01/01/1980;31/12/2015
+09-118;109118;09;La Araucanía;Servicio de Salud Araucanía Sur;Hospital;Hospital Dr. Abraham Godoy Peña (Lautaro);Servicio de Salud;Segundo Nivel;9118;Lautaro;Público;Vigente en Operación Habitual;01/01/1955;
+09-119;109119;09;La Araucanía;Servicio de Salud Araucanía Sur;Centro Comunitario de Salud Familiar;Cecosf Pulmahue;Municipal;Primer Nivel;9118;Lautaro;Público;Vigente en Operación Habitual;01/01/2010;
+11-101;111101;11;Aysén;Servicio de Salud Aysén;Hospital;Hospital Regional De Coyhaique;Servicio de Salud;Primer Nivel;11101;Coyhaique;Público;Vigente en Operación Habitual;01/01/1945;

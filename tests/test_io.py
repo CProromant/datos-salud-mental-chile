@@ -148,3 +148,69 @@ class TestLeerPrimeraLinea:
         linea, enc = leer_primera_linea(f)
         assert linea == "comuna;valor"
         assert "Aysén" in f.read_text(encoding=enc)
+
+
+class TestElegirTabla:
+    """A-014: elegir el silver por orden alfabético del nombre de archivo.
+
+    Con dos copias del mismo contenido da igual —así se descubrió—. Con dos versiones
+    distintas de una fuente mueve todas las tasas publicadas en silencio. El denominador
+    es la dependencia más peligrosa del pipeline: un error suyo no produce una celda rara,
+    desplaza todo a la vez y en la misma dirección.
+    """
+
+    @pytest.fixture()
+    def almacen(self, tmp_path, monkeypatch):
+        from obsm import io
+        monkeypatch.setattr(io, "DIR_DATOS", tmp_path)
+        return tmp_path / "silver" / "ine_proyecciones"
+
+    def test_sin_archivos_devuelve_none(self, almacen):
+        from obsm.io import elegir_tabla
+        almacen.mkdir(parents=True)
+        assert elegir_tabla("silver", "ine_proyecciones") is None
+
+    def test_con_uno_lo_devuelve(self, almacen):
+        from obsm.io import elegir_tabla
+        almacen.mkdir(parents=True)
+        (almacen / "base_2017.parquet").write_bytes(b"x")
+        assert elegir_tabla("silver", "ine_proyecciones").name == "base_2017.parquet"
+
+    def test_con_dos_lanza_en_vez_de_elegir(self, almacen):
+        from obsm.errors import SchemaDriftError
+        from obsm.io import elegir_tabla
+        almacen.mkdir(parents=True)
+        # El orden alfabético elegiría base_2024, que es el que un `sorted()[-1]` habría
+        # tomado por accidente. Que acierte por casualidad es peor que fallar.
+        (almacen / "base_2017.parquet").write_bytes(b"x")
+        (almacen / "base_2024.parquet").write_bytes(b"y")
+        with pytest.raises(SchemaDriftError, match="base_2017"):
+            elegir_tabla("silver", "ine_proyecciones")
+
+    def test_el_mensaje_dice_como_resolverlo(self, almacen):
+        from obsm.errors import SchemaDriftError
+        from obsm.io import elegir_tabla
+        almacen.mkdir(parents=True)
+        (almacen / "a.parquet").write_bytes(b"x")
+        (almacen / "b.parquet").write_bytes(b"y")
+        with pytest.raises(SchemaDriftError) as exc:
+            elegir_tabla("silver", "ine_proyecciones")
+        mensaje = str(exc.value)
+        assert "borrar el archivo obsoleto" in mensaje
+        assert "--poblacion" in mensaje
+
+    def test_el_desempate_explicito_es_aceptable(self, almacen):
+        from obsm.io import elegir_tabla
+        almacen.mkdir(parents=True)
+        (almacen / "base_2017.parquet").write_bytes(b"x")
+        (almacen / "base_2024.parquet").write_bytes(b"y")
+        # Elegir a mano es aceptable; elegir por accidente, no.
+        elegido = elegir_tabla("silver", "ine_proyecciones", preferido="base_2017.parquet")
+        assert elegido.name == "base_2017.parquet"
+
+    def test_un_preferido_inexistente_falla(self, almacen):
+        from obsm.errors import SchemaDriftError
+        from obsm.io import elegir_tabla
+        almacen.mkdir(parents=True)
+        with pytest.raises(SchemaDriftError, match="no existe"):
+            elegir_tabla("silver", "ine_proyecciones", preferido="fantasma.parquet")

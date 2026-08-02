@@ -126,7 +126,7 @@ def _qa_reconciliacion() -> int:
     """
     import pandas as pd
 
-    from .io import ruta_capa
+    from .io import elegir_tabla
     from .reconciliacion import cargar_anclas, reconciliar
 
     try:
@@ -136,15 +136,24 @@ def _qa_reconciliacion() -> int:
         return 1
 
     tablas = {}
+    ambiguas = 0
     for source_id in sorted({a.source_id for a in anclas}):
-        candidatos = sorted(ruta_capa("silver", source_id, "x").parent.glob("*.parquet"))
-        if candidatos:
-            tablas[source_id] = pd.read_parquet(candidatos[-1])
+        try:
+            elegido = elegir_tabla("silver", source_id)
+        except ObsmError as exc:
+            # Un almacén ambiguo es un hallazgo de calidad, no un motivo para abortar el
+            # diagnóstico: `qa` existe para enumerar problemas, y el que bloquea la
+            # publicación es `build gold`. Se reporta y se sigue con las demás fuentes.
+            print(f"[FALLA] almacén ambiguo en {source_id}: {exc}")
+            ambiguas += 1
+            continue
+        if elegido is not None:
+            tablas[source_id] = pd.read_parquet(elegido)
 
     if not tablas:
         print(f"[--] reconciliación: {len(anclas)} anclas declaradas, sin silver para "
               f"contrastar. Correr `obsm build silver` primero.")
-        return 0
+        return ambiguas
 
     resultados = reconciliar(tablas, anclas, estricto=False)
     fallas = [r for r in resultados if r["estado"] == "FALLA"]
@@ -156,7 +165,7 @@ def _qa_reconciliacion() -> int:
     for r in fallas:
         print(f"     - {r['ancla']}: calculado={r['observado']:,.0f} "
               f"oficial={r['oficial']:,.0f} dif={r['diferencia_relativa']:.2%}")
-    return 1 if fallas else 0
+    return (1 if fallas else 0) + ambiguas
 
 
 # -- ingest / build ---------------------------------------------------------------------
@@ -210,7 +219,10 @@ def _asegurar_raw(fuente, forzar: bool = False) -> Path:
     url = fuente.url_archivo or fuente.url_principal
     if not url:
         raise ObsmError(f"[{fuente.id}] no hay url_archivo en el catálogo")
-    destino = dir_raw / Path(url.split("?")[0]).name
+    # Cuando la fuente es un endpoint con query string, la ruta de la URL no es un nombre
+    # de archivo: SINIM entrega la serie desde `obtener_datos_municipales.php`. Ese nombre
+    # viajaría hasta el parquet de bronze y no diría nada de lo que contiene.
+    destino = dir_raw / (fuente.extra.get("nombre_local") or Path(url.split("?")[0]).name)
 
     if destino.exists() and not forzar:
         log.info("[%s] usando el archivo en caché: %s", fuente.id, destino.name)
@@ -494,14 +506,21 @@ def cmd_rem_ingerir(args) -> int:
 def cmd_build_silver(args) -> int:
     import pandas as pd
 
-    from .io import ruta_capa
-    from .transform.silver import normalizar_defunciones, normalizar_poblacion
+    from .io import elegir_tabla, ruta_capa
+    from .transform.silver import (
+        componer_aps_comunal,
+        normalizar_defunciones,
+        normalizar_inscritos,
+        normalizar_poblacion,
+    )
 
     # Cada fuente tiene su normalizador. Un dict y no un if: agregar una fuente no debe
     # obligar a editar el flujo de control, y una fuente sin normalizador tiene que
     # fallar diciendo eso, no caer por defecto en el de defunciones.
     normalizadores: dict[str, Callable[..., tuple[pd.DataFrame, dict]]] = {
         "deis_defunciones": normalizar_defunciones,
+        "deis_establecimientos": componer_aps_comunal,
+        "fonasa_inscritos": normalizar_inscritos,
         "ine_proyecciones": normalizar_poblacion,
     }
     if args.source not in normalizadores:
@@ -512,13 +531,11 @@ def cmd_build_silver(args) -> int:
 
     entrada = Path(args.entrada) if args.entrada else None
     if entrada is None:
-        dir_bronze = ruta_capa("bronze", args.source, "x").parent
-        candidatos = sorted(dir_bronze.glob("*.parquet"))
-        if not candidatos:
+        entrada = elegir_tabla("bronze", args.source)
+        if entrada is None:
             print(f"ERROR: no hay bronze para {args.source}. Corre `obsm ingest` primero.",
                   file=sys.stderr)
             return 1
-        entrada = candidatos[-1]
     bronze = pd.read_parquet(entrada)
     silver, reporte = normalizar(bronze)
     destino = ruta_capa("silver", args.source, f"{entrada.stem}.parquet")
@@ -536,18 +553,17 @@ def cmd_build_gold(args) -> int:
     import pandas as pd
 
     from .errors import ReconciliationError
-    from .io import ruta_capa
+    from .io import elegir_tabla, ruta_capa
     from .reconciliacion import reconciliar
     from .transform.gold import tasas_comunales
     from .transform.silver import agregar_avpp, agregar_defunciones
 
     reg = cargar_registro(args.config)
-    dir_silver = ruta_capa("silver", args.source, "x").parent
-    candidatos = sorted(dir_silver.glob("*.parquet"))
-    if not candidatos:
+    elegido = elegir_tabla("silver", args.source)
+    if elegido is None:
         print(f"ERROR: no hay silver para {args.source}.", file=sys.stderr)
         return 1
-    silver = pd.read_parquet(candidatos[-1])
+    silver = pd.read_parquet(elegido)
 
     # El denominador sale del silver de población, no de un CSV suelto: así arrastra
     # el mismo territorio validado y el mismo tope etario que el numerador. Se admite
@@ -555,14 +571,13 @@ def cmd_build_gold(args) -> int:
     if args.poblacion:
         poblacion = pd.read_csv(args.poblacion, dtype={"comuna_cut": str})
     else:
-        dir_pob = ruta_capa("silver", "ine_proyecciones", "x").parent
-        cand_pob = sorted(dir_pob.glob("*.parquet"))
-        if not cand_pob:
+        elegida = elegir_tabla("silver", "ine_proyecciones")
+        if elegida is None:
             print("ERROR: no hay silver de ine_proyecciones y no se pasó --poblacion. "
                   "Corre `obsm ingest ine_proyecciones` y luego "
                   "`obsm build silver --source ine_proyecciones`.", file=sys.stderr)
             return 1
-        poblacion = pd.read_parquet(cand_pob[-1])
+        poblacion = pd.read_parquet(elegida)
 
     # Reconciliación ANTES de calcular nada. La regla de CLAUDE.md §7 es «si no cuadra, no
     # se publica», así que la comprobación tiene que estar en el camino de la publicación y
@@ -680,6 +695,103 @@ def cmd_rem_gold(args) -> int:
     return 0
 
 
+def _cargar_silver_unico(source_id: str, patron: str = "*.parquet"):
+    """Devuelve el silver de una fuente, o None si no hay ninguno.
+
+    Con más de un archivo y sin desempate explícito, `elegir_tabla` lanza en vez de elegir
+    por orden alfabético (A-014).
+    """
+    import pandas as pd  # noqa: PLC0415
+
+    from .io import elegir_tabla  # noqa: PLC0415
+
+    elegido = elegir_tabla("silver", source_id, patron)
+    return pd.read_parquet(elegido) if elegido is not None else None
+
+
+def cmd_rem_cobertura(args) -> int:
+    """Cruza el REM con la población inscrita y escribe la tabla de cobertura (I-03).
+
+    Necesita cuatro capas silver y falla nombrando la que falte, en vez de producir una
+    tabla parcial: sin `deis_establecimientos` no se puede saber en qué comunas la división
+    es válida, y una cobertura calculada donde no corresponde se ve perfectamente creíble.
+    """
+    import pandas as pd
+
+    from .io import elegir_tabla, ruta_capa
+    from .quality import marcar_denominador_implausible, marcar_total_incoherente_con_tramos
+    from .transform.gold import tabla_cobertura
+    from .transform.silver import resolver_cut
+
+    reg = cargar_registro(args.config)
+
+    dir_rem = ruta_capa("silver", "rem_salud_mental", "x").parent
+    archivos = sorted(dir_rem.glob("serie_p_*.parquet"))
+    if not archivos:
+        print(f"ERROR: no hay silver del REM en {dir_rem}. Correr `obsm rem ingerir`.",
+              file=sys.stderr)
+        return 1
+    rem = pd.concat([pd.read_parquet(a) for a in archivos], ignore_index=True)
+
+    faltan = []
+    inscritos = _cargar_silver_unico("fonasa_inscritos")
+    if inscritos is None:
+        faltan.append("obsm ingest fonasa_inscritos && obsm build silver "
+                      "--source fonasa_inscritos")
+    aps = _cargar_silver_unico("deis_establecimientos")
+    if aps is None:
+        faltan.append("obsm ingest deis_establecimientos && obsm build silver "
+                      "--source deis_establecimientos")
+    poblacion = _cargar_silver_unico("ine_proyecciones")
+    if poblacion is None:
+        faltan.append("obsm ingest ine_proyecciones && obsm build silver "
+                      "--source ine_proyecciones")
+    if faltan:
+        print("ERROR: faltan capas silver para calcular cobertura:", file=sys.stderr)
+        for c in faltan:
+            print(f"  {c}", file=sys.stderr)
+        return 1
+
+    # Las dos marcas de calidad del denominador se aplican acá y no en silver porque una
+    # necesita el bronze completo (los tramos de beneficiarios) y la otra, la población.
+    ruta_bronze = elegir_tabla("bronze", "fonasa_inscritos")
+    if ruta_bronze is not None:
+        bronze = pd.read_parquet(ruta_bronze)
+        bronze["comuna_cut"], _ = resolver_cut(bronze["comuna_cut_fuente"])
+        inscritos, rep_tramos = marcar_total_incoherente_con_tramos(inscritos, bronze)
+        print(f"coherencia con tramos: {rep_tramos['celdas_incoherentes']} celdas marcadas "
+              f"en {rep_tramos['comunas_incoherentes']} comunas")
+    else:
+        print("AVISO: no hay bronze de fonasa_inscritos; se omite la comprobación de "
+              "coherencia con los tramos de beneficiarios.")
+    inscritos, rep_impl = marcar_denominador_implausible(inscritos, poblacion)
+    print(f"padrón minoritario: {rep_impl['celdas_implausibles']} celdas en "
+          f"{rep_impl['comunas_implausibles']} comunas")
+
+    f_rem = reg.get("rem_salud_mental")
+    f_ins = reg.get("fonasa_inscritos")
+    gold, meta = tabla_cobertura(
+        rem, inscritos, aps, poblacion=poblacion, k=args.k,
+        source_version=f_rem.source_version,
+        version_inscritos=f_ins.source_version,
+    )
+    meta["archivos_silver_rem"] = [a.name for a in archivos]
+
+    destino = ruta_capa("gold", "rem_salud_mental", "cobertura_salud_mental_aps.csv")
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    gold.to_csv(destino, index=False)
+    destino.with_suffix(".meta.json").write_text(
+        json.dumps(meta, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
+    )
+    print(f"\ngold escrito: {destino} ({len(gold):,} filas)")
+    print(f"  denominador: {meta['celdas_por_denominador']}")
+    print(f"  comunas con cobertura: {meta['comunas_con_cobertura']} de "
+          f"{meta['comunas_en_el_numerador']}")
+    for aviso in meta["advertencias"]:
+        print(f"  AVISO: {aviso}")
+    return 0
+
+
 def _parser_rem(sub) -> None:
     """Subcomandos del REM. Aparte para que `construir_parser` no crezca sin control."""
     p_rem = sub.add_parser("rem", help="utilidades del REM")
@@ -705,6 +817,14 @@ def _parser_rem(sub) -> None:
     rg.add_argument("--por-edad", action="store_true",
                     help="desagrega por grupo etario y sexo; suprime mucho más")
     rg.set_defaults(func=cmd_rem_gold)
+
+    rc = rem.add_parser(
+        "cobertura",
+        help="tabla de cobertura (I-03): personas en control por mil inscritos",
+    )
+    rc.add_argument("--k", type=int, default=5,
+                    help="umbral de supresión del numerador (5 = actividad)")
+    rc.set_defaults(func=cmd_rem_cobertura)
 
 
 def construir_parser() -> argparse.ArgumentParser:

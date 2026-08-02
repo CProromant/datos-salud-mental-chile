@@ -450,3 +450,60 @@ def ruta_capa(capa: str, source_id: str, nombre: str) -> Path:
     if capa not in {"raw", "bronze", "silver", "gold"}:
         raise ValueError(f"Capa desconocida: {capa}")
     return DIR_DATOS / capa / source_id / nombre
+
+
+def elegir_tabla(
+    capa: str,
+    source_id: str,
+    patron: str = "*.parquet",
+    preferido: Path | str | None = None,
+) -> Path | None:
+    """Devuelve el único archivo de una capa, o falla si hay más de uno sin desempate.
+
+    Devuelve `None` cuando no hay ninguno, para que el llamador decida si eso es un error
+    o un caso previsto. **Con dos o más candidatos y sin `preferido`, lanza**
+    `SchemaDriftError`.
+
+    Existe por A-014. Antes cada sitio hacía `sorted(...)[-1]`, o sea elegía **por orden
+    alfabético del nombre de archivo**. Con dos copias del mismo contenido da igual —así se
+    descubrió, con dos parquet idénticos del INE dejados por dos corridas del ingestor—.
+    Con dos versiones distintas no: las proyecciones base 2017 y base Censo 2024 conviviendo
+    en el mismo directorio se resolverían por accidente de nombre, en silencio, y moverían
+    todas las tasas publicadas del proyecto sin que nada lo advierta.
+
+    El denominador es la dependencia más peligrosa del pipeline porque un error suyo no
+    produce una celda rara: desplaza todas las tasas a la vez y en la misma dirección, que
+    es la clase de error que no se nota mirando el resultado.
+
+    `preferido` es el desempate explícito: si se pasa, se usa ese archivo y se comprueba que
+    exista. Elegir a mano es aceptable; elegir por accidente, no.
+    """
+    from .errors import SchemaDriftError  # noqa: PLC0415
+
+    directorio = ruta_capa(capa, source_id, "x").parent
+    if preferido is not None:
+        ruta = Path(preferido)
+        if not ruta.is_absolute():
+            ruta = directorio / ruta
+        if not ruta.exists():
+            raise SchemaDriftError(
+                f"[{source_id}] se pidió explícitamente {ruta} y no existe."
+            )
+        return ruta
+
+    candidatos = sorted(directorio.glob(patron))
+    if not candidatos:
+        return None
+    if len(candidatos) == 1:
+        return candidatos[0]
+    nombres = [c.name for c in candidatos]
+    raise SchemaDriftError(
+        f"[{source_id}] hay {len(candidatos)} archivos en {capa}/ y ninguno declarado como "
+        f"vigente: {nombres}.\n"
+        f"Elegir el último por orden alfabético es cómo dos versiones distintas de una "
+        f"fuente —por ejemplo proyecciones base 2017 y base Censo 2024— se mezclan en "
+        f"silencio y mueven todas las tasas publicadas.\n"
+        f"Resolver de una de estas formas:\n"
+        f"  - borrar el archivo obsoleto de data/{capa}/{source_id}/, o\n"
+        f"  - pasar el archivo explícitamente (--entrada / --poblacion según el comando)."
+    )

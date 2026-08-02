@@ -78,9 +78,19 @@ ODbL, para que no haya que argumentar compatibilidad entre licencias distintas.
 | Fuente | Licencia | Estado |
 |---|---|---|
 | `ine_proyecciones` | CC BY-SA 4.0 | verificada; es la que obliga al CompartirIgual |
+| `deis_establecimientos` | **CC0** | verificada 2026-07-29 en `datos.gob.cl`. Dominio público: sin restricción de uso ni obligación de atribución |
 | `deis_defunciones` | **sin declarar** | investigada sin resultado |
+| `rem_salud_mental` | **sin declarar** | mismo portal que `deis_defunciones`, misma ausencia |
 | `subdere_cut` | **sin declarar** | investigada; el CC-NC de SUBDERE cubre su cartografía, no esta planilla |
+| `fonasa_inscritos` | **sin declarar** | SINIM no publica términos de uso |
+| `fonasa_padron_aps` | **sin declarar** | idem |
 | `ine_vitales_anuario` | CC BY-NC 2.0 | contradice los términos generales del INE; no alimenta `gold` |
+
+**`deis_establecimientos` en CC0 cambia el argumento, no la conclusión.** Es la primera
+fuente del proyecto con licencia libre declarada, y prueba que el MINSAL sí sabe declarar
+licencia cuando decide hacerlo: la ausencia en `deis_defunciones` y en el REM es una omisión,
+no una imposibilidad institucional. Eso vuelve razonable pedirla por escrito en vez de seguir
+infiriéndola. La solicitud por Ley de Transparencia sigue pendiente.
 
 **DEIS no declara licencia en ninguna parte.** Ni en `deis.minsal.cl` ni en
 `repositoriodeis.minsal.cl`. En `datos.gob.cl` la evidencia es contradictoria y sobre otros

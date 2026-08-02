@@ -1,0 +1,107 @@
+
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Author>fixture sintetico</Author>
+ </DocumentProperties>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Font ss:FontName="Arial" x:Family="Swiss"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Hoja1">
+  <Table ss:ExpandedColumnCount="9" ss:ExpandedRowCount="9">
+<Column ss:Index='1' ss:Width='270' />
+<Column ss:Index='2' ss:Width='270' />
+<Row>
+<Cell ><Data ss:Type="String">Valores en miles de peso</Data></Cell>
+</Row>
+<Row>
+<Cell ><Data ss:Type="String"></Data></Cell>
+<Cell ><Data ss:Type="String"></Data></Cell>
+<Cell ><Data ss:Type="String">HPISM (N°) Poblacion Inscrita Validada en Servicios de Salud Municipal (FONASA)</Data></Cell>
+</Row>
+<Row>
+<Cell ><Data ss:Type="String">CODIGO</Data></Cell>
+<Cell ><Data ss:Type="String">MUNICIPIO</Data></Cell>
+<Cell ><Data ss:Type="String">2025</Data></Cell>
+<Cell ><Data ss:Type="String">2024</Data></Cell>
+<Cell ><Data ss:Type="String">2023</Data></Cell>
+<Cell ><Data ss:Type="String">2022</Data></Cell>
+<Cell ><Data ss:Type="String">2021</Data></Cell>
+<Cell ><Data ss:Type="String">2020</Data></Cell>
+<Cell ><Data ss:Type="String">2015</Data></Cell>
+</Row>
+<Row>
+<Cell ><Data ss:Type="Number">01101</Data></Cell>
+<Cell ><Data ss:Type="String">IQUIQUE</Data></Cell>
+<Cell ><Data ss:Type="Number">205125</Data></Cell>
+<Cell ><Data ss:Type="Number">200622</Data></Cell>
+<Cell ><Data ss:Type="String">No Recepcionado</Data></Cell>
+<Cell ><Data ss:Type="Number">187023</Data></Cell>
+<Cell ><Data ss:Type="Number">179820</Data></Cell>
+<Cell ><Data ss:Type="Number">179115</Data></Cell>
+<Cell ><Data ss:Type="Number">152858</Data></Cell>
+</Row>
+<Row>
+<Cell ><Data ss:Type="Number">01402</Data></Cell>
+<Cell ><Data ss:Type="String">CAMIÑA</Data></Cell>
+<Cell ><Data ss:Type="Number">1113</Data></Cell>
+<Cell ><Data ss:Type="Number">1143</Data></Cell>
+<Cell ><Data ss:Type="String">No Recepcionado</Data></Cell>
+<Cell ><Data ss:Type="Number">688</Data></Cell>
+<Cell ><Data ss:Type="Number">187</Data></Cell>
+<Cell ><Data ss:Type="Number">7</Data></Cell>
+<Cell ><Data ss:Type="String">Costo Fijo</Data></Cell>
+</Row>
+<Row>
+<Cell ><Data ss:Type="Number">02301</Data></Cell>
+<Cell ><Data ss:Type="String">TOCOPILLA</Data></Cell>
+<Cell ><Data ss:Type="Number">0</Data></Cell>
+<Cell ><Data ss:Type="Number">0</Data></Cell>
+<Cell ><Data ss:Type="String">No Recepcionado</Data></Cell>
+<Cell ><Data ss:Type="Number">0</Data></Cell>
+<Cell ><Data ss:Type="Number">0</Data></Cell>
+<Cell ><Data ss:Type="Number">0</Data></Cell>
+<Cell ><Data ss:Type="String">Sin Servicio</Data></Cell>
+</Row>
+<Row>
+<Cell ><Data ss:Type="Number">05201</Data></Cell>
+<Cell ><Data ss:Type="String">ISLA DE PASCUA</Data></Cell>
+<Cell ><Data ss:Type="Number">9000</Data></Cell>
+<Cell ss:Index="5"><Data ss:Type="String">No Recepcionado</Data></Cell>
+<Cell ><Data ss:Type="Number">8500</Data></Cell>
+<Cell ><Data ss:Type="Number">8400</Data></Cell>
+<Cell ><Data ss:Type="Number">8300</Data></Cell>
+<Cell ><Data ss:Type="String">Sin Servicio</Data></Cell>
+</Row>
+<Row>
+<Cell ><Data ss:Type="Number">01107</Data></Cell>
+<Cell ><Data ss:Type="String">ALTO HOSPICIO</Data></Cell>
+<Cell ><Data ss:Type="Number">137399</Data></Cell>
+<Cell ><Data ss:Type="Number">129337</Data></Cell>
+<Cell ><Data ss:Type="String">No Recepcionado</Data></Cell>
+<Cell ><Data ss:Type="Number">112410</Data></Cell>
+<Cell ><Data ss:Type="Number">100880</Data></Cell>
+<Cell ><Data ss:Type="Number">91716</Data></Cell>
+<Cell ><Data ss:Type="String">No Aplica</Data></Cell>
+</Row>
+<Row>
+<Cell ><Data ss:Type="Number">16305</Data></Cell>
+<Cell ><Data ss:Type="String">SAN NICOLÁS</Data></Cell>
+<Cell ><Data ss:Type="Number">6784</Data></Cell>
+<Cell ><Data ss:Type="Number">6600</Data></Cell>
+<Cell ><Data ss:Type="String">No Recepcionado</Data></Cell>
+<Cell ><Data ss:Type="Number">6400</Data></Cell>
+<Cell ><Data ss:Type="Number">6300</Data></Cell>
+<Cell ><Data ss:Type="Number">6200</Data></Cell>
+<Cell ><Data ss:Type="String">Costo Fijo</Data></Cell>
+</Row>
+  </Table>
+ </Worksheet>
+</Workbook>

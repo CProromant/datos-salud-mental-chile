@@ -23,6 +23,7 @@ from ..io import ahora_iso
 from ..quality import (
     K_SUPRESION_ACTIVIDAD,
     K_SUPRESION_MORTALIDAD,
+    refutar_denominador_con_numerador,
     suprimir_celdas_pequenas,
     verificar_politica_publicacion,
 )
@@ -369,6 +370,185 @@ def tabla_rem(
         "advertencias": advertencias,
     }
     return publicable, meta
+
+
+#: Clasificación del denominador según quién administra la APS de la comuna. No es una
+#: escala de calidad: son tres situaciones distintas y solo una permite dividir.
+DENOMINADOR_COMPLETO = "completo"
+DENOMINADOR_PARCIAL = "parcial"
+DENOMINADOR_AUSENTE = "ausente"
+
+#: Bajo esta fracción, el padrón municipal describe a una minoría de la comuna y deja de
+#: servirle de denominador. El corte es de **significado y no estadístico**: si la mayoría
+#: de los habitantes no está en el padrón, el padrón no es el denominador de esa comuna.
+#: Sin esto, Tiltil publica 397 personas en control por mil «inscritos» con un padrón que
+#: cubre al 12 % de sus habitantes.
+FRACCION_PADRON_MAYORITARIO = 0.5
+
+#: Personas bajo control por cada mil inscritos. Se usa mil y no cien mil porque el
+#: denominador es una población inscrita comunal, del orden de miles, y una tasa por
+#: 100.000 sobre 8.000 inscritos comunica una precisión que el dato no tiene.
+BASE_COBERTURA = 1_000
+
+
+def tabla_cobertura(
+    rem: pd.DataFrame,
+    inscritos: pd.DataFrame,
+    aps: pd.DataFrame,
+    poblacion: pd.DataFrame | None = None,
+    k: int = K_SUPRESION_ACTIVIDAD,
+    source_version: str | None = None,
+    version_inscritos: str | None = None,
+) -> tuple[pd.DataFrame, dict]:
+    """Personas bajo control en salud mental **por cada mil inscritos** en la APS municipal.
+
+    Es la tabla que `tabla_rem` no podía dar: convierte «108.496 personas con depresión
+    moderada» en «de los inscritos, tantos por mil están en control». Requiere las tres
+    entradas porque las tres hacen falta para que el número signifique algo:
+
+    - `rem`: silver del REM, con `comuna_cut`, `periodo`, `etiqueta_norm`, `valor`.
+    - `inscritos`: silver de `fonasa_inscritos` (`comuna_cut`, `anio`, `poblacion_inscrita`).
+    - `aps`: silver de `deis_establecimientos` (`comuna_cut`, `fraccion_municipal`).
+    - `poblacion`: silver del INE, opcional pero **muy recomendable**. Sin ella no se puede
+      saber qué fracción de la comuna cubre el padrón, y comunas con un solo establecimiento
+      municipal pasan como denominador completo cuando describen a una minoría.
+
+    **Por qué `aps` no es opcional.** `inscritos` cuenta a los inscritos de la APS
+    **municipal**; el REM cuenta actividad de **toda** la APS pública. Donde la comuna se
+    atiende en un hospital comunitario del Servicio de Salud, el numerador incluye a esa
+    población y el denominador no, y la división produce una cobertura inflada que se ve
+    perfectamente creíble. Medido sobre el maestro del 2026-07-21, eso pasa en 134 de 344
+    comunas, donde vive el 41 % de Chile. Sin esta tabla el error sería invisible.
+
+    Cada fila declara su situación en `denominador`:
+
+    - `completo`  — toda la APS de la comuna es municipal. La cobertura es interpretable.
+    - `parcial`   — la comuna es mixta. La cobertura **sobreestima** y va sin valor.
+    - `ausente`   — sin APS municipal, sin dato de inscritos, o el dato está marcado por
+                    A-013/A-015. No hay denominador y no se calcula nada.
+
+    Solo las filas `completo` llevan `cobertura_por_mil`. En las otras dos la columna queda
+    nula: publicar un número con una advertencia al lado es publicar el número, porque la
+    advertencia no viaja cuando alguien copia la celda.
+    """
+    for nombre, df, req in (
+        ("rem", rem, ["comuna_cut", "periodo", "etiqueta_norm", "valor"]),
+        ("inscritos", inscritos, ["comuna_cut", "anio", "poblacion_inscrita"]),
+        ("aps", aps, ["comuna_cut", "fraccion_municipal"]),
+    ):
+        faltan = [c for c in req if c not in df.columns]
+        if faltan:
+            raise KeyError(f"El silver de {nombre} no tiene las columnas {faltan}")
+
+    numerador, meta_rem = tabla_rem(rem, k=k, source_version=source_version)
+    # `periodo` del REM es `YYYY-MM`; el denominador es anual. El año se saca del propio
+    # período y no de una columna aparte: así no hay dos verdades sobre a qué año pertenece
+    # una fila.
+    numerador["anio"] = numerador["periodo"].str.slice(0, 4).astype("Int64")
+
+    den = inscritos[["comuna_cut", "anio", "poblacion_inscrita"]].copy()
+    for col in ("motivo_sin_dato", "total_menor_que_tramos", "denominador_implausible"):
+        if col in inscritos.columns:
+            den[col] = inscritos[col]
+
+    df = numerador.merge(den, on=["comuna_cut", "anio"], how="left").merge(
+        aps[["comuna_cut", "fraccion_municipal"]], on="comuna_cut", how="left"
+    )
+
+    # La regla dura: las personas bajo control son un subconjunto de las inscritas, así que
+    # un numerador mayor que el denominador PRUEBA que el denominador está mal. Se aplica
+    # acá y no en silver porque es el único punto donde conviven las dos cifras.
+    df, rep_refutacion = refutar_denominador_con_numerador(df)
+
+    # Un denominador se descarta por cualquiera de estas razones, y da igual cuál: el
+    # resultado es el mismo, no se puede dividir.
+    marcado = pd.Series(False, index=df.index)
+    for col in (
+        "total_menor_que_tramos", "denominador_implausible",
+        "denominador_refutado", "comuna_refutada",
+    ):
+        if col in df.columns:
+            marcado |= df[col].fillna(False).astype(bool)
+
+    sin_dato = df["poblacion_inscrita"].isna() | df["poblacion_inscrita"].le(0) | marcado
+
+    # Contar establecimientos es una garantía débil: Tiltil tiene **un solo** CESFAM
+    # municipal, así que es «100 % municipal», y ese padrón cubre a 2.425 de sus 19.700
+    # habitantes. Dividir ahí da 397 personas en control por mil inscritos, que no es una
+    # cobertura sino el efecto de un denominador que describe al 12 % de la comuna.
+    # Por eso la clasificación mira también qué fracción de la comuna está en el padrón.
+    df["padron_sobre_poblacion"] = pd.Series(pd.NA, index=df.index, dtype="Float64")
+    if poblacion is not None:
+        tot = poblacion.groupby(["comuna_cut", "anio"], as_index=False)["poblacion"].sum()
+        df = df.merge(tot, on=["comuna_cut", "anio"], how="left")
+        con_ref = df["poblacion"].notna() & df["poblacion"].gt(0)
+        df.loc[con_ref, "padron_sobre_poblacion"] = (
+            df.loc[con_ref, "poblacion_inscrita"].astype("Float64")
+            / df.loc[con_ref, "poblacion"].astype("Float64")
+        ).round(4)
+        df = df.drop(columns=["poblacion"])
+        # Recalcular las máscaras: el merge pudo reordenar el índice.
+        marcado = marcado.reindex(df.index, fill_value=False)
+        sin_dato = sin_dato.reindex(df.index, fill_value=True)
+
+    # El corte es de significado, no estadístico: si la mayoría de los habitantes de la
+    # comuna no está en el padrón, el padrón no es el denominador de esa comuna.
+    padron_minoritario = df["padron_sobre_poblacion"].notna() & df[
+        "padron_sobre_poblacion"
+    ].lt(FRACCION_PADRON_MAYORITARIO)
+
+    frac = df["fraccion_municipal"]
+    df["denominador"] = DENOMINADOR_PARCIAL
+    df.loc[frac.eq(1) & ~sin_dato & ~padron_minoritario, "denominador"] = (
+        DENOMINADOR_COMPLETO
+    )
+    df.loc[sin_dato | frac.isna() | frac.eq(0), "denominador"] = DENOMINADOR_AUSENTE
+
+    calculable = df["denominador"].eq(DENOMINADOR_COMPLETO) & df["personas"].notna()
+    # Se declara `Float64` y no se deja que pandas infiera: inicializar con `pd.NA` y
+    # asignar por máscara deja la columna en `object`, que sobrevive a `to_parquet` y hace
+    # fallar cualquier promedio o ranking aguas abajo. Un denominador nulo produce el
+    # mismo `NA` que una celda no calculable, así que la división no se protege aparte.
+    df["cobertura_por_mil"] = pd.Series(pd.NA, index=df.index, dtype="Float64")
+    df.loc[calculable, "cobertura_por_mil"] = (
+        df.loc[calculable, "personas"].astype("Float64")
+        / df.loc[calculable, "poblacion_inscrita"].astype("Float64")
+        * BASE_COBERTURA
+    ).round(2)
+
+    df["poblacion_version"] = version_inscritos
+    df["fecha_calculo"] = ahora_iso()
+    verificar_politica_publicacion(df)
+
+    reparto = df["denominador"].value_counts().to_dict()
+    comunas_pub = df.loc[
+        df["denominador"].eq(DENOMINADOR_COMPLETO), "comuna_cut"
+    ].nunique()
+    meta = {
+        "fuente": "rem_salud_mental / fonasa_inscritos / deis_establecimientos",
+        "filas": len(df),
+        "base": BASE_COBERTURA,
+        "celdas_por_denominador": reparto,
+        "comunas_con_cobertura": comunas_pub,
+        "comunas_en_el_numerador": int(df["comuna_cut"].nunique()),
+        "fraccion_padron_minima": FRACCION_PADRON_MAYORITARIO,
+        "supresion_numerador": meta_rem["supresion"],
+        "refutacion_por_numerador": rep_refutacion,
+        "advertencias": [
+            "La cobertura solo se calcula donde TODA la APS de la comuna es municipal "
+            f"({comunas_pub} comunas). Es la única situación en que numerador y "
+            "denominador describen la misma población.",
+            "En comunas mixtas el denominador cuenta solo a los inscritos municipales "
+            "mientras el REM cuenta toda la APS pública: la cobertura sobreestimaría. "
+            "Esas filas van con `denominador=parcial` y sin valor.",
+            "No es prevalencia ni necesidad. Mide quién llegó al sistema y quedó en "
+            "control; una cobertura baja puede ser poca enfermedad o poca capacidad.",
+            "El denominador de 2023 no existe: SINIM lo publica como «No Recepcionado» "
+            "en las 345 comunas.",
+            "Población bajo control es un stock semestral. No se suman los períodos.",
+        ],
+    }
+    return df, meta
 
 
 def _advertencias(df: pd.DataFrame, pct_suprimido: float) -> list[str]:

@@ -80,18 +80,51 @@ producción con reconciliación pasando.
 
 ## I-03 · Cobertura del programa de salud mental en APS
 
-- **Estado:** definido (Fase 2)
-- **Numerador:** personas bajo control en el programa de salud mental (REM), por comuna.
-- **Denominador:** población inscrita validada en APS (no la proyección comunal: la
-  inscripción es el universo real del establecimiento).
-- **Unidad:** porcentaje.
+- **Estado:** implementado (Fase 2). Se produce con `obsm rem cobertura`; ficha del dataset
+  en [`DATASET-cobertura-salud-mental-aps.md`](DATASET-cobertura-salud-mental-aps.md).
+- **Numerador:** personas bajo control en el programa de salud mental (REM), por comuna y
+  corte semestral.
+- **Denominador:** población inscrita validada en **APS municipal** (`fonasa_inscritos`), no
+  la proyección comunal: la inscripción es el universo real del establecimiento.
+- **Unidad:** personas en control **por cada mil inscritos**. No porcentaje: el denominador
+  es un padrón comunal del orden de miles y un porcentaje comunicaría una décima que el dato
+  no sostiene.
+- **Cobertura efectiva:** **185 de 345 comunas.** Mediana nacional en diciembre de 2025:
+  **51,7 por mil**; p10 = 40, p90 = 77.
+
+### Por qué no se calcula en las otras 160 comunas
+
+No es un problema de datos faltantes sino de **desajuste de universos**, y es la limitación
+central de este indicador (ver [A-015](05-CALIDAD.md#a-015)):
+
+- El **REM** cuenta actividad de toda la APS pública: municipal **y** dependiente del
+  Servicio de Salud.
+- **`fonasa_inscritos`** cuenta solo la municipal.
+
+Donde la comuna se atiende en un hospital comunitario, el numerador incluye a esa población
+y el denominador no. La cobertura resultante no es alta ni baja: no significa nada. Cada fila
+declara su situación en la columna `denominador`:
+
+| Valor | Qué pasa | Se publica |
+|---|---|---|
+| `completo` | toda la APS de la comuna es municipal y el padrón cubre a la mayoría de sus habitantes | sí |
+| `parcial` | comuna mixta, o padrón que cubre menos de la mitad de la comuna | no, queda nulo |
+| `ausente` | sin APS municipal, sin dato, o denominador refutado por el propio numerador | no, queda nulo |
+
+Las filas no publicables van **sin valor**, no con una advertencia al lado: una advertencia
+no viaja cuando alguien copia la celda.
+
 - **Qué NO significa:**
   - **No mide necesidad atendida.** Mide oferta usada. Una comuna sin dispositivos aparece
     con cobertura baja y una comuna con equipo grande aparece alta, sin que eso diga nada
     sobre cuánta gente lo necesita.
+  - **No es comparable entre comunas sin mirar `denominador`.** Dos comunas con el mismo
+    valor pueden estar midiendo poblaciones distintas si una es mixta.
   - No distingue intensidad: una persona con un control al año y otra con doce cuentan igual.
     Por eso se publica junto con I-04.
   - Excluye al sector privado por completo.
+  - **No hay dato para 2023.** SINIM publica el denominador de ese año como «No Recepcionado»
+    en las 345 comunas.
 
 ---
 
@@ -117,10 +150,23 @@ producción con reconciliación pasando.
 
 ## I-06 · Espera en psiquiatría adulto e infanto-adolescente
 
-- **Estado:** definido (Fase 3)
-- **Fuente:** Glosa 06, por Servicio de Salud y trimestre.
-- **Métricas:** casos en espera; mediana y percentil 90 de días.
+- **Estado:** definido (Fase 3). Fuentes verificadas el 2026-07-29; sin implementar.
+- **Fuentes:** `glosa06` (PDF trimestral) para el desglose por especialidad;
+  `listaespera_minsal` (JSON) para las medianas por Servicio de Salud.
+- **Métricas:** casos en espera por especialidad, a nivel **nacional**; mediana y promedio
+  de días por **Servicio de Salud**, con todas las especialidades agregadas.
+- **La limitación central, y no es de este proyecto:** ninguna fuente pública cruza
+  especialidad con territorio. El desglose por especialidad nunca trae días de espera, y las
+  medianas por Servicio suman todas las especialidades. Verificado sobre dos informes.
+  **No se puede decir cuánto espera un psiquiatra en una región concreta**, aunque la
+  letra b) de la propia glosa obligue a publicarlo. El percentil 90 tampoco se publica en
+  ninguna de las dos fuentes.
 - **Qué NO significa:**
+  - **Una mediana de días NO es la mediana de psiquiatría.** Es la de todas las
+    especialidades del Servicio. Presentarla al lado de la cifra de psiquiatría invita a
+    leerla como si lo fuera; por eso van en columnas separadas y con nombres distintos.
+  - **La serie de medianas no puede empezar antes de 2022.** La fuente no las publica antes,
+    y una tendencia que arranque en 2019 estaría comparando contra vacío.
   - "Casos" no es "personas": una persona puede tener varias interconsultas.
   - El reloj parte en la emisión de la interconsulta, no cuando la persona empezó a
     necesitar atención: subestima la espera vivida.

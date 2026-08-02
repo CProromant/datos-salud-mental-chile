@@ -10,6 +10,7 @@ import re
 import pandas as pd
 
 from ..cie10 import AGRUPADORES
+from ..errors import ReconciliationError
 from ..indicators.tasas import LIMITE_AVPP, TOPE_EDAD_PIPELINE, grupo_quinquenal
 from ..quality import detectar_filas_total
 from ..territorio import (
@@ -106,6 +107,193 @@ def normalizar_poblacion(
     # Un cero es un dato («no vive nadie»), no un faltante. Se cuenta, no se filtra: es
     # legítimo en comunas diminutas (A-009) y `tasa_cruda` ya devuelve NaN al dividir.
     reporte["celdas_poblacion_cero"] = int((agregado["poblacion"] == 0).sum())
+    return agregado, reporte
+
+
+#: El motivo que marca a una comuna cuya APS no administra el municipio. Es el único
+#: centinela que sigue siendo verdad después de que la fuente dejó de escribirlo.
+MOTIVO_SIN_SERVICIO = "sin_servicio_municipal"
+
+#: Motivo con el que se marca un cero reinterpretado, para que se distinga en el dato
+#: publicado de un cero que sí venía declarado como tal por la fuente.
+MOTIVO_CERO_REINTERPRETADO = "sin_servicio_municipal_inferido"
+
+
+#: Dependencias que administran APS municipal. `fonasa_inscritos` cuenta a los inscritos de
+#: estos establecimientos y de nadie más.
+DEPENDENCIAS_MUNICIPALES = ("municipal", "delegado")
+
+
+def componer_aps_comunal(
+    df: pd.DataFrame, dpa: DPA | None = None
+) -> tuple[pd.DataFrame, dict]:
+    """Cuenta, por comuna, cuánta de su atención primaria pública administra el municipio.
+
+    Devuelve (silver, reporte) con una fila por `comuna_cut`: `aps_total`, `aps_municipal`,
+    `aps_servicio_salud` y `fraccion_municipal`.
+
+    **Para qué sirve.** `fonasa_inscritos` es un padrón de APS **municipal**; el REM cuenta
+    actividad de toda la APS pública. Donde la comuna se atiende en un hospital comunitario
+    del Servicio de Salud, numerador y denominador describen poblaciones distintas y la
+    cobertura que salga de dividirlos no significa nada. Esta tabla dice dónde pasa eso.
+
+    Medido sobre el maestro del 2026-07-21: de 344 comunas con APS pública, **204** la tienen
+    enteramente municipal, **120** son mixtas y **20 no tienen ningún establecimiento
+    municipal**. Entre estas últimas están Tocopilla, Andacollo, Isla de Pascua, Llaillay y
+    Hualaihué, que son exactamente las que SINIM marca `Sin Servicio`: dos fuentes
+    independientes coincidiendo sobre las mismas comunas.
+
+    **Advertencia de vigencias.** El maestro es un corte actual. Aplicar esta composición a
+    años anteriores atribuye al pasado la organización de hoy. Para una serie hace falta
+    reconstruir vigencias con `fecha_inicio` y `fecha_cierre`, que esta función no hace.
+    """
+    reporte: dict = {"filas_entrada": len(df)}
+    out = df.copy()
+
+    for col in ("vigente", "nivel_atencion", "sistema_salud", "dependencia"):
+        if col not in out.columns:
+            raise ReconciliationError(
+                f"[deis_establecimientos] falta la columna {col!r} para componer la APS. "
+                f"Presentes: {list(out.columns)[:12]}."
+            )
+
+    aps = out[
+        out["vigente"].fillna(False).astype(bool)
+        & out["nivel_atencion"].eq("primario")
+        & out["sistema_salud"].eq("publico")
+    ].copy()
+    reporte["aps_publica_vigente"] = len(aps)
+    if aps.empty:
+        raise ReconciliationError(
+            "[deis_establecimientos] ningún establecimiento quedó como APS pública vigente. "
+            "Revisar las glosas de nivel, estado y sistema antes de relajar el filtro."
+        )
+
+    aps["comuna_cut"], rep_cut = resolver_cut(aps["comuna_cut_fuente"], dpa=dpa)
+    reporte.update(rep_cut)
+    aps["_municipal"] = aps["dependencia"].isin(DEPENDENCIAS_MUNICIPALES)
+    aps["_servicio"] = aps["dependencia"].eq("servicio de salud")
+
+    agregado = (
+        aps.groupby("comuna_cut")
+        .agg(
+            aps_total=("establecimiento_deis", "nunique"),
+            aps_municipal=("_municipal", "sum"),
+            aps_servicio_salud=("_servicio", "sum"),
+        )
+        .reset_index()
+    )
+    agregado["region_cut"] = agregado["comuna_cut"].str[:2]
+    agregado["fraccion_municipal"] = agregado["aps_municipal"] / agregado["aps_total"]
+    agregado = agregado.sort_values("comuna_cut").reset_index(drop=True)
+
+    reporte["comunas_con_aps"] = len(agregado)
+    reporte["comunas_solo_municipal"] = int((agregado["fraccion_municipal"] == 1).sum())
+    reporte["comunas_mixtas"] = int(
+        agregado["fraccion_municipal"].between(0, 1, inclusive="neither").sum()
+    )
+    reporte["comunas_sin_aps_municipal"] = int((agregado["fraccion_municipal"] == 0).sum())
+    return agregado, reporte
+
+
+#: Código SINIM de la variable que trae el total inscrito. El archivo puede traer además
+#: los tramos etarios, que sirven para verificarlo (ver `quality.CODIGOS_TRAMOS_INSCRITOS`).
+CODIGO_TOTAL_INSCRITOS = "HPISM"
+
+
+def normalizar_inscritos(
+    df: pd.DataFrame, dpa: DPA | None = None, variable: str = CODIGO_TOTAL_INSCRITOS
+) -> tuple[pd.DataFrame, dict]:
+    """Lleva la población inscrita en APS municipal de bronze a la grilla canónica.
+
+    Devuelve (silver, reporte) con una fila por `comuna_cut × anio`, la población inscrita
+    y el motivo cuando no hay número.
+
+    **Acá se resuelve A-013 y es la razón de que esta función exista.** Hasta ~2019 SINIM
+    escribía `Sin Servicio` en las comunas cuya atención primaria no administra el
+    municipio sino el Servicio de Salud; desde entonces escribe `0`. La realidad no cambió:
+    cambió la codificación. Un `0` en un denominador da división por cero o cobertura
+    infinita, y como numerador afirma que no hay nadie inscrito en una comuna con CESFAM
+    funcionando.
+
+    La reinterpretación **necesita la serie completa de la comuna**, no una fila: se marca
+    el cero solo si esa misma comuna declaró `Sin Servicio` en algún año. Por eso vive acá
+    y no en el ingestor, que ve el archivo pero no debe inferir nada entre filas.
+
+    No se imputa ningún valor. Una comuna sin APS municipal no tiene denominador comunal, y
+    publicar una cobertura para ella sería inventarla.
+    """
+    reporte: dict = {"filas_entrada": len(df)}
+    out = df.copy()
+
+    if "_es_fila_total" in out.columns:
+        marca_total = out["_es_fila_total"].fillna(False).astype(bool)
+        reporte["filas_total_descartadas"] = int(marca_total.sum())
+        out = out.loc[~marca_total].copy()
+
+    # Un archivo puede traer varias variables. Quedarse con la del total se declara acá y
+    # no se hereda de cómo se pidió la descarga: si mañana el pedido incluye una variable
+    # más, esta función sigue devolviendo lo mismo.
+    if "variable_codigo" in out.columns:
+        disponibles = sorted(set(out["variable_codigo"]))
+        out = out.loc[out["variable_codigo"] == variable].copy()
+        if out.empty:
+            raise ReconciliationError(
+                f"[fonasa_inscritos] el archivo no trae la variable {variable!r}. "
+                f"Disponibles: {disponibles}."
+            )
+        reporte["variable"] = variable
+        reporte["variables_descartadas"] = [v for v in disponibles if v != variable]
+
+    out["comuna_cut"], rep_cut = resolver_cut(out["comuna_cut_fuente"], dpa=dpa)
+    reporte.update(rep_cut)
+    out["region_cut"] = out["comuna_cut"].str[:2]
+    out["motivo_sin_dato"] = out["motivo_sin_dato"].fillna("").astype(str)
+
+    # Las comunas que alguna vez declararon no tener APS municipal. Se calcula sobre el
+    # CUT resuelto y no sobre el código de la fuente: dos grafías del mismo código
+    # partirían la comuna en dos y dejarían la mitad de sus ceros sin reinterpretar.
+    sin_servicio = set(
+        out.loc[out["motivo_sin_dato"] == MOTIVO_SIN_SERVICIO, "comuna_cut"].unique()
+    )
+    reporte["comunas_sin_servicio_municipal"] = len(sin_servicio)
+
+    cero_sospechoso = (
+        (out["poblacion_inscrita"] == 0)
+        & (out["motivo_sin_dato"] == "")
+        & out["comuna_cut"].isin(sin_servicio)
+    )
+    reporte["ceros_reinterpretados"] = int(cero_sospechoso.sum())
+    out.loc[cero_sospechoso, "motivo_sin_dato"] = MOTIVO_CERO_REINTERPRETADO
+    out.loc[cero_sospechoso, "poblacion_inscrita"] = pd.NA
+
+    # Un cero que queda en pie es un cero de una comuna que nunca declaró «Sin Servicio».
+    # No se toca: puede ser real y borrarlo sería falsificar el diagnóstico.
+    reporte["ceros_conservados"] = int((out["poblacion_inscrita"] == 0).sum())
+
+    dimensiones = ["comuna_cut", "region_cut", "anio"]
+    agregado = (
+        out[[*dimensiones, "poblacion_inscrita", "motivo_sin_dato"]]
+        .sort_values(dimensiones)
+        .reset_index(drop=True)
+    )
+    duplicadas = agregado.duplicated(subset=dimensiones).sum()
+    if duplicadas:
+        raise ReconciliationError(
+            f"[fonasa_inscritos] {duplicadas} pares comuna×año duplicados tras normalizar. "
+            f"Un denominador con la comuna repetida se suma solo al unir y hunde la "
+            f"cobertura sin que nada lo advierta."
+        )
+
+    reporte["filas_salida"] = len(agregado)
+    con_dato = agregado["poblacion_inscrita"].notna()
+    reporte["celdas_con_dato"] = int(con_dato.sum())
+    reporte["inscritos_total"] = int(agregado.loc[con_dato, "poblacion_inscrita"].sum())
+    reporte["motivos"] = (
+        agregado.loc[agregado["motivo_sin_dato"] != "", "motivo_sin_dato"]
+        .value_counts()
+        .to_dict()
+    )
     return agregado, reporte
 
 
