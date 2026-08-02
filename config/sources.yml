@@ -335,18 +335,48 @@ fuentes:
 
   - id: dipres_ejecucion
     nombre: "Ejecución presupuestaria Partida 16 (Salud)"
-    organismo: "DIPRES"
-    dominio: "dipres.gob.cl"
-    origen_url: por_confirmar
-    estado: no_verificada
-    formato: [xlsx, csv]
-    granularidad: programa_mes
+    organismo: "DIPRES, Dirección de Presupuestos"
+    dominio: "datos.gob.cl"
+    url_indice: "https://datos.gob.cl/organization/direccion_de_presupuestos"
+    # NO hay URL estable: cada corte mensual es un dataset CKAN con UUID propio. El
+    # ingestor tiene que descubrir el más reciente por la API, no construir la ruta.
+    api_busqueda: 'https://datos.gob.cl/api/3/action/package_search?q=%22Ejecuci%C3%B3n+Presupuestaria%22+Gobierno+Central&rows=200'
+    recurso: "el que se llama «A nivel Programa»"
+    origen_url: verificada_en_sesion
+    fecha_verificacion: "2026-07-29"
+    estado: verificada
+    formato: csv
+    granularidad: subasignacion_mes
+    unidad_territorial: servicio_salud
     periodicidad: mensual
+    cobertura_temporal: "2017-2026"
+    # Mezcla de licencias entre cortes: 135 datasets cc-by y 65 cc-zero. Las dos son
+    # compatibles con la CC BY-SA de `gold`; ninguna obliga a reabrir el ADR 0005.
+    licencia: [cc-by, cc0]
     prioridad: 2
     fase: 4
-    notas: >
-      El gasto en salud mental no es una línea única. El indicador se publica como rango
-      con supuestos explícitos y lista de exclusiones.
+    variables_esperadas:
+      [anio, mes, partida, capitulo, programa, subtitulo, item, asignacion, monto]
+    notas: >-
+      VERIFICADA el 2026-07-29 con descarga real del corte a junio de 2026 (9.456.706
+      bytes, 39.381 filas, 19 columnas, separador `;`, UTF-8). Es la fuente mejor
+      publicada del proyecto: CSV a cuatro niveles —Nacional, Partida, Capítulo y
+      Programa— con diccionario de datos, 205 cortes mensuales desde 2017.
+      La partida 16 baja hasta sub-asignación: 8.058 filas, con los 29 Servicios de Salud
+      como capítulos separados.
+      HALLAZGO QUE CAMBIA EL ALCANCE DE LA FASE: el gasto en salud mental **no es
+      separable**. En toda la partida 16 hay TRES glosas que lo nombran —«Colocación
+      Pacientes con Enfermedades Mentales» (13 MM$), «Programa de Apoyo a la Salud Mental
+      Infantil» (4 MM$) y «Centros de Prevención de Alcoholismo y Salud Mental» (~0)— que
+      suman 17 MM$ sobre 51.878 MM$ ejecutados: **0,03 %**. El resto vive dentro de FONASA,
+      del pago por GRD y de la atención primaria, sin distinguirse. No es un defecto del
+      dato: es que el presupuesto no está estructurado para responder la pregunta.
+      TRAMPA 1: no hay URL estable. Cada mes es un dataset CKAN nuevo con UUID propio;
+      construir la ruta por patrón falla y hay que consultar la API.
+      TRAMPA 2: al buscar glosas de salud mental, «MENTAL» como subcadena captura
+      «InstruMENTAL Quirúrgico» —material quirúrgico, 10 MM$— e infla la cifra un 50 %.
+      Hay que usar frontera de palabra, igual que `quality._RE_TOTAL_PREFIJO` con «Totoral».
+      TRAMPA 3: los montos vienen con punto de miles y sin decimales.
 
   - id: ine_vitales_anuario
     nombre: "Anuario de Estadísticas Vitales (ancla de reconciliación)"

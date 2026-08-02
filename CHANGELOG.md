@@ -56,6 +56,18 @@ en la atención primaria de cada comuna**. Tres fuentes nuevas y el indicador I-
 - 463 tests (eran 337). 8 de 18 fuentes verificadas con descarga real. 3 indicadores activos.
 - 16 anomalías documentadas.
 
+### Reconocimiento de Fase 4
+- **`dipres_ejecucion` verificada.** CC0/CC BY, CSV a nivel programa, 205 cortes mensuales
+  desde 2017, partida 16 hasta sub-asignación con los 29 Servicios de Salud separados. Es la
+  fuente mejor publicada del proyecto.
+- **Alcance de Fase 4 corregido, con la cifra medida.** El gasto en salud mental **no es
+  separable**: tres glosas de la partida 16 lo nombran y suman 17 MM$ sobre 51.878
+  ejecutados, un **0,03 %**. El resto vive dentro de FONASA, del pago por GRD y de la
+  atención primaria. I-07 pasa a «gasto real per cápita **en salud**» y su ficha documenta,
+  con la medición, por qué la pregunta original no tiene respuesta en esta fuente.
+- Una trampa que vale por sí sola: buscar «MENTAL» como subcadena captura «InstruMENTAL
+  Quirúrgico» e infla la cifra un 50 %.
+
 ### Fase 3, espera por especialidad
 - **`obsm glosa06 <pdf>...`**: parser del informe trimestral e ingestor. Es la única fuente
   pública que aísla la espera por psiquiatría: 23.134 adultos y 12.585 niños y adolescentes

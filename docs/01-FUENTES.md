@@ -253,17 +253,42 @@ abrieron, se extrajo el texto y se ubicó la cifra de psiquiatría.
 
 ### D2. `dipres_ejecucion` — Ejecución presupuestaria, Partida 16
 
-- **Contiene:** presupuesto vigente y ejecución por partida, capítulo, programa y subtítulo.
-- **Latencia:** mensual/trimestral.
-- **URL:** DIPRES — *por_confirmar*.
-- **Trampas mayúsculas:**
-  - **El gasto en salud mental no es una línea presupuestaria única.** Está repartido entre
-    programas de APS, transferencias a Servicios de Salud, PPI no desagregable, y aporte de
-    otros organismos (SENDA). Cualquier cifra única es una estimación.
-  - Por eso el indicador se publica como **rango con supuestos explícitos**, y la ficha
-    enumera qué queda fuera.
-  - Reasignaciones intra-anuales hacen que "presupuesto inicial" y "vigente" difieran mucho.
-- **Uso:** gasto real per cápita por Servicio de Salud; evolución en pesos constantes.
+- **Contiene:** ejecución mensual del presupuesto del Gobierno Central a cuatro niveles
+  —Nacional, Partida, Capítulo y Programa—, con diccionario de datos. La partida 16
+  (MINISTERIO DE SALUD) baja hasta **sub-asignación**: 8.058 filas en el corte a junio de
+  2026, con los 29 Servicios de Salud como capítulos separados.
+- **Granularidad:** sub-asignación × mes. **Cobertura:** 205 cortes mensuales, 2017-2026.
+- **Verificada** el 2026-07-29 con descarga real (9.456.706 bytes, 39.381 filas,
+  19 columnas, separador `;`, UTF-8).
+- **Licencia: CC0 y CC BY según el corte** (65 y 135 datasets respectivamente). Las dos son
+  compatibles con la CC BY-SA de `gold`. **Es la fuente mejor publicada del proyecto.**
+
+#### El hallazgo: el gasto en salud mental no es separable
+
+En toda la partida 16 hay **tres glosas** que nombran salud mental:
+
+| Glosa | Nivel | Monto |
+|---|---|---|
+| Colocación Pacientes con Enfermedades Mentales | Sub-Asignación | 13 MM$ |
+| Programa de Apoyo a la Salud Mental Infantil | Asignación | 4 MM$ |
+| Centros de Prevención de Alcoholismo y Salud Mental | Asignación | ~0 MM$ |
+
+**17 MM$ sobre 51.878 MM$ ejecutados: 0,03 %.** El resto —consultas de psiquiatría,
+hospitalización, programas de APS, farmacia— vive dentro de FONASA, del pago por Grupo
+Relacionado de Diagnóstico y del Programa de Atención Primaria, sin distinguirse.
+
+No es un defecto del dato ni una limitación del pipeline: **el presupuesto no está
+estructurado para responder la pregunta.** Cambió el alcance de la Fase 4 y la definición de
+[I-07](04-INDICADORES.md#i-07--gasto-real-per-cápita-en-salud-por-servicio-de-salud).
+
+- **Trampa 1 — no hay URL estable.** Cada corte mensual es un dataset CKAN con UUID propio.
+  Construir la ruta por patrón falla; hay que consultar la API de `datos.gob.cl`.
+- **Trampa 2 — «MENTAL» como subcadena captura «InstruMENTAL Quirúrgico».** Son 10 MM$ de
+  material quirúrgico e inflan la cifra identificable un 50 % (de 17 a 26 MM$). Hay que usar
+  frontera de palabra, igual que `quality._RE_TOTAL_PREFIJO` hace con «Totoral».
+- **Trampa 3 — los montos traen punto de miles** y ningún decimal.
+- **Uso previsto:** gasto total en salud por habitante y Servicio de Salud, deflactado con
+  el IPC. **No** gasto en salud mental, que esta fuente no permite calcular.
 
 ### D3. `ine_ipc` — Índice de precios al consumidor
 

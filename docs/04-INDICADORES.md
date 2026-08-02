@@ -175,20 +175,57 @@ no viaja cuando alguien copia la celda.
 
 ---
 
-## I-07 · Gasto real per cápita en salud mental por Servicio de Salud
+## I-07 · Gasto real per cápita en salud, por Servicio de Salud
 
-- **Estado:** definido (Fase 4)
-- **Cálculo:** ejecución atribuible a salud mental / población beneficiaria, deflactada a
-  pesos de un año base.
-- **Se publica como rango, no como punto.** El gasto en salud mental no es una línea
-  presupuestaria única: queda repartido entre programas de APS, transferencias, prestaciones
-  institucionales no desagregables y aportes de otros organismos.
-- **Exclusiones declaradas en cada publicación:** PPI no desagregable, aporte SENDA, gasto
-  municipal propio, gasto de bolsillo, gasto del sector privado.
-- **Qué NO significa:** no es "lo que el Estado gasta en salud mental". Es lo que se puede
-  atribuir con la desagregación disponible, que es menos.
+- **Estado:** redefinido el 2026-07-29. Fuente `dipres_ejecucion` verificada; sin implementar.
+- **Numerador:** ejecución presupuestaria del capítulo correspondiente al Servicio de Salud,
+  partida 16, deflactada a pesos de un año base con el IPC del INE.
+- **Denominador:** población de las comunas del Servicio (proyecciones INE), vía
+  `silver.mapa_servicio_comuna`.
+- **Unidad:** pesos reales por habitante y año.
 
----
+### Por qué ya no dice «en salud mental»
+
+**El presupuesto no permite aislarlo, y está medido.** En toda la partida 16 del corte a
+junio de 2026 hay **tres glosas** que nombran salud mental:
+
+| Glosa | Nivel | Monto |
+|---|---|---|
+| Colocación Pacientes con Enfermedades Mentales | Sub-Asignación | 13 MM$ |
+| Programa de Apoyo a la Salud Mental Infantil | Asignación | 4 MM$ |
+| Centros de Prevención de Alcoholismo y Salud Mental | Asignación | ~0 MM$ |
+
+**17 MM$ sobre 51.878 MM$ ejecutados: 0,03 %.** El resto del gasto que financia salud
+mental —consultas de psiquiatría, hospitalización, programas de APS, farmacia— está dentro
+de FONASA, del pago por Grupo Relacionado de Diagnóstico y del Programa de Atención
+Primaria, sin distinguirse.
+
+La ficha anterior prometía «publicar rango, no punto». Con un 0,03 % identificable no hay
+con qué construir un piso creíble, y un rango que va de 0,03 % a «no se sabe» no es un
+rango: es la ausencia del dato con otro nombre.
+
+- **Qué NO significa:**
+  - **La cifra identificable NO es el gasto en salud mental.** Es lo que el presupuesto
+    etiqueta como tal, que es una fracción arbitraria de lo que efectivamente se gasta.
+    Publicarla como indicador sería el error más grave que este proyecto podría cometer con
+    esta fuente: daría una respuesta precisa a una pregunta que el Estado no puede
+    responder.
+  - **El gasto total en salud per cápita no es una medida de calidad.** Un Servicio con más
+    gasto por habitante puede tener población más envejecida, más complejidad hospitalaria o
+    más dispersión territorial.
+  - **No incluye el gasto municipal propio** en APS, ni el aporte SENDA, ni el gasto de
+    bolsillo de las personas.
+  - **No es comparable entre años sin deflactar.** Todo monto se guarda nominal y el real se
+    deriva con el IPC declarando su año base (`CLAUDE.md` §5).
+
+### Lo que este indicador sí aporta
+
+Una serie anual de gasto real en salud por habitante para cada uno de los 29 Servicios de
+Salud, que hoy nadie publica consolidada. No responde «cuánto se gasta en salud mental»,
+pero da el denominador de la discusión: sobre cuánto se está repartiendo.
+
+Y documenta, con la cifra medida, **por qué la primera pregunta no tiene respuesta** — que
+es en sí mismo el tipo de hallazgo para el que existe este observatorio (`docs/00`).
 
 ## I-08 · Densidad de psiquiatras por 100.000
 

@@ -79,6 +79,7 @@ ODbL, para que no haya que argumentar compatibilidad entre licencias distintas.
 |---|---|---|
 | `ine_proyecciones` | CC BY-SA 4.0 | verificada; es la que obliga al CompartirIgual |
 | `deis_establecimientos` | **CC0** | verificada 2026-07-29 en `datos.gob.cl`. Dominio público: sin restricción de uso ni obligación de atribución |
+| `dipres_ejecucion` | **CC0 / CC BY** | verificada 2026-07-29. Varía por corte: 65 datasets CC0 y 135 CC BY. Ambas compatibles con CC BY-SA |
 | `deis_defunciones` | **sin declarar** | investigada sin resultado |
 | `rem_salud_mental` | **sin declarar** | mismo portal que `deis_defunciones`, misma ausencia |
 | `subdere_cut` | **sin declarar** | investigada; el CC-NC de SUBDERE cubre su cartografía, no esta planilla |
