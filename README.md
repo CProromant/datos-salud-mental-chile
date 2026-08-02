@@ -211,6 +211,7 @@ sobre el sistema— y borrarlas falsifica el diagnóstico.
 | [`docs/adr/`](docs/adr/) | decisiones tomadas, con lo que se descartó y por qué |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | cómo contribuir |
 | [`docs/PROMPTS.md`](docs/PROMPTS.md) | playbook de sesiones: una tarea con criterio de término verificable |
+| [`docs/10-FUENTES-CANDIDATAS.md`](docs/10-FUENTES-CANDIDATAS.md) | qué falta incorporar, en qué orden y qué se descartó |
 | [`docs/solicitudes/`](docs/solicitudes/README.md) | solicitudes por Ley de Transparencia, redactadas y con su estado |
 
 Si vas a tocar código: `docs/00`, `docs/02` y `docs/06`. El último no es negociable.
