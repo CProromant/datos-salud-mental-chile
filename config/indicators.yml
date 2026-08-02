@@ -31,13 +31,21 @@ indicadores:
 
   - id: I-03
     nombre: "Cobertura del programa de salud mental en APS"
-    estado: definido
+    estado: implementado
     fase: 2
     fuente: rem_salud_mental
     denominador: fonasa_inscritos
-    unidad: porcentaje
+    requiere: [deis_establecimientos, ine_proyecciones]
+    # Por mil y no porcentaje: el denominador es un padrón comunal del orden de miles.
+    # Un porcentaje sobre 8.000 inscritos redondea a una décima que el dato no sostiene.
+    unidad: por_mil_inscritos
     k_supresion: 5
-    advertencia: "Mide oferta usada, no necesidad atendida."
+    implementacion: "obsm.transform.gold.tabla_cobertura"
+    cobertura_efectiva: "185 de 345 comunas"
+    advertencia: >-
+      Mide oferta usada, no necesidad atendida. Y solo se calcula donde TODA la APS de la
+      comuna es municipal: el REM cuenta actividad de toda la APS pública y el padrón cuenta
+      solo la municipal, así que donde divergen la división no significa nada (A-015).
 
   - id: I-04
     nombre: "Intensidad de tratamiento"
@@ -58,6 +66,8 @@ indicadores:
 
   - id: I-06
     nombre: "Espera en psiquiatría adulto e infanto-adolescente"
+    requiere: [glosa06, listaespera_minsal]
+    limitacion: "ninguna fuente pública cruza especialidad con territorio"
     estado: definido
     fase: 3
     fuente: glosa06

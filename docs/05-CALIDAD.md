@@ -525,6 +525,244 @@ mismas 229.892 filas** que antes. Ese número idéntico fue la única señal.
 **Lección:** verificar no es «corrió sin error», es «cambió lo que esperaba que cambiara».
 Un arreglo que deja la salida byte por byte igual no arregló nada.
 
+### A-013 · fonasa_inscritos · 2026-07-28
+
+**Qué se observó:** buscando el denominador de cobertura de APS, la serie de población
+inscrita de SINIM trae comunas con valor `0` y población real de decenas de miles. Tocopilla
+aparece con **0 inscritos** y 28.369 habitantes proyectados.
+
+**Verificación:** mirando la misma comuna hacia atrás en la serie, el valor no siempre fue
+cero:
+
+```
+05703 LLAILLAY        2015 = Sin Servicio    2020 = 0    2025 = 0
+02301 TOCOPILLA       2015 = Sin Servicio    2020 = 0    2025 = 0
+05201 ISLA DE PASCUA  2015 = Sin Servicio    2020 = 0    2025 = 0
+```
+
+Lo que cambió no fue la realidad: fue la codificación. Hasta ~2019 SINIM escribía la palabra
+`Sin Servicio` —la atención primaria de esa comuna no la administra el municipio sino
+directamente el Servicio de Salud— y desde entonces escribe `0`. Son **36 comunas**, 25 de
+ellas todavía en 2025.
+
+**Por qué importa.** Un centinela textual es imposible de confundir: `int("Sin Servicio")`
+revienta. Un `0` entra sin ruido en cualquier cálculo. Como denominador da división por cero
+o cobertura infinita; como numerador dice «ninguna persona inscrita» de una comuna que tiene
+CESFAM funcionando. Es el mismo dato faltante, pero uno falla ruidosamente y el otro miente.
+
+Las otras tres marcas del vocabulario tampoco son números y tampoco significan lo mismo
+entre sí: `Costo Fijo` (647 celdas) es una comuna financiada por costo fijo y no por
+per cápita; `No Recepcionado` (345) es que el dato no llegó —**todo el año 2023**—; `No
+Aplica` (17) es que la comuna no existía aún.
+
+**Decisión:** cuando se implemente el ingestor, las cuatro marcas se conservan en una columna
+`motivo_sin_dato` y **el `0` de una comuna sin servicio municipal se convierte en nulo, no en
+cero**, cruzando contra la lista de las 36. No se imputa. Una comuna sin APS municipal no
+tiene denominador comunal, y publicar una cobertura para ella sería inventarla.
+
+**Lección:** cuando una fuente cambia de centinela textual a centinela numérico, el error
+deja de ser visible y empieza a ser plausible. Antes de usar una serie larga como
+denominador, hay que mirar el **vocabulario de lo no numérico año por año**, no solo si
+parsea.
+
+### A-014 · silver → gold · 2026-07-28
+
+**Qué se observó:** al validar `fonasa_inscritos` contra las proyecciones del INE, la
+cobertura nacional daba **33 %** en vez del ~73 % esperado. El denominador estaba al doble:
+`data/silver/ine_proyecciones/` contenía **dos parquet idénticos**, uno con sufijo de hash,
+dejados por dos corridas del ingestor con distinta convención de nombre.
+
+**Verificación:** el error era del análisis exploratorio, que hacía `glob("*.parquet")` y
+concatenaba. **La tabla `gold` publicada no está afectada:** el CLI usa `candidatos[-1]`
+([cli.py:140](../src/obsm/cli.py#L140), [cli.py:565](../src/obsm/cli.py#L565)), toma un solo
+archivo, y las tasas de suicidio publicadas siguen reconciliando contra el Anuario del INE.
+
+**Lo que sí queda como riesgo.** `candidatos[-1]` elige **por orden alfabético** entre los
+archivos que haya. Con dos copias del mismo contenido da igual. Con dos versiones distintas
+—proyecciones base 2017 y base Censo 2024 conviviendo en el directorio, que es justamente lo
+que viene— elegiría una por accidente de nombre, en silencio, y cambiaría todas las tasas
+publicadas sin que nada lo advierta. Es el modo de falla que CLAUDE.md §2.7 prohíbe.
+
+**Decisión: corregido el 2026-07-29.** `io.elegir_tabla` reemplaza a los seis
+`sorted(...)[-1]` del CLI. Devuelve `None` si no hay archivos, el único si hay uno, y
+**lanza `SchemaDriftError` con dos o más sin desempate explícito**. El mensaje nombra los
+archivos y ofrece las dos salidas: borrar el obsoleto, o pasar el elegido a mano. Elegir a
+mano es aceptable; elegir por accidente, no.
+
+`obsm qa` lo trata distinto que `build`: reporta el almacén ambiguo como hallazgo y sigue
+con las demás fuentes, porque `qa` existe para enumerar problemas. El que bloquea la
+publicación es `build gold`.
+
+### Lo que apareció al encender el guard
+
+Dos almacenes ambiguos reales, no uno:
+
+| Directorio | Archivos | ¿Eran lo mismo? |
+|---|---|---|
+| `silver/ine_proyecciones/` | 2 parquet | **sí**, idénticos — el caso que originó la anomalía |
+| `bronze/fonasa_inscritos/` | 2 parquet | **no**: 8.625 filas sin `variable_codigo` contra 34.500 con cuatro variables |
+
+El segundo es exactamente el escenario que la anomalía anticipaba en teoría, encontrado en
+la práctica el mismo día: **dos versiones genuinamente distintas de una fuente**, una de
+ellas producida por una versión anterior del ingestor. `sorted()[-1]` elegía la correcta
+—`sinim_p…` ordena después de `sinim_h…`— y por eso todo funcionaba. La corrección estaba
+decidida por el orden alfabético de un nombre de archivo.
+
+Resueltos ambos, el pipeline reproduce cifras idénticas: 185 comunas con cobertura,
+5/5 anclas cuadrando.
+
+**Lección:** el riesgo se documentó como hipotético —«cuando convivan base 2017 y base
+Censo 2024»— y ya estaba ocurriendo en otra fuente, sin síntoma. Un guard que solo se
+justifica por un escenario futuro conviene encenderlo igual: lo primero que hace es decir
+cuántas veces el escenario ya pasó.
+
+### A-015 · fonasa_inscritos · 2026-07-28 (corregido el 2026-07-29)
+
+> **Esta anomalía se documentó mal el primer día y la corrección es más importante que el
+> hallazgo.** Se dejó el texto original tachado abajo, no por prolijidad: el error de
+> razonamiento es el que vale la pena no repetir.
+
+**Qué se observó:** comunas de miles de habitantes con cifras de una o dos cifras de
+población inscrita. Quirihue: 9.204 en 2014 y **33** en 2025, sobre 12.244 habitantes.
+
+**Qué se concluyó primero, y era falso.** SINIM publica, además del total `HPISM`, tres
+variables etarias (`HPVM6`, `HPV2064`, `HPVM64`). Puestas al lado, el total parecía
+contradecirlas: Quirihue 2024 declaraba 31 en total y 6.133 repartidos por edad. Se razonó
+que los tramos eran el desglose del total, que por ser disjuntos su suma era una cota
+inferior, y que `total < suma(tramos)` era **imposible por construcción**. La serie
+respaldaba la teoría de forma casi perfecta: 0 violaciones en 4.863 celdas entre 2001 y
+2018, y un salto a 87-100 por año desde 2019.
+
+**Qué mostró la fuente original.** FONASA publica el padrón por establecimiento
+(`Inscritos-APS-2022.zip`). Para Quirihue trae **una sola fila**:
+
+```
+COMUNA    NOMBRE_CENTRO                     NOMBRE_DEPENDENCIA  TOTAL_INSCRITOS
+Quirihue  Posta De Salud Rural Los Remates  Municipal                        11
+```
+
+El 11 es correcto. El único establecimiento **municipal** de Quirihue es una posta rural con
+once inscritos; al resto de la comuna la atiende un establecimiento dependiente del Servicio
+de Salud, que no entra en un padrón de APS municipal. Lo mismo en Palena (una posta, 5
+inscritos).
+
+**La confusión estaba en los nombres de las variables**, y bastaba leerlos completos:
+
+| Variable | Nombre real | Universo |
+|---|---|---|
+| `HPISM` | Población Inscrita Validada en Servicios de Salud **Municipal** | inscritos en APS municipal |
+| `HPV2064` | Población Adulta 20-64 Validada como **Beneficiaria** por FONASA | beneficiarios del seguro |
+
+No son el total y su desglose: son **dos universos distintos**. En casi todas las comunas
+casi coinciden —de ahí los dieciocho años sin violaciones— y divergen exactamente donde la
+APS no es municipal. El «quiebre de 2019» tampoco era un quiebre de calidad: es el año en
+que SINIM dejó de escribir `Costo Fijo` en esas comunas y empezó a publicar su cifra
+municipal real, que siempre había sido chica.
+
+**Confirmación cruzada, por dos vías independientes:**
+
+1. De las **24 comunas sin ninguna fila** en el padrón de FONASA, **22** son las que SINIM
+   marca `Sin Servicio`. Las dos fuentes coinciden en cuáles no tienen APS municipal.
+2. El REM registra actividad del orden de **miles** de personas en control en Quirihue,
+   Palena y Tocopilla, donde el padrón municipal dice 11, 5 y 0.
+
+### La anomalía real
+
+No hay valores corruptos. Hay un **desajuste de universos** entre numerador y denominador:
+
+- El **REM** cuenta actividad de toda la APS pública: municipal **y** dependiente del
+  Servicio de Salud.
+- **`fonasa_inscritos`** cuenta solo la municipal, tanto vía SINIM como en el archivo
+  original de FONASA (`Municipal` 13.446.800 + `Otra Institución` 138.216; los
+  establecimientos del Servicio de Salud no aparecen).
+
+Donde la comuna se atiende en un hospital comunitario, el numerador incluye a esa población
+y el denominador no. La cobertura resultante no es alta ni baja: **no significa nada**.
+
+**Decisión:** las dos marcas se conservan porque siguen señalando el caso correcto, con la
+interpretación corregida en sus docstrings. `denominador_implausible` conserva su nombre por
+compatibilidad, y el nombre es malo: el valor no es implausible, lo implausible es usarlo de
+denominador comunal. No se imputa nada y no se borra nada.
+
+**Lo que falta:** un denominador de APS **total**. El padrón de FONASA trae `COD_CENTRO`,
+así que cruzarlo con el maestro de establecimientos de DEIS permitiría saber qué comunas
+quedan incompletas y en cuánto. Es trabajo pendiente, no resuelto acá.
+
+### Lección
+
+La teoría anterior no era descuidada: predecía un patrón nítido y la serie lo confirmaba con
+0 excepciones en 4.863 celdas. **Un ajuste excelente contra los datos no valida la premisa**;
+acá el ajuste venía de que dos universos casi coinciden, no de que uno contenga al otro.
+
+Lo que faltó fue lo más barato: **leer el nombre completo de las variables**. Decían
+«Municipal» y «Beneficiaria», y esas dos palabras contenían la respuesta desde el principio.
+Se prefirió inferir el significado de la forma de los números antes que leer la etiqueta —el
+mismo error que ya había aparecido en esta sesión con el REM y que quedó anotado en el
+resumen anterior.
+
+Y la comprobación decisiva no salió de razonar mejor sobre SINIM, sino de **bajar la fuente
+original**. Cuando un intermediario parece contradecirse, la pregunta no es qué le pasa al
+intermediario: es qué dice el que produjo el dato.
+
+<details>
+<summary>Texto original del 2026-07-28, incorrecto, conservado como registro</summary>
+
+Se afirmaba que once comunas con historial «Costo Fijo» publicaban desde 2020 «cifras de una
+o dos cifras sobre miles de habitantes» y que el campo del total estaba **roto** mientras sus
+componentes estaban bien; que los tramos eran subconjuntos disjuntos del total y que
+`total < suma(tramos)` era imposible por construcción; y que el quiebre de 2019 era un
+defecto de la fuente. Nada de eso era cierto: los valores son correctos, los tramos miden
+otro universo, y 2019 es el año en que SINIM empezó a publicar la cifra municipal real.
+
+</details>
+
+### A-016 · deis_establecimientos · 2026-07-29
+
+**Qué se observó:** la verificación de hash de `obsm.io.descargar` abortó la primera ingesta
+del maestro de establecimientos. El archivo bajado con `curl` minutos antes y el bajado por
+el pipeline tenían hashes distintos.
+
+**Verificación:** no era una descarga corrupta ni una página de error servida con 200. El
+archivo **había cambiado de verdad** entre dos descargas separadas por minutos: 5.707 → 5.717
+establecimientos y **1.996 filas** con un campo reescrito. Todas en la misma columna:
+
+```
+                     antes            ahora
+Primer Nivel         2.478      ->    3.016
+Primario               534      ->        0
+Secundario           1.414      ->        0
+Segundo Nivel          235      ->    1.693
+Terciario                6      ->        0
+Tercer Nivel           173      ->      177
+No Aplica              861      ->      826
+```
+
+DEIS estaba **unificando el glosario en vivo**, y la descarga cayó a mitad de la migración.
+Las tres duplicidades de grafía desaparecieron, y 39 establecimientos pasaron de `No Aplica`
+a `Segundo Nivel`, que es una corrección de contenido y no solo de escritura.
+
+**Lo que esto valida.** El ingestor normaliza ambas grafías a una sola forma canónica antes
+de filtrar. Con 1.996 filas cambiadas entre las dos descargas, la salida de
+`componer_aps_comunal` fue **idéntica**: 344 comunas con APS pública y 20 sin ningún
+establecimiento municipal, en ambos archivos. Solo se movió el conteo bruto de
+establecimientos (2.714 → 2.719), por las diez altas reales.
+
+Un ingestor que hubiera filtrado por `== "Primer Nivel"` habría contado 2.478 APS el lunes y
+3.016 el martes, y esa diferencia del 22 % se habría leído como una expansión de la red.
+
+**Decisión: esta fuente no lleva `sha256` en el catálogo.** No es una omisión: un archivo
+regenerado en cada petición no tiene un hash estable, y fijarlo haría fallar toda ingesta
+futura con un mensaje que culpa a una corrupción inexistente. Lo que se verifica en su lugar
+es el **contrato de esquema** —columnas requeridas y glosas conocidas— y una glosa nueva
+lanza `SchemaDriftError`. El campo `verificacion` del catálogo lo declara explícitamente,
+para que la ausencia del hash no se lea como descuido.
+
+**Lección:** la verificación de hash cumplió su función aunque el problema no fuera el que
+esperaba detectar. Sirvió para **descubrir que la fuente es volátil**, que es información que
+no teníamos y que cambia cómo hay que tratarla. Un chequeo que falla por un motivo distinto
+al previsto sigue siendo un chequeo que sirvió; lo que no se puede hacer es apagarlo o
+actualizar el hash sin mirar, que es la reacción natural y habría escondido el hallazgo.
+
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.
