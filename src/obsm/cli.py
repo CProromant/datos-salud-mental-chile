@@ -511,6 +511,7 @@ def cmd_build_silver(args) -> int:
         componer_aps_comunal,
         normalizar_defunciones,
         normalizar_inscritos,
+        normalizar_listaespera,
         normalizar_poblacion,
     )
 
@@ -522,6 +523,7 @@ def cmd_build_silver(args) -> int:
         "deis_establecimientos": componer_aps_comunal,
         "fonasa_inscritos": normalizar_inscritos,
         "ine_proyecciones": normalizar_poblacion,
+        "listaespera_minsal": normalizar_listaespera,
     }
     if args.source not in normalizadores:
         print(f"ERROR: no hay normalizador para {args.source!r}. "
