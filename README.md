@@ -36,6 +36,9 @@ Preguntas que hoy no tienen respuesta fácil y que estos datos contestan:
 - **¿Cuánto se espera por una consulta de especialidad, y dónde más?**
   264 días de mediana a junio de 2025, sobre 2,7 millones de interconsultas. Entre
   Servicios de Salud va de 123 días (Aconcagua) a 437 (Metropolitano Norte).
+- **¿Cuánta gente está esperando un psiquiatra?**
+  **23.134 adultos y 12.585 niños y adolescentes** al 31 de marzo de 2026. Es la única
+  fuente pública que lo aísla, y hay que sacarla de un PDF trimestral.
 
 Y una que **no** contesta, a propósito: *¿qué comuna está peor?* En la mayoría de las
 comunas la diferencia con la vecina es indistinguible del ruido. Los datos incluyen la
@@ -49,6 +52,7 @@ medida de esa incertidumbre justamente para que no se hagan rankings.
 | **Población bajo control en salud mental** | personas en tratamiento por diagnóstico | 345 comunas, 2014-2025, semestral | [descargable](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) |
 | **Cobertura en atención primaria** | personas en control por mil inscritos | 185 comunas, 2014-2025, semestral | [ficha lista](docs/DATASET-cobertura-salud-mental-aps.md), sin publicar |
 | **Listas de espera** | registros, personas y días de espera | 29 Servicios de Salud, 2019-2025, trimestral | [ficha lista](docs/DATASET-listas-espera-servicio-salud.md), sin publicar |
+| **Espera por especialidad** | registros en espera, incluida psiquiatría | nacional, 2025-2026, trimestral | [ficha lista](docs/DATASET-espera-por-especialidad.md), sin publicar |
 
 La segunda es la importante para la mayoría de las preguntas: **la mortalidad no sirve para
 medir depresión o ansiedad**, porque casi nadie muere de eso. En el archivo de defunciones
@@ -149,15 +153,15 @@ Detalle en [`docs/02-ARQUITECTURA.md`](docs/02-ARQUITECTURA.md).
 
 ## Estado
 
-**Fases 1 y 2 completas** (2026-07-27): dos fuentes funcionando de punta a punta.
+**Fases 1 y 2 completas; Fase 3 con sus dos fuentes ingeridas** (2026-07-29).
 
 | | |
 |---|---|
-| Tests | 463 pasando |
+| Tests | 541+ pasando |
 | Lint y tipos | limpios |
-| Fuentes verificadas con descarga real | 8 de 18 |
+| Fuentes verificadas con descarga real | 10 de 19 |
 | Anclas de reconciliación automáticas | 5 de 5 cuadrando |
-| Anomalías documentadas | 16 |
+| Anomalías documentadas | 18 |
 
 Una fuente está `verificada` solo cuando alguien **abrió el archivo y lo entendió** — no
 cuando el servidor respondió 200.

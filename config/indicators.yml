@@ -5,7 +5,7 @@ version: 1
 indicadores:
   - id: I-01
     nombre: "Tasa de mortalidad por suicidio"
-    estado: definido
+    estado: activo
     fase: 1
     agrupador: SUICIDIO
     fuente: deis_defunciones
@@ -21,7 +21,7 @@ indicadores:
 
   - id: I-02
     nombre: "Años de vida potencial perdidos por suicidio"
-    estado: definido
+    estado: activo
     fase: 1
     agrupador: SUICIDIO
     fuente: deis_defunciones
@@ -68,7 +68,7 @@ indicadores:
     nombre: "Espera en psiquiatría adulto e infanto-adolescente"
     requiere: [glosa06, listaespera_minsal]
     limitacion: "ninguna fuente pública cruza especialidad con territorio"
-    estado: definido
+    estado: implementado
     fase: 3
     fuente: glosa06
     unidad: [casos, dias]

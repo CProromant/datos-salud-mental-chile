@@ -924,6 +924,65 @@ def cmd_espera(args) -> int:
     return 0
 
 
+def cmd_glosa06(args) -> int:
+    """Ingiere los PDF de la Glosa 06 que haya y publica la serie por especialidad.
+
+    Recibe los archivos a mano porque **no hay URL estable**: los dos nombres publicados
+    son `1764018133827_Glosa-06-LE-III-trimestre-2025.pdf` y
+    `Glosa-06-letra-a-b-c-i-j-k-comun-a-la-partida-1er-trimestre-1.pdf`, sin patrón común,
+    y el índice del MINSAL solo enlaza los dos más recientes. Los históricos se consiguen
+    uno a uno.
+    """
+    import json
+
+    import pandas as pd
+
+    from .ingest.glosa06 import Glosa06
+    from .io import ruta_capa
+    from .transform.gold import tabla_espera_especialidad
+
+    reg = cargar_registro(args.config)
+    fuente = reg.get("glosa06")
+
+    rutas = [Path(a) for a in args.archivos]
+    faltan = [r for r in rutas if not r.exists()]
+    if faltan:
+        print(f"ERROR: no existen {[str(r) for r in faltan]}", file=sys.stderr)
+        return 1
+
+    partes = []
+    for r in rutas:
+        bronze, _ = Glosa06(fuente).ingerir(r)
+        periodo = bronze["periodo"].iloc[0]
+        print(f"  {r.name[:44]:46} -> {periodo}, {len(bronze)} especialidades")
+        partes.append(bronze)
+
+    todo = pd.concat(partes, ignore_index=True)
+    duplicados = todo.duplicated(subset=["periodo", "especialidad_norm"]).sum()
+    if duplicados:
+        print(f"ERROR: {duplicados} pares período×especialidad duplicados. ¿Se pasó el "
+              f"mismo informe dos veces?", file=sys.stderr)
+        return 1
+
+    periodos = sorted(todo["periodo"].unique())
+    gold, meta = tabla_espera_especialidad(
+        todo, k=args.k, source_version=f"informes {', '.join(periodos)}"
+    )
+    destino = ruta_capa("gold", fuente.id, "espera_por_especialidad.csv")
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    gold.to_csv(destino, index=False)
+    destino.with_suffix(".meta.json").write_text(
+        json.dumps(meta, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
+    )
+    print(f"\ngold escrito: {destino} ({len(gold):,} filas, {meta['especialidades']} "
+          f"especialidades, {len(meta['periodos'])} trimestres)")
+    for p_, d in sorted(meta["salud_mental"].items()):
+        print(f"  {p_}: " + ", ".join(f"{k_} {v_:,}" for k_, v_ in d.items()))
+    for aviso in meta["advertencias"]:
+        print(f"  AVISO: {aviso}")
+    return 0
+
+
 def _parser_rem(sub) -> None:
     """Subcomandos del REM. Aparte para que `construir_parser` no crezca sin control."""
     p_rem = sub.add_parser("rem", help="utilidades del REM")
@@ -957,6 +1016,21 @@ def _parser_rem(sub) -> None:
     rc.add_argument("--k", type=int, default=5,
                     help="umbral de supresión del numerador (5 = actividad)")
     rc.set_defaults(func=cmd_rem_cobertura)
+
+
+def _parser_fase3(sub) -> None:
+    """Subcomandos de Fase 3. Aparte para que `construir_parser` no crezca sin control."""
+    g6 = sub.add_parser("glosa06", help="espera por especialidad desde los PDF trimestrales")
+    g6.add_argument("archivos", nargs="+", help="uno o más PDF de la Glosa 06")
+    g6.add_argument("--k", type=int, default=5, help="umbral de supresión")
+    g6.set_defaults(func=cmd_glosa06)
+
+    e = sub.add_parser("espera", help="listas de espera por Servicio de Salud (Fase 3)")
+    e.add_argument("--k", type=int, default=5,
+                   help="umbral de supresión (5 = actividad)")
+    e.add_argument("--forzar-descarga", action="store_true",
+                   help="vuelve a bajar los 30 archivos aunque estén en caché")
+    e.set_defaults(func=cmd_espera)
 
 
 def construir_parser() -> argparse.ArgumentParser:
@@ -1011,13 +1085,7 @@ def construir_parser() -> argparse.ArgumentParser:
     bg.set_defaults(func=cmd_build_gold)
 
     _parser_rem(sub)
-
-    e = sub.add_parser("espera", help="listas de espera por Servicio de Salud (Fase 3)")
-    e.add_argument("--k", type=int, default=5,
-                   help="umbral de supresión (5 = actividad)")
-    e.add_argument("--forzar-descarga", action="store_true",
-                   help="vuelve a bajar los 30 archivos aunque estén en caché")
-    e.set_defaults(func=cmd_espera)
+    _parser_fase3(sub)
 
     r = sub.add_parser("run", help="pipeline de Fase 1 completo, en un comando")
     r.add_argument("--agrupador", default="SUICIDIO")

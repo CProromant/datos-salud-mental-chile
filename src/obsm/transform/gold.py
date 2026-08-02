@@ -673,6 +673,74 @@ def tabla_listas_espera(
     return publicable, meta
 
 
+def tabla_espera_especialidad(
+    bronze: pd.DataFrame,
+    k: int = K_SUPRESION_ACTIVIDAD,
+    source_id: str = "glosa06",
+    source_version: str | None = None,
+) -> tuple[pd.DataFrame, dict]:
+    """Registros en lista de espera por especialidad médica y trimestre, publicable.
+
+    Es la **única** fuente pública que aísla la espera por psiquiatría: 23.134 adultos y
+    12.585 niños y adolescentes al 31 de marzo de 2026.
+
+    **La serie es corta a propósito y crece de a un trimestre.** No es una limitación del
+    código: solo hay dos informes descargables desde el índice del MINSAL, y los nombres de
+    archivo no siguen patrón, así que los históricos hay que ir consiguiéndolos. Publicar
+    dos trimestres y decirlo es más útil que esperar a tener diez.
+
+    **La cifra es nacional.** El informe no cruza especialidad con Servicio de Salud, así
+    que no se puede decir cuánto se espera por psiquiatría en una región — aunque la letra
+    b) de la propia glosa lo exija. Ver A-015 y la ficha de I-06.
+    """
+    faltan = [c for c in ("periodo", "especialidad_norm", "registros") if c not in bronze.columns]
+    if faltan:
+        raise KeyError(f"El bronze de la Glosa 06 no tiene las columnas {faltan}")
+
+    df = bronze.copy()
+    df["unidad_territorial"] = "nacional"
+    df["source_id"] = source_id
+    df["source_version"] = source_version
+    df["pipeline_version"] = PIPELINE_VERSION
+    df["fecha_calculo"] = ahora_iso()
+    verificar_politica_publicacion(df)
+
+    publicable, reporte_sup = suprimir_celdas_pequenas(
+        df, "registros", k=k, grupo=["periodo"]
+    )
+    publicable = publicable.sort_values(["periodo", "especialidad_norm"]).reset_index(drop=True)
+
+    sm = publicable[publicable.get("es_salud_mental", False)]
+    meta = {
+        "fuente": source_id,
+        "filas": len(publicable),
+        "periodos": sorted(publicable["periodo"].unique().tolist()),
+        "especialidades": int(publicable["especialidad_norm"].nunique()),
+        "salud_mental": {
+            p: {r.etiqueta: int(r.registros) for r in g.itertuples() if pd.notna(r.registros)}
+            for p, g in sm.groupby("periodo")
+        },
+        "supresion": {
+            "k": reporte_sup.k,
+            "filas_suprimidas": reporte_sup.filas_suprimidas,
+            "porcentaje": reporte_sup.porcentaje_suprimido,
+        },
+        "advertencias": [
+            "La cifra es NACIONAL. El informe no cruza especialidad con Servicio de Salud, "
+            "así que no dice cuánto se espera por psiquiatría en una región concreta.",
+            "«Registros» no es «personas»: una persona puede tener varias interconsultas.",
+            "La espera se cuenta desde la emisión de la interconsulta, no desde que la "
+            "persona empezó a necesitar atención.",
+            "El informe de 2026-03 no suma su propio total declarado: faltan 11.478 "
+            "registros (0,58 %). No usar esta tabla para calcular participaciones. "
+            "Ver A-018 en docs/05-CALIDAD.md.",
+            "La serie tiene solo los trimestres cuyo PDF se pudo descargar. Los nombres de "
+            "archivo publicados no siguen patrón y hay que conseguirlos uno a uno.",
+        ],
+    }
+    return publicable, meta
+
+
 def _advertencias(df: pd.DataFrame, pct_suprimido: float) -> list[str]:
     avisos = []
     if pct_suprimido > 0.5:

@@ -187,3 +187,39 @@ class TestIngestor:
         # directamente sobre el parser; el período tiene su propio test arriba.
         assert Glosa06.source_id == "glosa06"
         assert "registros" in Glosa06.columnas_requeridas
+
+
+class TestGoldEspecialidad:
+    """La serie publicable. Corta a propósito: solo hay dos informes descargables."""
+
+    @pytest.fixture()
+    def gold(self):
+        import pandas as pd
+
+        from obsm.transform.gold import tabla_espera_especialidad
+        t25, _ = parsear_tabla_especialidades(_texto("2025_T3_tabla15.txt"))
+        t26, _ = parsear_tabla_especialidades(_texto("2026_T1_tabla15.txt"))
+        t25.insert(0, "periodo", "2025-09")
+        t26.insert(0, "periodo", "2026-03")
+        return tabla_espera_especialidad(pd.concat([t25, t26], ignore_index=True))
+
+    def test_arma_la_serie_de_psiquiatria(self, gold):
+        _, meta = gold
+        assert meta["salud_mental"]["2025-09"]["Psiquiatría adulta"] == 22_963
+        assert meta["salud_mental"]["2026-03"]["Psiquiatría adulta"] == 23_134
+
+    def test_arrastra_procedencia(self, gold):
+        g, _ = gold
+        for col in ("source_id", "pipeline_version", "fecha_calculo", "unidad_territorial"):
+            assert col in g.columns
+
+    def test_declara_que_la_cifra_es_nacional(self, gold):
+        g, meta = gold
+        assert (g["unidad_territorial"] == "nacional").all()
+        assert any("NACIONAL" in a for a in meta["advertencias"])
+
+    def test_advierte_de_la_anomalia_del_informe_de_2026(self, gold):
+        # Sin este aviso alguien calcularía «psiquiatría es el X % de la lista» sobre un
+        # denominador que no cuadra consigo mismo.
+        _, meta = gold
+        assert any("A-018" in a for a in meta["advertencias"])

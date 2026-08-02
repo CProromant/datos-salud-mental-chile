@@ -287,3 +287,117 @@ class TestDependenciasDeclaradas:
             f"paquetes importados y no declarados en pyproject.toml: "
             f"{ {k: sorted(v) for k, v in sin_declarar.items()} }"
         )
+
+
+class TestCifrasDeLaDocumentacion:
+    """El README y el PLAN declaran cifras del proyecto. Tienen que ser ciertas.
+
+    Es la tercera vez que la documentación se descuelga del código: cifras de tests,
+    fuentes y anomalías que quedaron atrás sin que nada avisara. Los números en un README
+    dan la sensación de estar al día, y esa sensación es justamente el problema — la misma
+    forma de fallo que la lección de Fase 0 sobre el andamiaje desconectado.
+
+    Este test la elimina como clase: si el README miente, CI falla.
+    """
+
+    @staticmethod
+    def _raiz():
+        import pathlib
+        return pathlib.Path(__file__).resolve().parents[1]
+
+    @staticmethod
+    def _declarado(texto: str, etiqueta: str) -> int | None:
+        """Lee `| <etiqueta> | <n> ... |` de una tabla markdown."""
+        import re
+        m = re.search(rf"\|\s*{etiqueta}[^|]*\|\s*([\d.]+)", texto, re.I)
+        return int(m.group(1).replace(".", "")) if m else None
+
+    def test_el_numero_de_anomalias_es_el_real(self):
+        import re
+        raiz = self._raiz()
+        calidad = (raiz / "docs" / "05-CALIDAD.md").read_text(encoding="utf-8")
+        reales = len(set(re.findall(r"^### (A-\d+)", calidad, re.M)))
+        for doc in ("README.md", "PLAN.md"):
+            texto = (raiz / doc).read_text(encoding="utf-8")
+            declarado = self._declarado(texto, "[Aa]nomalías documentadas")
+            assert declarado == reales, (
+                f"{doc} declara {declarado} anomalías y docs/05-CALIDAD.md tiene {reales}"
+            )
+
+    def test_el_numero_de_fuentes_verificadas_es_el_real(self):
+        import re
+
+        import yaml
+        raiz = self._raiz()
+        cat = yaml.safe_load((raiz / "config" / "sources.yml").read_text(encoding="utf-8"))
+        fuentes = cat["fuentes"]
+        verificadas = sum(1 for f in fuentes if f.get("estado") == "verificada")
+        for doc in ("README.md", "PLAN.md"):
+            texto = (raiz / doc).read_text(encoding="utf-8")
+            m = re.search(r"verificadas con descarga real\s*\|\s*(\d+) de (\d+)", texto)
+            assert m, f"{doc} no declara el conteo de fuentes verificadas"
+            assert (int(m.group(1)), int(m.group(2))) == (verificadas, len(fuentes)), (
+                f"{doc} declara {m.group(1)} de {m.group(2)} fuentes verificadas; "
+                f"el catálogo tiene {verificadas} de {len(fuentes)}"
+            )
+
+    def test_cada_serie_publicada_tiene_su_ficha(self):
+        # Una tabla en `gold` sin ficha es un archivo que nadie sabe leer. El flujo del
+        # repo la exige antes de publicar; esto lo hace verificable.
+        raiz = self._raiz()
+        fichas = {p.stem.replace("DATASET-", "") for p in (raiz / "docs").glob("DATASET-*.md")}
+        assert len(fichas) >= 4, f"solo {len(fichas)} fichas de dataset"
+
+    def test_todo_ingestor_registrado_tiene_su_fuente_en_el_catalogo(self):
+        import yaml
+
+        from obsm.ingest import INGESTORES
+        raiz = self._raiz()
+        cat = yaml.safe_load((raiz / "config" / "sources.yml").read_text(encoding="utf-8"))
+        ids = {f["id"] for f in cat["fuentes"]}
+        huerfanos = sorted(set(INGESTORES) - ids)
+        assert not huerfanos, (
+            f"ingestores sin entrada en config/sources.yml: {huerfanos}"
+        )
+
+
+class TestParserDelCLI:
+    """El parser se construye entero, sin subcomandos duplicados ni huérfanos.
+
+    Se agrega porque 541 tests pasaban con el CLI roto: `glosa06` había quedado
+    registrado en dos lugares y `construir_parser` lanzaba `ArgumentError` al primer uso.
+    Ningún test lo construía, así que el fallo solo aparecía al correr el comando a mano.
+    Es la misma familia que la lección de Fase 0: una pieza en el camino de ejecución que
+    ningún test recorre.
+    """
+
+    def test_el_parser_se_construye(self):
+        from obsm.cli import construir_parser
+        assert construir_parser() is not None
+
+    def test_todos_los_subcomandos_declarados_responden(self):
+        from obsm.cli import construir_parser
+        p = construir_parser()
+        accion = next(a for a in p._actions if a.dest == "grupo")
+        esperados = {"sources", "territorio", "ingest", "build", "rem", "glosa06",
+                     "espera", "run", "qa"}
+        assert esperados <= set(accion.choices), (
+            f"faltan subcomandos: {sorted(esperados - set(accion.choices))}"
+        )
+
+    def test_cada_subcomando_tiene_funcion_asociada(self):
+        # Un subcomando sin `set_defaults(func=...)` acepta la invocación y no hace nada.
+        from obsm.cli import construir_parser
+        p = construir_parser()
+        accion = next(a for a in p._actions if a.dest == "grupo")
+        sin_func = []
+        for nombre, sp in accion.choices.items():
+            tiene = sp.get_default("func") is not None
+            if not tiene:
+                sub = next((a for a in sp._actions if a.choices and hasattr(a, "dest")), None)
+                tiene = bool(sub and all(
+                    s.get_default("func") is not None for s in sub.choices.values()
+                ))
+            if not tiene:
+                sin_func.append(nombre)
+        assert not sin_func, f"subcomandos sin función: {sin_func}"

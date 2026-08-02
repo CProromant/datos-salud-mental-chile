@@ -56,6 +56,27 @@ en la atención primaria de cada comuna**. Tres fuentes nuevas y el indicador I-
 - 463 tests (eran 337). 8 de 18 fuentes verificadas con descarga real. 3 indicadores activos.
 - 16 anomalías documentadas.
 
+### Fase 3, espera por especialidad
+- **`obsm glosa06 <pdf>...`**: parser del informe trimestral e ingestor. Es la única fuente
+  pública que aísla la espera por psiquiatría: 23.134 adultos y 12.585 niños y adolescentes
+  al 31 de marzo de 2026. Ficha en `docs/DATASET-espera-por-especialidad.md`.
+- Cuatro cosas cambian entre dos informes consecutivos —la etiqueta, el orden de la tabla,
+  la página y el formato del período— y ninguna es estable. El parser acepta las dos formas
+  observadas de cada una y falla ante una tercera.
+- **A-018:** el informe de 2026 no suma su propio total declarado (faltan 11.478 registros,
+  0,58 %). El de 2025 cuadra exacto. El parser captura todo lo que hay en el texto; el hueco
+  está en la fuente. No usar la tabla para calcular participaciones.
+- **A-017:** tensión dentro de `docs/06` entre «el cero sí se publica» y la supresión
+  complementaria «la menor de las celdas restantes». No se cambia la política acá.
+
+### Guardias nuevos
+- Tests que comparan las cifras del README y el PLAN contra la realidad del repositorio
+  (anomalías, fuentes verificadas, ingestores con entrada en el catálogo). Es la tercera vez
+  que la documentación se descuelga; ahora CI lo atrapa.
+- Tests que construyen el parser del CLI. Se agregaron porque 541 tests pasaban con el CLI
+  roto: un subcomando duplicado hacía fallar `construir_parser` al primer uso y ningún test
+  lo construía.
+
 ### Fase 3, primera serie
 - **`obsm espera`**: un comando que baja los 30 JSON, ingiere, normaliza y escribe gold.
   2.340 filas: 29 Servicios de Salud más el nacional × 26 trimestres × 3 listas.

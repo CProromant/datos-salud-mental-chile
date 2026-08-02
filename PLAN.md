@@ -181,9 +181,12 @@ Dos fuentes, complementarias y ninguna suficiente por sí sola:
 
 - [x] **1. Ingestor de `listaespera_minsal`.** Hecho: `obsm espera` produce 2.340 filas
       publicables, 29 Servicios × 26 trimestres × 3 listas, con ficha de dataset.
-2. **Parser del PDF de la Glosa 06** para la tabla de especialidades. Frágil por diseño:
-   declara el layout detectado y falla si no reconoce ninguno.
-3. Serie histórica desde el primer informe en formato estable.
+- [x] **2. Parser del PDF de la Glosa 06.** Hecho: `obsm glosa06 <pdf>...` extrae la tabla
+      de especialidades y su trimestre del contenido. Verificado contra los dos informes
+      publicados, que ya traen cuatro formatos distintos entre sí.
+3. Serie histórica desde el primer informe en formato estable. **Bloqueado por la fuente:**
+   el índice del MINSAL solo enlaza los dos informes más recientes y los nombres de archivo
+   no siguen patrón. Los históricos hay que conseguirlos uno a uno.
 4. Indicador de garantías GES de salud mental retrasadas.
 5. **Solicitar por Transparencia los «archivos digitales complementarios»** que el informe
    declara en su letra I). Si traen especialidad por establecimiento, el criterio original
@@ -273,11 +276,11 @@ desagregar. Mitigación: publicar rango, no punto, y decirlo en la ficha del ind
 
 | métrica | valor | al 2026-07-27 |
 |---|---|---|
-| fuentes verificadas con descarga real | 8 de 18 | 4 de 17 |
+| fuentes verificadas con descarga real | 10 de 19 | 4 de 17 |
 | indicadores activos con ficha y verificación externa | 3 (I-01, I-02, I-03) | 2 |
 | anclas de reconciliación automáticas | 5, todas cuadrando | 5 |
-| anomalías documentadas con reproducción y decisión | 16 | 9 |
-| tests | 463 | 323 |
+| anomalías documentadas con reproducción y decisión | 18 | 9 |
+| tests | 541 | 323 |
 | fallos silenciosos detectados **antes** de producción | 8, cada uno con su test | 5 |
 
 La última fila es la que importa y conviene leerla con cuidado: son defectos que no lanzaban
