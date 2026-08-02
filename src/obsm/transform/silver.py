@@ -5,6 +5,7 @@ Funciones puras sobre DataFrames. Acá y solo acá se aplica `territorio` y `cie
 
 from __future__ import annotations
 
+import logging
 import re
 
 import pandas as pd
@@ -21,6 +22,8 @@ from ..territorio import (
     normalizar_serie_comunas,
     normalizar_texto,
 )
+
+log = logging.getLogger(__name__)
 
 
 def resolver_cut(
@@ -117,6 +120,164 @@ MOTIVO_SIN_SERVICIO = "sin_servicio_municipal"
 #: Motivo con el que se marca un cero reinterpretado, para que se distinga en el dato
 #: publicado de un cero que sí venía declarado como tal por la fuente.
 MOTIVO_CERO_REINTERPRETADO = "sin_servicio_municipal_inferido"
+
+
+#: Prefijo de los Servicios de Salud en el maestro de DEIS. Las SEREMI comparten columna y
+#: **no son Servicios de Salud**: son la autoridad sanitaria regional. Incluirlas hace que
+#: cuatro comunas aparezcan con dos servicios y rompe el mapeo a territorio.
+PREFIJO_SERVICIO_SALUD = "servicio de salud "
+
+#: Valores del maestro que ocupan la columna de servicio sin ser uno.
+SERVICIOS_NO_REALES = {"servicio de salud no aplica"}
+
+#: Alias entre el slug del visualizador de listas de espera y el nombre del maestro DEIS.
+#:
+#: Solo uno hace falta: 28 de los 29 servicios calzan normalizando caja, tildes y guiones.
+#: El visualizador dice `O’HIGGINS` y el maestro `Servicio de Salud Del Libertador
+#: B.O'Higgins` —con apóstrofo recto, además, mientras el visualizador usa el tipográfico—.
+#: Se declara acá y no se resuelve con un `if` dentro del transform, por la misma razón que
+#: `territorio.ALIAS`: una entrada nueva exige un test y queda buscable en un solo lugar.
+ALIAS_SERVICIO_SALUD: dict[str, str] = {
+    "OHIGGINS": "DEL_LIBERTADOR_BOHIGGINS",
+}
+
+
+def clave_servicio(nombre: str) -> str:
+    """Llave de comparación de un Servicio de Salud, venga del maestro o del visualizador.
+
+    Quita el prefijo «Servicio de Salud», normaliza caja y tildes, unifica los dos
+    apóstrofos —el recto del maestro y el tipográfico del visualizador— y aplica los alias
+    conocidos. Sin unificar el apóstrofo, O'Higgins queda fuera de la serie en silencio.
+    """
+    s = " ".join(str(nombre or "").split()).lower()
+    if s.startswith(PREFIJO_SERVICIO_SALUD):
+        s = s[len(PREFIJO_SERVICIO_SALUD):]
+    # `normalizar_texto` ya elimina tildes, puntos y ambos apóstrofos, que es justo lo que
+    # separa `B.O'Higgins` del maestro de `O’HIGGINS` del visualizador.
+    s = normalizar_texto(s).upper().replace(" ", "_").replace("-", "_")
+    return ALIAS_SERVICIO_SALUD.get(s, s)
+
+
+def mapa_servicio_comuna(
+    establecimientos: pd.DataFrame, dpa: DPA | None = None
+) -> tuple[pd.DataFrame, dict]:
+    """Tabla `comuna_cut → servicio_salud`, derivada del maestro de establecimientos.
+
+    Devuelve (mapa, reporte). Existe porque `listaespera_minsal` publica por Servicio de
+    Salud y el resto del proyecto trabaja por comuna, y porque el mapeo oficial no se
+    publica como tabla: se deduce de dónde está cada establecimiento.
+
+    **Es una tabla aparte a propósito, y no una columna de la serie de espera.** Atribuir a
+    cada comuna la mediana de días de su Servicio es una inferencia ecológica: el valor
+    describe al Servicio, no a la comuna. Quien quiera bajar a comuna que lo haga uniendo
+    explícitamente, sabiendo lo que hace; una columna `comuna_cut` dentro de la serie
+    invitaría a mapearla como si el dato fuera comunal.
+
+    Se excluyen las SEREMI, que comparten la columna del maestro sin ser Servicios de
+    Salud: incluirlas da cuatro comunas con dos servicios (Antofagasta, Valparaíso,
+    Magallanes y Metropolitano Oriente).
+    """
+    out = establecimientos.copy()
+    for col in ("servicio_salud", "comuna_cut_fuente"):
+        if col not in out.columns:
+            raise ReconciliationError(
+                f"[deis_establecimientos] falta {col!r} para mapear servicio a comuna."
+            )
+    nombre = out["servicio_salud"].fillna("").astype(str)
+    es_servicio = (
+        nombre.str.lower().str.startswith(PREFIJO_SERVICIO_SALUD)
+        & ~nombre.str.lower().isin(SERVICIOS_NO_REALES)
+    )
+    out = out.loc[es_servicio].copy()
+    out["comuna_cut"], rep_cut = resolver_cut(out["comuna_cut_fuente"], dpa=dpa)
+    out["servicio_clave"] = out["servicio_salud"].map(clave_servicio)
+
+    mapa = (
+        out.groupby(["comuna_cut", "servicio_clave"], as_index=False)
+        .agg(servicio_salud=("servicio_salud", "first"), establecimientos=("comuna_cut", "size"))
+        .sort_values(["comuna_cut", "servicio_clave"])
+        .reset_index(drop=True)
+    )
+    por_comuna = mapa.groupby("comuna_cut").size()
+    reporte = dict(rep_cut)
+    reporte.update({
+        "comunas": int(len(por_comuna)),
+        "servicios": int(mapa["servicio_clave"].nunique()),
+        "comunas_con_mas_de_un_servicio": int((por_comuna > 1).sum()),
+        "comunas_ambiguas": sorted(por_comuna[por_comuna > 1].index)[:10],
+    })
+    return mapa, reporte
+
+
+def normalizar_listaespera(
+    df: pd.DataFrame, establecimientos: pd.DataFrame | None = None
+) -> tuple[pd.DataFrame, dict]:
+    """Lleva la serie de listas de espera a la grilla canónica `servicio_salud × periodo`.
+
+    Devuelve (silver, reporte).
+
+    **Esta tabla no lleva `comuna_cut`, y es una excepción declarada al contrato de silver**
+    (`docs/02-ARQUITECTURA.md`). Su unidad territorial es el Servicio de Salud, que
+    `docs/03-DICCIONARIO.md` ya reconoce como llave. Bajarla a comuna exige repartir un
+    valor de Servicio entre sus comunas, que es una inferencia ecológica y no una
+    normalización: para eso está `mapa_servicio_comuna`, aparte y explícito.
+
+    Si se pasa `establecimientos`, se comprueba que cada servicio de la serie exista en el
+    maestro de DEIS y se reporta el resultado. No es un join: es una verificación de que las
+    dos fuentes hablan de los mismos 29 servicios.
+    """
+    reporte: dict = {"filas_entrada": len(df)}
+    out = df.copy()
+
+    faltan = [c for c in ("servicio", "periodo") if c not in out.columns]
+    if faltan:
+        raise ReconciliationError(f"[listaespera_minsal] faltan columnas {faltan}")
+
+    out["es_nacional"] = out["servicio"].str.upper().eq("NACIONAL")
+    out["servicio_clave"] = out["servicio"].map(clave_servicio)
+    out.loc[out["es_nacional"], "servicio_clave"] = "NACIONAL"
+
+    if establecimientos is not None:
+        conocidos = {
+            clave_servicio(s)
+            for s in establecimientos["servicio_salud"].dropna().unique()
+            if str(s).lower().startswith(PREFIJO_SERVICIO_SALUD)
+            and str(s).lower() not in SERVICIOS_NO_REALES
+        }
+        de_la_serie = set(out.loc[~out["es_nacional"], "servicio_clave"])
+        huerfanos = sorted(de_la_serie - conocidos)
+        reporte["servicios_sin_maestro"] = huerfanos
+        reporte["servicios_verificados"] = len(de_la_serie & conocidos)
+        if huerfanos:
+            log.warning(
+                "[listaespera_minsal] %d servicios de la serie no están en el maestro de "
+                "DEIS: %s. Suele ser un alias nuevo; agregarlo a ALIAS_SERVICIO_SALUD con "
+                "su test, nunca resolverlo inline.",
+                len(huerfanos), huerfanos[:5],
+            )
+
+    dimensiones = ["servicio_clave", "periodo"]
+    duplicadas = out.duplicated(subset=dimensiones).sum()
+    if duplicadas:
+        raise ReconciliationError(
+            f"[listaespera_minsal] {duplicadas} pares servicio×período duplicados. "
+            f"Un servicio repetido se suma solo al agregar y duplica la lista de espera."
+        )
+
+    prefijos = ("consulta_", "quirurgica_", "ges_")
+    metricas = [c for c in out.columns if c.startswith(prefijos)]
+    columnas = [*dimensiones, "anio", "es_nacional", *metricas]
+    agregado = out[columnas].sort_values(dimensiones).reset_index(drop=True)
+
+    reporte["filas_salida"] = len(agregado)
+    reporte["servicios"] = int(agregado.loc[~agregado["es_nacional"], "servicio_clave"].nunique())
+    reporte["periodos"] = int(agregado["periodo"].nunique())
+    reporte["rango"] = [agregado["periodo"].min(), agregado["periodo"].max()]
+    reporte["cobertura_mediana"] = {
+        c: round(float(agregado[c].notna().mean()), 3)
+        for c in agregado.columns if c.endswith("_mediana")
+    }
+    return agregado, reporte
 
 
 #: Dependencias que administran APS municipal. `fonasa_inscritos` cuenta a los inscritos de

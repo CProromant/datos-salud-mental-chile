@@ -151,3 +151,70 @@ class TestContrato:
     def test_las_columnas_requeridas_existen(self, bronze):
         for col in ListaEsperaMinsal.columnas_requeridas:
             assert col in bronze.columns
+
+
+class TestClaveServicio:
+    """El visualizador y el maestro de DEIS nombran distinto a los mismos 29 servicios."""
+
+    def test_los_nombres_equivalentes_dan_la_misma_clave(self):
+        from obsm.transform.silver import clave_servicio
+        assert clave_servicio("Servicio de Salud Antofagasta") == clave_servicio("ANTOFAGASTA")
+        assert clave_servicio("Servicio de Salud Ñuble") == clave_servicio("NUBLE")
+
+    def test_ohiggins_calza_pese_a_los_dos_apostrofos(self):
+        # El maestro dice «Servicio de Salud Del Libertador B.O'Higgins» con apóstrofo
+        # recto; el visualizador dice «O’HIGGINS» con el tipográfico. Sin el alias, un
+        # Servicio entero queda fuera de la serie sin que nada falle.
+        from obsm.transform.silver import clave_servicio
+        assert clave_servicio("Servicio de Salud Del Libertador B.O'Higgins") == (
+            clave_servicio("O\u2019HIGGINS")
+        )
+
+    def test_una_seremi_no_es_un_servicio_de_salud(self):
+        from obsm.transform.silver import PREFIJO_SERVICIO_SALUD
+        assert not "SEREMI de Salud de Antofagasta".lower().startswith(PREFIJO_SERVICIO_SALUD)
+
+
+class TestSilverListaEspera:
+    @pytest.fixture()
+    def silver(self, bronze):
+        from obsm.transform.silver import normalizar_listaespera
+        return normalizar_listaespera(bronze)
+
+    def test_la_grilla_es_servicio_por_periodo(self, silver):
+        s, rep = silver
+        assert rep["periodos"] == 3
+        assert not s.duplicated(subset=["servicio_clave", "periodo"]).any()
+
+    def test_no_lleva_comuna_cut_y_es_deliberado(self, silver):
+        # Excepción declarada al contrato de silver: la unidad territorial de esta fuente
+        # es el Servicio de Salud. Bajarla a comuna es una inferencia ecológica y para eso
+        # está `mapa_servicio_comuna`, aparte y explícito.
+        s, _ = silver
+        assert "comuna_cut" not in s.columns
+
+    def test_el_nacional_queda_marcado_y_no_se_confunde_con_un_servicio(self, silver):
+        s, rep = silver
+        assert s["es_nacional"].sum() == 3
+        assert rep["servicios"] == 2, "NACIONAL no cuenta como Servicio de Salud"
+
+    def test_declara_la_cobertura_de_cada_mediana(self, silver):
+        _, rep = silver
+        assert set(rep["cobertura_mediana"]) == {
+            "consulta_mediana", "quirurgica_mediana", "ges_mediana"
+        }
+
+    def test_un_servicio_repetido_en_el_mismo_periodo_detiene_todo(self, bronze):
+        from obsm.errors import ReconciliationError
+        from obsm.transform.silver import normalizar_listaespera
+        # Un servicio duplicado se suma solo al agregar y duplica la lista de espera.
+        with pytest.raises(ReconciliationError, match="duplicad"):
+            normalizar_listaespera(pd.concat([bronze, bronze], ignore_index=True))
+
+    def test_avisa_de_un_servicio_que_no_existe_en_el_maestro(self, bronze):
+        from obsm.transform.silver import normalizar_listaespera
+        # El maestro solo conoce Aconcagua; O'Higgins queda huérfano y se reporta.
+        maestro = pd.DataFrame({"servicio_salud": ["Servicio de Salud Aconcagua"]})
+        _, rep = normalizar_listaespera(bronze, establecimientos=maestro)
+        assert rep["servicios_sin_maestro"] == ["DEL_LIBERTADOR_BOHIGGINS"]
+        assert rep["servicios_verificados"] == 1
