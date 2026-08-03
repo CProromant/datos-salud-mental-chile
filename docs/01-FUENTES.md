@@ -365,6 +365,56 @@ reales.
 
 ## E. Denominadores y contexto
 
+### E0. `subdere_cut` — Códigos Únicos Territoriales, el maestro de la DPA
+
+**Verificada el 2026-07-27.** Es la fuente **crítica** del proyecto y llevaba desde Fase 1
+sin ficha propia, mencionada solo de pasada en la sección de licencias.
+
+- **Contiene:** la planilla de códigos y nombres de la División Político-Administrativa:
+  región, provincia y comuna, con los CUT **como texto y con los ceros a la izquierda**.
+- **Por qué es la fuente crítica:** de acá deriva `config/territorio_comunas.csv`, y de ahí
+  la llave `comuna_cut` con la que se une **todo** lo demás. Si este maestro está mal, no
+  falla nada: los joins quedan vacíos y las comunas afectadas aparecen como las más sanas
+  del país. Ver [A-001](05-CALIDAD.md#a-001).
+- **Granularidad:** comuna. **Ancla de reconciliación: 346 comunas en 16 regiones.**
+- **Formato:** XLS. **URL:**
+  `https://www.subdere.gov.cl/sites/default/files/documentos/CUT_2018_v04.xls`
+  — *origen: busqueda_web, verificada con descarga y sha256*. Espejo en `geoportal.cl`.
+- **Versión:** `CUT_2018_v04`, vigente desde el 2018-09-06 — es decir **posterior a la
+  creación de Ñuble**, que es justamente lo que se necesita.
+- **Trampas:**
+  - **Control de vigencia obligatorio: Chillán debe ser `16101`, no `8401`.** Las capas que
+    circulan como «DPA» suelen arrastrar la codificación anterior a 2007 —sin Los Ríos, sin
+    Arica y Parinacota, sin Ñuble— y producen joins vacíos sin un solo error en pantalla.
+    Es un solo dato y detecta ocho años de desfase.
+  - El servidor responde **403 sin user-agent de navegador**.
+- **Licencia:** `sin_declarar`, investigada el 2026-07-27. En `datos.gob.cl` SUBDERE publica
+  CC-NC dos datasets de DPA, pero ambos son **cartografía** (shapefiles con geometrías).
+  Esta planilla es otra cosa: códigos, nombres y provincias, sin una sola coordenada. Un
+  listado de códigos administrativos oficiales es un hecho establecido por acto
+  administrativo, no una obra —la Ley 17.336 excluye los hechos y los textos oficiales del
+  Estado, y Chile no tiene derecho *sui generis* de bases de datos—.
+
+### E0b. `ine_vitales_anuario` — Anuario de Estadísticas Vitales (ancla)
+
+**Verificada el 2026-07-27. No es una fuente del pipeline**, y por eso no tenía ficha: de
+acá salen **dos cifras** que se usan para comprobar el conteo propio, y el documento no se
+redistribuye.
+
+- **Uso:** ancla de reconciliación en año calendario para `deis_defunciones`. Cifras
+  oficiales leídas del PDF (p. 38): **2023 = 122.218** y **2020 = 126.169** defunciones.
+  Ambas coinciden **exacto** con el conteo del archivo de causas, no dentro de tolerancia.
+- **Formato:** PDF. **URL:** anuario 2023 en `ine.gob.cl`, verificada con sha256.
+- **Trampa de lectura:** la Tabla 3 (p. 45) dice 122.**217** porque desagrega por grupo de
+  edad y excluye un registro sin edad; y 63.710 hombres + 58.495 mujeres = 122.205, con 12
+  de sexo no asignado. **La cifra comparable es la de titular, 122.218**, y confundirlas
+  hace fallar un ancla que en realidad cuadra.
+- **Licencia:** declarada CC BY-NC 2.0, **en contradicción** con los términos generales
+  CC BY-SA 4.0 del mismo organismo. Sin resolver. Mientras siga abierta se trata la
+  condición más restrictiva como la vigente para este documento. No contamina la salida del
+  proyecto porque `alimenta_gold: false` y solo se toman dos cifras: un dato aislado no es
+  una obra. Si alguna vez se ingiere de verdad, hay que reabrir [ADR 0005](adr/0005-licencia-datos-sharealike.md).
+
 ### E1. `ine_proyecciones` — Proyecciones de población por comuna, sexo y edad
 
 - **Uso:** denominador de toda tasa. **Dependencia crítica.**
@@ -440,6 +490,40 @@ reales.
   año**, sin error y sin aviso: 345 filas perfectamente plausibles y 24 años perdidos.
 - **Licencia:** `sin_declarar`. SINIM no publica términos de uso explícitos; pendiente de
   aclarar antes de redistribuir el dato derivado.
+
+### E2b. `fonasa_padron_aps` — Padrón de inscritos en APS por establecimiento
+
+**Verificada el 2026-07-29.** Estaba en el catálogo y en uso desde Fase 2 **sin ficha acá**,
+que es un incumplimiento del flujo de `CLAUDE.md` §7: la ficha va primero. Se escribe ahora
+con lo ya verificado.
+
+- **Contiene:** inscritos en atención primaria por establecimiento × tramo (A/B/C/D) × grupo
+  etario × sexo. 243.520 filas para septiembre de 2022, 1.889 establecimientos, 23 grupos
+  etarios. Total nacional 13.585.016.
+- **Granularidad:** establecimiento; agregable a comuna. Las 321 comunas presentes resuelven
+  contra la DPA **sin una sola excepción por nombre**.
+- **Cobertura temporal:** 2019, 2020, 2021 y 2022. **No llega más allá de 2022**, y por eso
+  para 2023-2025 el único denominador disponible sigue siendo `fonasa_inscritos` (SINIM).
+- **Formato:** ZIP con CSV, 41 MB descomprimido, encoding latin-1, campos entre comillas.
+- **URL:** `https://www.fonasa.gob.cl/wp-content/uploads/2024/09/Inscritos-APS-2022.zip`
+  — *origen: verificada_en_sesion*. Índice en `nuevo.fonasa.gob.cl/beneficiarios-y-prestaciones/`.
+  **No** está en `datosabiertos.fonasa.cl`: ese portal es un WordPress con un plugin de
+  gráficos y sin archivos. Concluir que el dato no existía por no encontrarlo ahí fue un
+  error de sesión; vive en el sitio institucional.
+- **Los nombres de archivo no siguen un patrón** (`Resultados-Inscritos-201908.zip`,
+  `Poblacion-Inscrita-EAPS-a-Sep-2021.zip`): hay que tomarlos del índice, no construirlos.
+- **Licencia:** `sin_declarar`.
+- **Trampas:**
+  - **El límite central, y es el mismo de `fonasa_inscritos`:** cubre la APS **municipal**
+    (13.446.800) y «Otra Institución» (138.216), pero **no** los establecimientos
+    dependientes del Servicio de Salud. Faltan 24 comunas completas y en otras el padrón es
+    parcial —Quirihue aparece con 11 inscritos porque su único establecimiento municipal es
+    una posta rural—. Esto es lo que explica [A-015](05-CALIDAD.md#a-015) y lo que reduce la
+    cobertura calculable a 185 de 345 comunas.
+  - `TRAMO` incluye una categoría `X` (787.606 personas) **cuyo significado no se ha
+    verificado**. No usarla como tramo socioeconómico sin aclararlo.
+- **Uso:** fue lo que permitió entender el desajuste de universos de A-015 y decidir en qué
+  comunas la cobertura de I-03 significa algo. No alimenta `gold` como denominador directo.
 
 ### E3. `encavi` — Encuesta Nacional de Calidad de Vida y Salud 2023-2024
 

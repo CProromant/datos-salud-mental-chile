@@ -308,10 +308,10 @@ evidencia de la imposibilidad, y decirlo en la ficha.
 
 | métrica | valor | al 2026-07-27 |
 |---|---|---|
-| fuentes verificadas con descarga real | 12 de 19 | 4 de 17 |
+| fuentes verificadas con descarga real | 12 de 20 | 4 de 17 |
 | indicadores activos con ficha y verificación externa | 3 (I-01, I-02, I-03) | 2 |
 | anclas de reconciliación automáticas | 5, todas cuadrando | 5 |
-| anomalías documentadas con reproducción y decisión | 23 | 9 |
+| anomalías documentadas con reproducción y decisión | 24 | 9 |
 | tests | 556 | 323 |
 | fallos silenciosos detectados **antes** de producción | 8, cada uno con su test | 5 |
 

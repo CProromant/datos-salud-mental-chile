@@ -1,12 +1,18 @@
 # Dataset: cobertura del programa de salud mental en APS, Chile 2014–2025
 
 Este documento acompaña a `cobertura_salud_mental_aps.csv`. Léelo antes de usar el archivo:
-**la mitad de sus filas no traen cobertura a propósito**, y saber por qué es la diferencia
+**casi dos tercios de sus filas no traen cobertura a propósito** (63,6 %), y saber por qué es la diferencia
 entre usarlo bien y publicar un número sin sentido.
 
 - **Versión del dataset:** `2026.07.2` — el código que lo produjo es `v0.2.0`
 - **Licencia:** CC BY-SA 4.0 — ver `LICENSE-DATA.md`. Permite uso comercial.
-- **Cobertura:** 345 comunas × 24 cortes semestrales (2014-06 a 2025-12) × 70 conceptos.
+- **Cobertura:** 228.572 filas. La grilla es de 345 comunas × 24 cortes semestrales
+  (2014-06 a 2025-12) × 70 conceptos, pero **no está completa**: solo existe la fila cuando
+  el REM reportó ese concepto en esa comuna y ese corte. Multiplicar las tres dimensiones da
+  579.600, que es dos veces y media el archivo real.
+- **Comunas con cobertura calculable: 185 de las 345.** Las otras 160 aparecen en el archivo
+  —con su numerador— pero con `cobertura_por_mil` vacío, porque su denominador no es
+  comparable. Es el límite central de este dataset y está explicado más abajo.
 - **Fuentes:** REM Serie P sección P6 (DEIS/MINSAL) como numerador; población inscrita
   validada en salud municipal (FONASA, vía SINIM/SUBDERE) como denominador; maestro de
   establecimientos (DEIS, CC0) para decidir dónde la división es válida.

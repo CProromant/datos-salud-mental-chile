@@ -160,13 +160,16 @@ diagnóstico.
 Formato de entrada:
 
 ```
-### A-001 · <fuente> · <fecha de detección> {#a-001}
+### A-0NN · <fuente> · <fecha de detección> {#a-0nn}
 Qué se observó:
 Reproducción: (comando)
 Hipótesis:
 Verificación:
 Decisión: [conservar | marcar | excluir con nota]
 ```
+
+El identificador es correlativo y **no se reutiliza**, ni siquiera si la anomalía resulta
+descartada: las referencias a un `A-0NN` viven en commits, tests y fichas ya publicadas.
 
 ### A-001 · capas cartográficas de comunas · 2026-07-27 {#a-001}
 
@@ -238,6 +241,17 @@ filas del período, tanto en `DIAG1` como en `DIAG2`. Hasta resolverlo, **la ser
 suicidio no puede empezar antes de 1997**. Una versión anterior de este documento afirmaba
 que `E950` se publicaba como `9509`: era una conjetura no verificada y se retiró.
 
+### A-003 · deis_defunciones · 2026-07-27 {#a-003}
+
+**Qué se observó:** `COD_COMUNA` trae 4 caracteres en 1.551.470 filas y 5 en 1.630.976.
+
+**Verificación:** las de 4 corresponden a las regiones 01–09, que perdieron el cero a la
+izquierda (`8304` por `08304`, Laja). Es el problema que `CLAUDE.md §5` anticipa.
+
+**Decisión:** conservar tal cual en `bronze`; `silver` está obligado a pasarlo por
+`territorio.formatear_cut_comuna`. Hay un test que verifica que el problema siga presente
+en el fixture, para que nadie «arregle» la fuente por el lado equivocado.
+
 ### A-004 · deis_defunciones · 2026-07-27 {#a-004}
 
 **Qué se observó:** el código de suicidio no está en la columna de causa básica.
@@ -271,17 +285,6 @@ básica con `DIAG2` vacío) leen ambos la columna correcta. La procedencia queda
 **Control heredado:** `test_el_agrupador_de_suicidio_no_devuelve_cero` corre el fixture de
 estructura real de punta a punta por `silver` y exige un conteo distinto de cero. Ningún
 indicador de mortalidad por causa externa debe darse por bueno sin un test que cuente.
-
-### A-003 · deis_defunciones · 2026-07-27 {#a-003}
-
-**Qué se observó:** `COD_COMUNA` trae 4 caracteres en 1.551.470 filas y 5 en 1.630.976.
-
-**Verificación:** las de 4 corresponden a las regiones 01–09, que perdieron el cero a la
-izquierda (`8304` por `08304`, Laja). Es el problema que `CLAUDE.md §5` anticipa.
-
-**Decisión:** conservar tal cual en `bronze`; `silver` está obligado a pasarlo por
-`territorio.formatear_cut_comuna`. Hay un test que verifica que el problema siga presente
-en el fixture, para que nadie «arregle» la fuente por el lado equivocado.
 
 ### A-005 · reconciliación · 2026-07-27 {#a-005}
 
@@ -1050,6 +1053,43 @@ sin poder ingerirse.
 **Hallazgo colateral:** el archivo de **2015 ya trae región 16 (Ñuble)**, creada en 2018.
 DEIS re-codificó hacia atrás, que es lo contrario de lo que advierte `CLAUDE.md` §5 para
 series históricas. No se parchó: el join va por CUT comunal, que es estable.
+
+### A-024 · glosa06 · 2026-08-03 {#a-024}
+
+**Qué se observó:** en `espera_por_especialidad.csv`, la psiquiatría adulta aparece bajo
+**dos valores distintos** de `especialidad_norm`, uno por trimestre:
+
+| Período | `especialidad_fuente` | `especialidad_norm` | `etiqueta` | registros |
+|---|---|---|---|---|
+| 2025-09 | `PSIQUIATRÍA ADULTO` | `PSIQUIATRIA ADULTO` | `Psiquiatría adulta` | 22.963 |
+| 2026-03 | `Psiquiatría adulta` | `PSIQUIATRIA ADULT**A**` | `Psiquiatría adulta` | 23.134 |
+
+**Por qué pasa:** `especialidad_norm` hace lo que promete —quita tildes y unifica
+mayúsculas— pero eso no reconcilia que la fuente **le cambió el nombre a la especialidad**
+entre un informe y el siguiente, de «adulto» a «adulta». Son dos cosas distintas:
+normalizar texto y reconciliar renombres.
+
+**Por qué importa:** la ficha del dataset decía «`especialidad_norm`: úsala para filtrar y
+unir». Quien siguiera esa instrucción para seguir la espera de psiquiatría adulta en el
+tiempo obtendría **una serie partida en dos claves, con un punto cada una**, y ningún error
+en pantalla. Es exactamente el modo de falla que el proyecto persigue: el resultado se ve
+normal.
+
+**Verificación:** de las 75 especialidades del archivo, 53 aparecen en los dos trimestres y
+22 en uno solo (2×53 + 22 = 128 filas). Parte de esas 22 son renombres como este, no
+especialidades que aparezcan o desaparezcan de la lista de espera.
+
+**Decisión:** no se toca el dato ni el normalizador. `especialidad_norm` es una
+transformación reproducible del texto de origen y cambiarla alteraría una serie ya
+publicada, lo que `docs/07` sujeta a versión nueva. Lo que se corrige es **la instrucción**:
+para cruzar períodos hay que usar `etiqueta`, que sí es el nombre canónico y vale
+`Psiquiatría adulta` en los dos trimestres. La ficha quedó corregida y la advertencia es
+explícita.
+
+**Pendiente:** `etiqueta` solo está poblada para las especialidades de salud mental, que es
+para lo que se creó. Para cualquier otra especialidad **el cruce entre trimestres sigue sin
+una llave estable**, y eso limita el archivo para usos fuera del alcance del proyecto. Si
+alguna vez se publica para uso general, hay que resolverlo antes.
 
 ## Pendientes de verificación heredados del andamiaje
 

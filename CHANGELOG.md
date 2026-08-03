@@ -4,9 +4,58 @@ Formato: [Keep a Changelog]. Versionado de datos `AAAA.MM.N`, de código SemVer.
 Un cambio metodológico que altere series ya publicadas exige versión mayor y mantener
 disponible la versión anterior.
 
+## [No publicado]
+
+### Agregado
+- **`deis_egresos`** — egresos hospitalarios, 2001-2024, verificado sobre siete archivos
+  anuales completos. En 2023: 37.773 hospitalizaciones por trastorno mental y 7.683 egresos
+  por lesión autoinfligida, que es el tramo entre las ~9.900 personas en control por intento
+  suicida en APS y las ~2.000 muertes por suicidio al año. La URL no está enlazada de forma
+  raspable —el índice de DEIS es un Ninja Tables por AJAX—: el patrón se recuperó del índice
+  CDX de Wayback y después se comprobó contra el servidor real, año por año.
+- **A-004 se repite exacta en egresos:** la lesión autoinfligida vive en `DIAG2`, no en
+  `DIAG1`. Cero códigos X60-X84 en el diagnóstico principal, en los siete años.
+
+### Anomalías nuevas
+- **A-021:** el archivo 2024 de DEIS trae 1.199.605 caracteres irrecuperables. Es UTF-8
+  válido pero convertido desde latin-1 con reemplazo: `Ñuñoa` llega como `?u?oa`. No se
+  repara —adivinar la letra sería inventar el dato— y solo daña glosas.
+- **A-022:** el `*` es supresión de DEIS, no dato faltante, y saltó de 2,6 % (2019) a 7,9 %
+  (2023). También enmascara `ANO_EGRESO`, así que un `groupby` por año descartaba el 8 % de
+  2023 en silencio. Se imputa declarándolo en `anio_imputado`.
+- **A-023:** 2021 está publicado con otro codebook (sexo numérico, 22 tramos quinquenales
+  contra 12 decenales), y no son colapsables arriba de 79 años.
+
+### Corregido
+- **La versión del código estaba congelada en `0.2.0`.** Se etiquetó y publicó `v0.3.0` sin
+  incrementarla, así que los trece archivos de ese release llevan
+  `pipeline_version = "0.2.0"`, el mismo valor que los de `v0.2.0`: quien tenga uno de esos
+  CSV no puede saber cuál de los dos releases lo produjo. Contradice `CLAUDE.md` §2.2 y
+  `docs/07`. **Los archivos publicados no se reescriben** —serían datos distintos de los que
+  la gente ya descargó— y el caso queda declarado acá y en las fichas. El código pasa a
+  `0.3.0` y `tests/test_version.py` impide que se repita: exige que `pyproject.toml`,
+  `__version__`, `PIPELINE_VERSION` y la última versión publicada del CHANGELOG coincidan.
+- **El bloque «El denominador (cierre de Fase 2)» estaba rotulado `[No publicado]`** estando
+  debajo de `[0.3.0]`, cuando su contenido —`fonasa_inscritos`, `deis_establecimientos`,
+  I-03— es exactamente lo que sostiene `cobertura_salud_mental_aps.csv`, una de las series
+  de ese release. Pasa a ser lo que siempre fue: parte de 0.3.0. Hay un test que ahora
+  prohíbe que una sección no publicada quede debajo de una publicada.
+- Fichas de dataset: la de cobertura decía «la mitad de sus filas» sin valor cuando son
+  **casi dos tercios** (63,6 %), y no distinguía las 345 comunas de la grilla de las **185**
+  que llegan a tener un valor. Ver la corrección en cada ficha.
+- `docs/05-CALIDAD.md`: A-004 estaba listada antes que A-003, y la plantilla de ejemplo
+  usaba el id `A-001`, el mismo de una anomalía real.
+- `ine_ipc`: seis vías de acceso comprobadas y cerradas, documentadas en `docs/01`. Sigue
+  `no_verificada` y sin URL inventada en el catálogo.
+
 ## [0.3.0] — 2026-08-02 — Tres series nuevas: cobertura, espera y psiquiatría
 
 **Publicado.** Trece archivos, 106 MB. Descargas verificadas contra `SHA256SUMS.txt`.
+
+> **Procedencia de este release.** Sus archivos llevan `pipeline_version = "0.2.0"`: la
+> versión del código no se incrementó al etiquetar. El número no distingue este release del
+> anterior; para identificarlos sirve `fecha_calculo`, que en estos archivos es del
+> 2026-08-02. Corregido a partir de la versión siguiente.
 
 Cinco series ahora. Las tres nuevas:
 
@@ -28,7 +77,7 @@ Cinco series ahora. Las tres nuevas:
 ### Lo que no cambia
 Las dos series ya publicadas se regeneran idénticas. Este release agrega, no reemplaza.
 
-## [No publicado] — El denominador (cierre de Fase 2)
+### El denominador (cierre de Fase 2)
 
 Lo que faltaba para que los conteos del REM significaran algo: **cuánta gente hay inscrita
 en la atención primaria de cada comuna**. Tres fuentes nuevas y el indicador I-03.

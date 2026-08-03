@@ -5,7 +5,10 @@ es nacional** y **la serie tiene solo los trimestres cuyo PDF se pudo conseguir*
 
 - **Versión del dataset:** `2026.07.4` — el código que lo produjo es `v0.2.0`
 - **Licencia:** CC BY-SA 4.0 — ver `LICENSE-DATA.md`.
-- **Cobertura:** 75 especialidades × 2 trimestres (2025-09 y 2026-03). 128 filas.
+- **Cobertura:** 128 filas, sobre 75 especialidades × 2 trimestres (2025-09 y 2026-03).
+  No son 150: **las dos tablas no traen las mismas especialidades**, así que solo 53 de
+  las 75 aparecen en ambos trimestres. Comparar entre trimestres exige verificar que la
+  especialidad exista en los dos; psiquiatría adulta e infanto-adolescente sí están.
 - **Fuente:** informe trimestral de la Glosa 06, Ley de Presupuestos, Partida 16.
   MINSAL, Subsecretaría de Redes Asistenciales.
 
@@ -25,14 +28,33 @@ dentro de un PDF de 55 páginas que se publica cada tres meses.
 |---|---|
 | `periodo` | Trimestre en ISO, con el **mes de cierre**: `2025-09` es el corte al 30 de septiembre. |
 | `especialidad_fuente` | La especialidad tal como la escribe el informe. |
-| `especialidad_norm` | Normalizada. **Úsala para filtrar y unir**, no la anterior. |
-| `etiqueta` | Nombre canónico, solo para las de salud mental. |
+| `especialidad_norm` | El mismo texto sin tildes y en mayúsculas. Sirve para filtrar **dentro de un trimestre**; **no sirve para cruzar trimestres** (ver abajo). |
+| `etiqueta` | Nombre canónico. **Esta es la llave para seguir una especialidad en el tiempo.** Solo está poblada para las de salud mental. |
 | `es_salud_mental` | `True` en psiquiatría adulta e infanto-adolescente. |
 | `registros` | Interconsultas en espera. **Vacío si fue suprimido.** |
 | `unidad_territorial` | Siempre `nacional`. |
 | `source_id`, `source_version`, `pipeline_version`, `fecha_calculo` | Procedencia. |
 
 ## Cómo leerlo sin equivocarse
+
+### 0. Para cruzar trimestres usa `etiqueta`, no `especialidad_norm`
+
+**La fuente le cambia el nombre a las especialidades entre un informe y el siguiente.** La
+psiquiatría adulta es el caso exacto:
+
+| Período | `especialidad_fuente` | `especialidad_norm` | `etiqueta` |
+|---|---|---|---|
+| 2025-09 | `PSIQUIATRÍA ADULTO` | `PSIQUIATRIA ADULTO` | `Psiquiatría adulta` |
+| 2026-03 | `Psiquiatría adulta` | `PSIQUIATRIA ADULTA` | `Psiquiatría adulta` |
+
+`especialidad_norm` quita tildes y unifica mayúsculas, pero **eso no reconcilia un
+renombre**. Filtrar por ella para seguir la serie devuelve dos claves con un punto cada una
+—una serie partida, sin ningún error en pantalla—. `etiqueta` sí es estable.
+
+De las 75 especialidades del archivo, 53 aparecen en los dos trimestres y 22 en uno solo; y
+parte de esas 22 son renombres como este, no especialidades que entren o salgan de la lista.
+`etiqueta` está poblada **solo para las de salud mental**, que es para lo que se creó: para
+el resto no hay hoy una llave estable entre trimestres. Ver [A-024](05-CALIDAD.md#a-024).
 
 ### 1. La cifra es nacional, y no hay forma de bajarla a territorio
 

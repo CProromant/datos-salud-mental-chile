@@ -345,6 +345,28 @@ fuentes:
       comuna, ahora en una ruta HTTP.
       SIN sha256: los archivos se actualizan cada trimestre.
 
+  - id: ges_decreto
+    nombre: "Decreto GES vigente y garantías de oportunidad"
+    organismo: "MINSAL / Superintendencia de Salud"
+    dominio: "minsal.cl"
+    # Tenía ficha en docs/01-FUENTES.md (C2) desde Fase 0 y NO estaba en el catálogo, que es
+    # la fuente de verdad (CLAUDE.md §3). Se agrega para cerrar el hueco, sin URL: ninguna
+    # se ha comprobado y §2.1 prohíbe escribir una que no se verificó.
+    origen_url: por_confirmar
+    estado: no_verificada
+    formato: pdf
+    granularidad: problema_de_salud
+    unidad_territorial: nacional
+    periodicidad: cuatrienal
+    prioridad: 3
+    fase: 5
+    notas: >-
+      Define qué está garantizado y con qué plazo: depresión, esquizofrenia de primer
+      episodio, trastorno bipolar, consumo problemático en menores, y desde el decreto
+      2025-2028 el tratamiento hospitalario de menores de 15 años con depresión grave y
+      riesgo suicida. Su valor para el proyecto es el complemento: qué queda fuera.
+      Es normativa en PDF, no una serie de datos; no alimenta `gold` directamente.
+
   - id: prestadores_individuales
     nombre: "Registro Nacional de Prestadores Individuales"
     organismo: "Superintendencia de Salud"

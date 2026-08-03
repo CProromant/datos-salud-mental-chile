@@ -312,17 +312,71 @@ class TestCifrasDeLaDocumentacion:
         m = re.search(rf"\|\s*{etiqueta}[^|]*\|\s*([\d.]+)", texto, re.I)
         return int(m.group(1).replace(".", "")) if m else None
 
-    def test_el_numero_de_anomalias_es_el_real(self):
+    @staticmethod
+    def _ids_de_anomalias() -> list[str]:
+        """Ids de las anomalías reales, **saltando los bloques de código**.
+
+        El salto no es cosmético: el documento trae una plantilla de ejemplo dentro de un
+        bloque cerrado con backticks, que un regex ingenuo cuenta como una anomalía más.
+        Durante un tiempo ese conteo dio el número correcto solo porque la plantilla usaba
+        el id de una anomalía real y `set()` lo colapsaba —dos errores que se tapaban.
+        """
+        import pathlib
         import re
+
+        raiz = pathlib.Path(__file__).resolve().parents[1]
+        texto = (raiz / "docs" / "05-CALIDAD.md").read_text(encoding="utf-8")
+        sin_bloques = re.sub(r"```.*?```", "", texto, flags=re.S)
+        return re.findall(r"^### (A-\d+)", sin_bloques, re.M)
+
+    def test_el_numero_de_anomalias_es_el_real(self):
         raiz = self._raiz()
-        calidad = (raiz / "docs" / "05-CALIDAD.md").read_text(encoding="utf-8")
-        reales = len(set(re.findall(r"^### (A-\d+)", calidad, re.M)))
+        reales = len(set(self._ids_de_anomalias()))
         for doc in ("README.md", "PLAN.md"):
             texto = (raiz / doc).read_text(encoding="utf-8")
             declarado = self._declarado(texto, "[Aa]nomalías documentadas")
             assert declarado == reales, (
                 f"{doc} declara {declarado} anomalías y docs/05-CALIDAD.md tiene {reales}"
             )
+
+    def test_cada_fuente_del_catalogo_tiene_ficha_propia(self):
+        """`CLAUDE.md` §7 pone la ficha como paso 1 de agregar una fuente.
+
+        Se saltó tres veces: `fonasa_padron_aps` se usó desde Fase 2 sin ficha, y
+        `subdere_cut` —el maestro territorial, la fuente marcada `critico: true`— llevaba
+        desde Fase 1 mencionado solo de pasada. Una fuente sin ficha es una fuente cuyas
+        trampas viven únicamente en los comentarios del YAML.
+        """
+        import re
+
+        import yaml
+
+        raiz = self._raiz()
+        cat = yaml.safe_load((raiz / "config" / "sources.yml").read_text(encoding="utf-8"))
+        ids = {f["id"] for f in cat["fuentes"]}
+        texto = (raiz / "docs" / "01-FUENTES.md").read_text(encoding="utf-8")
+        con_ficha = set(re.findall(r"^### [A-Z]\d+[a-z]?\. `([a-z0-9_]+)`", texto, re.M))
+        assert not (ids - con_ficha), (
+            f"fuentes en el catálogo sin ficha propia en docs/01-FUENTES.md: "
+            f"{sorted(ids - con_ficha)}"
+        )
+        assert not (con_ficha - ids), (
+            f"fichas en docs/01-FUENTES.md sin entrada en el catálogo, que es la fuente de "
+            f"verdad (CLAUDE.md §3): {sorted(con_ficha - ids)}"
+        )
+
+    def test_ningun_id_de_anomalia_esta_repetido(self):
+        """Dos anomalías con el mismo id dejan ambiguas las referencias desde tests y fichas."""
+        ids = self._ids_de_anomalias()
+        repetidos = sorted({i for i in ids if ids.count(i) > 1})
+        assert not repetidos, f"ids de anomalía repetidos en docs/05-CALIDAD.md: {repetidos}"
+
+    def test_las_anomalias_van_en_orden(self):
+        """Un registro que se lee de arriba abajo tiene que estar ordenado para servir."""
+        ids = self._ids_de_anomalias()
+        assert ids == sorted(ids), (
+            f"docs/05-CALIDAD.md no está en orden correlativo. Orden actual: {ids}"
+        )
 
     def test_el_numero_de_fuentes_verificadas_es_el_real(self):
         import re
