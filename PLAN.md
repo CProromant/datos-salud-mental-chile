@@ -278,10 +278,37 @@ evidencia de la imposibilidad, y decirlo en la ficha.
 
 1. **Un dueño institucional** que use y defienda la herramienta (centro académico, sociedad
    científica, Defensoría de la Niñez, un Servicio de Salud). Sin esto el proyecto muere en
-   el mes seis. Conseguirlo es tarea de la Fase 1, en paralelo al código.
+   el mes seis.
+
+   > **Corregido el 2026-08-03: no es tarea de la Fase 1.** El plan decía «conseguirlo es
+   > tarea de la Fase 1, en paralelo al código» y eso resultó irreal. Un proyecto sin serie
+   > propia que mostrar no puede pedirle a una sociedad científica que ponga su nombre, y
+   > una revisión clínica solicitada en frío, sin respaldo, tiene pocas probabilidades. El
+   > orden correcto es el inverso: **primero la evidencia de que la herramienta sirve,
+   > después el respaldo.**
+   >
+   > Para que «todavía no» no se convierta en «nunca» por deriva, el gatillo queda escrito.
+   > Se sale a buscar dueño institucional cuando se cumplan las tres:
+   >
+   > - [ ] **Seis series publicadas y descargables**, con ficha cada una. Van cinco; I-11
+   >       (egresos por trastorno mental) es la sexta y no tiene bloqueo ético.
+   > - [ ] **Un hallazgo citable que nadie más publique.** Ya hay dos candidatos medidos:
+   >       el gasto en salud mental es el **0,05 %** identificable de la partida 16, y
+   >       **ninguna fuente pública cruza especialidad con territorio** pese a que la
+   >       Glosa 06 lo obliga.
+   > - [ ] **Respuesta a las solicitudes de Transparencia** (vencen el 2026-08-31). Llegar
+   >       con las licencias resueltas, o con la negativa documentada, es parte del caso.
+   >
+   > Cumplidas las tres, la conversación deja de ser «ayúdenme a construir esto» y pasa a
+   > ser «esto ya existe y funciona; úsenlo». Es una posición distinta para pedir.
+
 2. **Un revisor con competencia epidemiológica** para las fichas de indicador.
 3. **Un revisor con competencia en salud mental y prevención de suicidio** para todo lo que
-   se publique sobre suicidio.
+   se publique sobre suicidio. **Bloquea I-05 e I-12**, que están implementados y detenidos
+   solo por esto. `docs/09` impide que lo resuelva quien construye los indicadores, así que
+   no hay atajo propio: llega con el dueño institucional o con alguien dispuesto a revisar
+   dos fichas acotadas. Mientras tanto las dos series quedan escritas, probadas y sin salir,
+   que es el estado correcto y no una deuda.
 4. **Las licencias de las fuentes.** Resuelto para el INE el 2026-07-27: publica bajo
    CC BY-SA 4.0, y como sus proyecciones son el denominador de toda tasa, su cláusula
    CompartirIgual obliga al derivado. El proyecto adoptó CC BY-SA 4.0 para `gold`
