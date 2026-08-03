@@ -79,9 +79,11 @@ def _unir_en_ventana(
     # traiga y la DPA no reconozca. El join es sobre la población, así que esos casos
     # desaparecen sin dejar rastro. Publicar un total que no cuadra con el de la fuente y
     # no decir por qué es la forma más barata de perder la confianza en toda la serie.
-    en_ventana = conteos[conteos["anio"].between(*recorte["anios_efectivos"])] if (
-        recorte.get("anios_efectivos")
-    ) else conteos
+    en_ventana = (
+        conteos[conteos["anio"].between(*recorte["anios_efectivos"])]
+        if (recorte.get("anios_efectivos"))
+        else conteos
+    )
     perdidos = int(en_ventana["casos"].sum()) - int(df["casos"].sum())
     recorte["casos_sin_denominador"] = perdidos
     if perdidos:
@@ -127,13 +129,15 @@ def estandarizar_por_edad(
         r = tasa_estandarizada_directa(casos_idx, idx, poblacion_estandar=estandar, por=por)
         valores = clave if isinstance(clave, tuple) else (clave,)
         fila = dict(zip(dimensiones, valores, strict=True))
-        fila.update({
-            "tasa_estandarizada": r["tasa_estandarizada"],
-            "ee_estandarizada": r["error_estandar"],
-            "ic95_inferior": r["ic95_inferior"],
-            "ic95_superior": r["ic95_superior"],
-            "grupos_edad_descartados": len(r["grupos_descartados"]),
-        })
+        fila.update(
+            {
+                "tasa_estandarizada": r["tasa_estandarizada"],
+                "ee_estandarizada": r["error_estandar"],
+                "ic95_inferior": r["ic95_inferior"],
+                "ic95_superior": r["ic95_superior"],
+                "grupos_edad_descartados": len(r["grupos_descartados"]),
+            }
+        )
         filas.append(fila)
     return pd.DataFrame(filas)
 
@@ -183,7 +187,9 @@ def tasas_comunales(
     # estructura etaria; si el agregado ya viene colapsado, no hay nada que estandarizar
     # y se dice en el reporte en vez de devolver una columna vacía sin explicación.
     puede_estandarizar = (
-        estandarizar and "grupo_edad" in agregado.columns and "grupo_edad" in poblacion.columns
+        estandarizar
+        and "grupo_edad" in agregado.columns
+        and "grupo_edad" in poblacion.columns
         and "grupo_edad" not in dimensiones
     )
     if puede_estandarizar:
@@ -203,8 +209,10 @@ def tasas_comunales(
     # El suavizado se calcula DENTRO de cada grupo temporal, no sobre el panel completo.
     # Mezclar años haría que la media hacia la que se encoge una comuna incluya sus
     # propios años vecinos, lo que aplana tendencias reales.
-    grupo_suav = grupo_suavizado if grupo_suavizado is not None else (
-        ["anio"] if "anio" in dimensiones else []
+    grupo_suav = (
+        grupo_suavizado
+        if grupo_suavizado is not None
+        else (["anio"] if "anio" in dimensiones else [])
     )
     df["tasa_suavizada_eb"] = pd.NA
     df["peso_local_eb"] = pd.NA
@@ -221,9 +229,7 @@ def tasas_comunales(
                 "varianza_entre_areas": eb["varianza_entre_areas"],
             }
     else:
-        eb = suavizado_eb_poisson_gamma(
-            df["casos"].astype("float64"), df["poblacion"], por=por
-        )
+        eb = suavizado_eb_poisson_gamma(df["casos"].astype("float64"), df["poblacion"], por=por)
         df["tasa_suavizada_eb"] = eb["tasa_suavizada"]
         df["peso_local_eb"] = eb["peso_local"]
         resumen_eb["global"] = {
@@ -252,8 +258,12 @@ def tasas_comunales(
     #   - `avpp`, que es peor: con un solo caso revela la EDAD EXACTA del fallecido,
     #     porque el aporte es 80 − edad. Es el dato más identificable de toda la salida.
     derivadas = [
-        "tasa_cruda", "tasa_estandarizada", "ee_estandarizada",
-        "ic95_inferior", "ic95_superior", "avpp",
+        "tasa_cruda",
+        "tasa_estandarizada",
+        "ee_estandarizada",
+        "ic95_inferior",
+        "ic95_superior",
+        "avpp",
     ]
     for col in derivadas:
         if col in publicable.columns:
@@ -325,7 +335,8 @@ def tabla_rem(
     # propio hace que la decisión sea reproducible y no dependa de quién la tomó.
     if "etiqueta_norm" in dimensiones and "etiqueta" in sub.columns:
         canonica = (
-            sub.groupby(["etiqueta_norm", "etiqueta"]).size()
+            sub.groupby(["etiqueta_norm", "etiqueta"])
+            .size()
             .reset_index(name="n")
             .sort_values(["etiqueta_norm", "n"], ascending=[True, False])
             .drop_duplicates("etiqueta_norm")
@@ -333,7 +344,8 @@ def tabla_rem(
         )
         df.insert(
             list(df.columns).index("etiqueta_norm"),
-            "etiqueta", df["etiqueta_norm"].map(canonica),
+            "etiqueta",
+            df["etiqueta_norm"].map(canonica),
         )
 
     df["source_id"] = source_id
@@ -465,8 +477,10 @@ def tabla_cobertura(
     # resultado es el mismo, no se puede dividir.
     marcado = pd.Series(False, index=df.index)
     for col in (
-        "total_menor_que_tramos", "denominador_implausible",
-        "denominador_refutado", "comuna_refutada",
+        "total_menor_que_tramos",
+        "denominador_implausible",
+        "denominador_refutado",
+        "comuna_refutada",
     ):
         if col in df.columns:
             marcado |= df[col].fillna(False).astype(bool)
@@ -494,15 +508,13 @@ def tabla_cobertura(
 
     # El corte es de significado, no estadístico: si la mayoría de los habitantes de la
     # comuna no está en el padrón, el padrón no es el denominador de esa comuna.
-    padron_minoritario = df["padron_sobre_poblacion"].notna() & df[
-        "padron_sobre_poblacion"
-    ].lt(FRACCION_PADRON_MAYORITARIO)
+    padron_minoritario = df["padron_sobre_poblacion"].notna() & df["padron_sobre_poblacion"].lt(
+        FRACCION_PADRON_MAYORITARIO
+    )
 
     frac = df["fraccion_municipal"]
     df["denominador"] = DENOMINADOR_PARCIAL
-    df.loc[frac.eq(1) & ~sin_dato & ~padron_minoritario, "denominador"] = (
-        DENOMINADOR_COMPLETO
-    )
+    df.loc[frac.eq(1) & ~sin_dato & ~padron_minoritario, "denominador"] = DENOMINADOR_COMPLETO
     df.loc[sin_dato | frac.isna() | frac.eq(0), "denominador"] = DENOMINADOR_AUSENTE
 
     calculable = df["denominador"].eq(DENOMINADOR_COMPLETO) & df["personas"].notna()
@@ -522,9 +534,7 @@ def tabla_cobertura(
     verificar_politica_publicacion(df)
 
     reparto = df["denominador"].value_counts().to_dict()
-    comunas_pub = df.loc[
-        df["denominador"].eq(DENOMINADOR_COMPLETO), "comuna_cut"
-    ].nunique()
+    comunas_pub = df.loc[df["denominador"].eq(DENOMINADOR_COMPLETO), "comuna_cut"].nunique()
     meta = {
         "fuente": "rem_salud_mental / fonasa_inscritos / deis_establecimientos",
         "filas": len(df),
@@ -665,8 +675,7 @@ def tabla_listas_espera(
             "espera. Ambas columnas están y no son intercambiables.",
             "La espera se cuenta desde la emisión de la interconsulta, no desde que la "
             "persona empezó a necesitar atención: subestima la espera vivida.",
-            "Una baja puede deberse a depuración administrativa de la lista y no a más "
-            "atención.",
+            "Una baja puede deberse a depuración administrativa de la lista y no a más atención.",
             "No hay desglose por especialidad: estas cifras suman todas. Para psiquiatría "
             "hay que ir al PDF de la Glosa 06, que a su vez no publica días de espera.",
         ],
@@ -706,9 +715,7 @@ def tabla_espera_especialidad(
     df["fecha_calculo"] = ahora_iso()
     verificar_politica_publicacion(df)
 
-    publicable, reporte_sup = suprimir_celdas_pequenas(
-        df, "registros", k=k, grupo=["periodo"]
-    )
+    publicable, reporte_sup = suprimir_celdas_pequenas(df, "registros", k=k, grupo=["periodo"])
     publicable = publicable.sort_values(["periodo", "especialidad_norm"]).reset_index(drop=True)
 
     sm = publicable[publicable.get("es_salud_mental", False)]
@@ -791,8 +798,9 @@ def tabla_ideacion_intento(
             "sobre suicidio es un daño concreto y no un detalle de forma."
         )
 
-    faltan = [c for c in ("comuna_cut", "periodo", "etiqueta_norm", "valor")
-              if c not in silver.columns]
+    faltan = [
+        c for c in ("comuna_cut", "periodo", "etiqueta_norm", "valor") if c not in silver.columns
+    ]
     if faltan:
         raise KeyError(f"El silver del REM no tiene las columnas {faltan}")
 
@@ -808,7 +816,9 @@ def tabla_ideacion_intento(
 
     df = (
         sub.groupby(["comuna_cut", "periodo", "etiqueta_norm"], dropna=False)["valor"]
-        .sum().reset_index().rename(columns={"valor": "personas"})
+        .sum()
+        .reset_index()
+        .rename(columns={"valor": "personas"})
     )
     df["concepto"] = df["etiqueta_norm"].map(CONCEPTOS_CONDUCTA_SUICIDA)
     df["source_id"] = source_id
@@ -820,9 +830,9 @@ def tabla_ideacion_intento(
     publicable, reporte_sup = suprimir_celdas_pequenas(
         df, "personas", k=k, grupo=["periodo", "etiqueta_norm"]
     )
-    publicable = publicable.sort_values(
-        ["periodo", "etiqueta_norm", "comuna_cut"]
-    ).reset_index(drop=True)
+    publicable = publicable.sort_values(["periodo", "etiqueta_norm", "comuna_cut"]).reset_index(
+        drop=True
+    )
 
     meta = {
         "fuente": source_id,
@@ -850,6 +860,180 @@ def tabla_ideacion_intento(
             "un orden ordena ruido y estigmatiza.",
             "REVISIÓN CLÍNICA PENDIENTE. docs/06 la exige antes de cualquier publicación "
             "que incluya suicidio.",
+        ],
+    }
+    return publicable, meta
+
+
+#: Agrupador que define la serie publicable de hospitalización psiquiátrica.
+AGRUPADOR_EGRESOS_SALUD_MENTAL = "TRASTORNOS_MENTALES"
+
+#: Agrupador de la serie de conducta suicida hospitalizada. Vive detrás de la misma puerta
+#: de `docs/06` que I-05: la firma exige `recursos_ayuda` y sin eso no produce nada.
+AGRUPADOR_EGRESOS_AUTOINFLIGIDA = "LESION_AUTOINFLIGIDA_MORBILIDAD"
+
+
+def _agregar_egresos(
+    silver: pd.DataFrame, agrupador_id: str, source_id: str, source_version: str | None
+) -> pd.DataFrame:
+    """Cuenta egresos y días de estada por comuna × año para un agrupador.
+
+    Pura: entra DataFrame, sale DataFrame. La supresión y las salvaguardas de publicación
+    las aplica quien llama, porque difieren entre las dos series.
+    """
+    col = f"es_{agrupador_id.lower()}"
+    faltan = [c for c in ("comuna_cut", "anio", col) if c not in silver.columns]
+    if faltan:
+        raise KeyError(f"El silver de egresos no tiene las columnas {faltan}")
+
+    sub = silver[silver[col].fillna(False)]
+    agregaciones: dict[str, tuple[str, str]] = {"egresos": (col, "size")}
+    if "dias_estada" in sub.columns:
+        agregaciones["dias_estada_total"] = ("dias_estada", "sum")
+        agregaciones["dias_estada_mediana"] = ("dias_estada", "median")
+    if "condicion_egreso" in sub.columns:
+        sub = sub.assign(_fallecido=sub["condicion_egreso"].eq("fallecido"))
+        agregaciones["egresos_fallecido"] = ("_fallecido", "sum")
+
+    df = (
+        sub.groupby(["comuna_cut", "anio"], dropna=False)
+        .agg(**agregaciones)  # type: ignore[arg-type]
+        .reset_index()
+    )
+    df["agrupador"] = agrupador_id
+    df["source_id"] = source_id
+    df["source_version"] = source_version
+    df["pipeline_version"] = PIPELINE_VERSION
+    df["fecha_calculo"] = ahora_iso()
+    return df
+
+
+def tabla_egresos_salud_mental(
+    silver: pd.DataFrame,
+    k: int = K_SUPRESION_ACTIVIDAD,
+    source_id: str = "deis_egresos",
+    source_version: str | None = None,
+) -> tuple[pd.DataFrame, dict]:
+    """Egresos hospitalarios por trastorno mental, por comuna y año.
+
+    Es el eslabón que faltaba entre el control ambulatorio del REM y la mortalidad de DEIS:
+    quién llega a hospitalizarse, cuánto tiempo queda y con qué desenlace.
+
+    **Lo que esta serie NO es:**
+
+    - **No son personas.** Es un conteo de **egresos**: los reingresos de una misma persona
+      cuentan varias veces y la fuente no trae identificador que permita deduplicar. No sirve
+      como prevalencia ni como incidencia.
+    - **No admite tasa estandarizada por edad.** La fuente publica tramos etarios, no edad
+      exacta, así que no hay grilla común con las proyecciones del INE. La tasa cruda sí es
+      calculable aguas abajo; la estandarizada no, y por eso esta tabla no la ofrece.
+    - **El total comunal no suma el total nacional.** DEIS suprime la demografía —incluida la
+      comuna desde 2023— de una fracción de las filas que llegó al 7,9 % (A-022). Esas filas
+      existen en el archivo y no tienen territorio al que ir. La diferencia está declarada en
+      el meta y **no hay que cuadrarla**.
+    """
+    df = _agregar_egresos(silver, AGRUPADOR_EGRESOS_SALUD_MENTAL, source_id, source_version)
+    verificar_politica_publicacion(df)
+    publicable, reporte_sup = suprimir_celdas_pequenas(df, "egresos", k=k, grupo=["anio"])
+    publicable = publicable.sort_values(["anio", "comuna_cut"]).reset_index(drop=True)
+
+    sin_territorio = int((silver["comuna_cut"] == "99999").sum()) if len(silver) else 0
+    meta = {
+        "fuente": source_id,
+        "agrupador": AGRUPADOR_EGRESOS_SALUD_MENTAL,
+        "filas": len(publicable),
+        "unidad": "egresos (eventos), no personas",
+        "egresos_sin_territorio": sin_territorio,
+        "supresion": {
+            "k": reporte_sup.k,
+            "filas_suprimidas": reporte_sup.filas_suprimidas,
+            "porcentaje": reporte_sup.porcentaje_suprimido,
+        },
+        "advertencias": [
+            "UN EGRESO NO ES UNA PERSONA. Los reingresos cuentan varias veces y la fuente "
+            "no trae identificador de paciente: no se puede deduplicar. No usar como "
+            "prevalencia.",
+            "NO ADMITE ESTANDARIZACIÓN POR EDAD. La fuente publica tramos, no edad exacta, "
+            "y no hay grilla común con el denominador del INE.",
+            "EL TOTAL COMUNAL NO SUMA EL NACIONAL. DEIS suprime la comuna en una fracción "
+            "de las filas que llegó al 7,9 % en 2023 (A-022). La diferencia no es un error "
+            "de este pipeline y no hay que cuadrarla.",
+            "LA COMPARACIÓN ENTRE AÑOS TIENE UN CORTE. La supresión de origen pasó de "
+            "2,6 % (2019) a 7,9 % (2023): parte de cualquier caída comunal en ese tramo es "
+            "el cambio de criterio de DEIS, no menos hospitalizaciones.",
+            "Solo cubre lo que se hospitaliza. La mayor parte del tratamiento de salud "
+            "mental es ambulatorio y está en el REM, no acá.",
+        ],
+    }
+    return publicable, meta
+
+
+def tabla_egresos_autoinfligida(
+    silver: pd.DataFrame,
+    recursos_ayuda: list[str],
+    k: int = K_SUPRESION_MORTALIDAD,
+    source_id: str = "deis_egresos",
+    source_version: str | None = None,
+) -> tuple[pd.DataFrame, dict]:
+    """Egresos por lesión autoinfligida, con las salvaguardas de `docs/06`.
+
+    **`recursos_ayuda` es obligatorio**, por la misma razón que en `tabla_ideacion_intento`:
+    `docs/06` exige que toda salida pública que incluya conducta suicida lleve recursos de
+    ayuda vigentes en Chile verificados en la fecha de publicación. Hacerlo obligatorio en la
+    firma convierte la regla en algo que no se puede olvidar.
+
+    **Se usa `k = K_SUPRESION_MORTALIDAD` (10), no el umbral de actividad.** Son eventos poco
+    frecuentes en territorios chicos y de la dimensión más sensible del proyecto; el umbral
+    más exigente es el que corresponde.
+
+    **Esta serie completa el tramo que faltaba.** En 2023 hay 7.683 egresos por lesión
+    autoinfligida, entre las ~9.900 personas en control por intento suicida en APS y las
+    ~2.000 muertes por suicidio al año. Son tres registros distintos de tres momentos
+    distintos, y **no son subconjuntos limpios unos de otros**: no se restan.
+
+    **Sigue pendiente la revisión clínica** que `docs/06` exige antes de publicar. El meta
+    la declara pendiente y esta tabla no es publicable hasta que exista.
+    """
+    if not recursos_ayuda:
+        raise SuppressionViolationError(
+            "[deis_egresos] `recursos_ayuda` es obligatorio para producir una tabla que "
+            "incluye conducta suicida (docs/06). Deben ser recursos vigentes en Chile "
+            "verificados en la fecha de publicación; el pipeline no los inventa ni trae "
+            "valores por defecto, porque un número de ayuda desactualizado en un producto "
+            "sobre suicidio es un daño concreto y no un detalle de forma."
+        )
+
+    df = _agregar_egresos(silver, AGRUPADOR_EGRESOS_AUTOINFLIGIDA, source_id, source_version)
+    verificar_politica_publicacion(df)
+    publicable, reporte_sup = suprimir_celdas_pequenas(df, "egresos", k=k, grupo=["anio"])
+    publicable = publicable.sort_values(["anio", "comuna_cut"]).reset_index(drop=True)
+
+    meta = {
+        "fuente": source_id,
+        "agrupador": AGRUPADOR_EGRESOS_AUTOINFLIGIDA,
+        "filas": len(publicable),
+        "unidad": "egresos (eventos), no personas",
+        "supresion": {
+            "k": reporte_sup.k,
+            "filas_suprimidas": reporte_sup.filas_suprimidas,
+            "porcentaje": reporte_sup.porcentaje_suprimido,
+        },
+        "recursos_ayuda": list(recursos_ayuda),
+        "revision_clinica": "PENDIENTE — docs/06 la exige antes de publicar",
+        "advertencias": [
+            "REVISIÓN CLÍNICA PENDIENTE. docs/06 la exige antes de cualquier publicación "
+            "que incluya conducta suicida. Esta tabla no es publicable sin ella.",
+            "UN EGRESO NO ES UNA PERSONA, y acá importa más que en ninguna otra serie: una "
+            "misma persona con varios intentos en un año cuenta varias veces.",
+            "MIDE LO QUE LLEGÓ A HOSPITALIZARSE, no los intentos ocurridos. Un intento "
+            "atendido en urgencia y dado de alta no aparece; uno no atendido, tampoco.",
+            "NO SE RESTA CONTRA OTRAS SERIES. Los egresos por lesión autoinfligida, las "
+            "personas en control por intento suicida (REM) y las muertes por suicidio "
+            "(DEIS) son tres registros de tres momentos, no subconjuntos unos de otros.",
+            "NO PERMITE RANKEAR COMUNAS. Con eventos poco frecuentes en territorios chicos, "
+            "un orden ordena ruido y estigmatiza.",
+            "PROHIBIDO DESAGREGAR POR MÉTODO. Los códigos X60-X84 individuales no se "
+            "publican nunca (CLAUDE.md §2.4); el agrupador es la única salida.",
         ],
     }
     return publicable, meta

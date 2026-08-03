@@ -80,7 +80,8 @@ producción con reconciliación pasando.
 
 ## I-03 · Cobertura del programa de salud mental en APS {#i-03}
 
-- **Estado:** implementado (Fase 2). Se produce con `obsm rem cobertura`; ficha del dataset
+- **Estado:** **activo.** Implementado en `gold.tabla_cobertura` y publicado en el
+  release v0.3.0 como `cobertura_salud_mental_aps.csv`.. Se produce con `obsm rem cobertura`; ficha del dataset
   en [`DATASET-cobertura-salud-mental-aps.md`](DATASET-cobertura-salud-mental-aps.md).
 - **Numerador:** personas bajo control en el programa de salud mental (REM), por comuna y
   corte semestral.
@@ -140,7 +141,11 @@ no viaja cuando alguien copia la celda.
 
 ## I-05 · Ingresos por ideación e intento suicida {#i-05}
 
-- **Estado:** definido (Fase 2)
+- **Estado:** **implementado, no publicado.** `gold.tabla_ideacion_intento` existe y está
+  probada, pero `docs/06` exige revisión clínica humana y recursos de ayuda verificados
+  antes de publicar cualquier salida que incluya suicidio. La firma de la función hace
+  obligatorio `recursos_ayuda` y el meta declara la revisión como pendiente: mientras no
+  exista, esta serie no sale
 - **Fuente:** secciones correspondientes del REM, por comuna y mes.
 - **Qué NO significa:** un alza puede ser mejor detección, no más eventos. Es un indicador
   de **actividad del sistema**, no de incidencia poblacional. Se publica siempre junto con
@@ -150,7 +155,9 @@ no viaja cuando alguien copia la celda.
 
 ## I-06 · Espera en psiquiatría adulto e infanto-adolescente {#i-06}
 
-- **Estado:** definido (Fase 3). Fuentes verificadas el 2026-07-29; sin implementar.
+- **Estado:** **activo.** Implementado en `gold.tabla_espera_especialidad` y
+  `gold.tabla_listas_espera`, y publicado en el release v0.3.0 como
+  `espera_por_especialidad.csv` y `listas_espera_servicio_salud.csv`.
 - **Fuentes:** `glosa06` (PDF trimestral) para el desglose por especialidad;
   `listaespera_minsal` (JSON) para las medianas por Servicio de Salud.
 - **Métricas:** casos en espera por especialidad, a nivel **nacional**; mediana y promedio
@@ -258,3 +265,76 @@ es en sí mismo el tipo de hallazgo para el que existe este observatorio (`docs/
   notificación pública.
 - **Qué NO significa:** una alerta es una anomalía estadística, casi siempre de registro
   antes que epidemiológica.
+
+---
+
+## I-11 · Egresos hospitalarios por trastorno mental {#i-11}
+
+- **Estado:** **implementado.** `gold.tabla_egresos_salud_mental`, sobre `deis_egresos`
+  verificada en siete archivos anuales. Sin publicar todavía.
+- **Fuente:** `deis_egresos` (DEIS/MINSAL), 2001-2024.
+- **Numerador:** egresos con código F00–F99 en el diagnóstico principal (`DIAG1`).
+  37.773 en 2023.
+- **Denominador:** ninguno en esta tabla. La tasa cruda por población INE es calculable
+  aguas abajo; **la estandarizada por edad no lo es** (ver abajo).
+- **Unidad:** egresos por comuna de residencia y año, más días de estada totales y su
+  mediana, y egresos con condición de egreso «fallecido».
+- **Por qué existe:** es el eslabón que faltaba. El proyecto sabía cuánta gente está en
+  control ambulatorio (REM) y cuánta muere (DEIS), pero nada de lo que pasa en medio.
+
+### Qué NO significa
+
+- **Un egreso no es una persona.** Los reingresos cuentan varias veces y la fuente **no
+  trae identificador de paciente**, así que es imposible deduplicar. No es prevalencia ni
+  incidencia: es actividad hospitalaria.
+- **No admite tasa estandarizada por edad.** La entrega pública viene desidentificada, con
+  tramos etarios y no edad exacta, así que **no hay grilla común** con las proyecciones del
+  INE. Cualquier comparación entre comunas con estructuras etarias distintas queda sujeta a
+  esa limitación, y este indicador no la disimula ofreciendo una estandarización imposible.
+- **El total comunal no suma el total nacional.** DEIS suprime la demografía —incluida la
+  comuna desde 2023— de una fracción de los egresos que llegó al **7,9 %**
+  ([A-022](05-CALIDAD.md#a-022)). Esas filas existen y no tienen territorio al que ir. La
+  diferencia está declarada en el meta y **no hay que cuadrarla**.
+- **La comparación entre años tiene un corte.** Esa supresión pasó de 2,6 % (2019) a 7,9 %
+  (2023): parte de cualquier caída comunal en ese tramo es el cambio de criterio de la
+  fuente, no menos hospitalizaciones.
+- **No mide acceso ni necesidad.** Mide quién llegó a hospitalizarse. Una comuna con pocos
+  egresos puede tener poca enfermedad, poca derivación o ninguna cama cerca, y las tres
+  tienen implicancias de política opuestas.
+- **Solo cubre lo que se hospitaliza.** La mayor parte del tratamiento de salud mental es
+  ambulatorio y está en el REM, no acá.
+
+---
+
+## I-12 · Egresos hospitalarios por lesión autoinfligida {#i-12}
+
+- **Estado:** **implementado, no publicable todavía.** `gold.tabla_egresos_autoinfligida`
+  existe y está probada, pero está sujeta a las mismas salvaguardas que
+  [I-05](#i-05): `docs/06` exige revisión clínica humana y recursos de ayuda verificados
+  antes de publicar. La firma hace obligatorio `recursos_ayuda` y el meta declara la
+  revisión como pendiente.
+- **Fuente:** `deis_egresos`.
+- **Numerador:** egresos con código X60–X84 en la **causa externa** (`DIAG2`), no en el
+  diagnóstico principal. 7.683 en 2023. Ver [A-004](05-CALIDAD.md#a-004): un agrupador
+  aplicado a `DIAG1` devuelve **cero** sin lanzar ningún error.
+- **Supresión:** `k = 10`, el umbral de mortalidad y no el de actividad. Son eventos poco
+  frecuentes en territorios chicos y de la dimensión más sensible del proyecto.
+- **Por qué importa:** completa el tramo. Los 7.683 egresos de 2023 se ubican entre las
+  ~9.900 personas en control por intento suicida en APS y las ~2.000 muertes por suicidio
+  al año.
+
+### Qué NO significa
+
+- **No se resta contra las otras dos series.** Egresos por lesión autoinfligida, personas
+  en control por intento suicida (REM) y muertes por suicidio (DEIS) son tres registros de
+  tres momentos distintos, con criterios de captura distintos. **No son subconjuntos limpios
+  unos de otros** y restarlos produce un número sin significado.
+- **Mide lo que llegó a hospitalizarse**, no los intentos ocurridos. Un intento atendido en
+  urgencia y dado de alta no aparece; uno no atendido, tampoco. El subregistro es grande y
+  su magnitud es desconocida.
+- **Un egreso no es una persona**, y acá pesa más que en ninguna otra serie: una misma
+  persona con varios intentos en un año cuenta varias veces.
+- **No permite rankear comunas.** Con eventos poco frecuentes en territorios chicos, un
+  orden ordena ruido y estigmatiza.
+- **Prohibido desagregar por método.** Los códigos X60–X84 individuales no se publican
+  nunca (`CLAUDE.md` §2.4); el agrupador es la única salida pública.

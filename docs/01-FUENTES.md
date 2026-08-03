@@ -46,19 +46,48 @@ observatorio.
 
 ### A2. `deis_egresos` — Egresos hospitalarios
 
+**Verificada el 2026-08-02**: siete archivos anuales abiertos y contados por completo
+(2001, 2010, 2015, 2019, 2021, 2023, 2024).
+
 - **Contiene:** egresos de establecimientos públicos y privados, con diagnóstico principal
-  CIE-10, días de estada, condición al alta, establecimiento, comuna de residencia.
-- **Granularidad:** registro de egreso.
-- **Latencia:** anual, con rezago.
-- **URL raíz:** portal de datos abiertos DEIS — *origen: busqueda_web (raíz), por_confirmar
-  (archivo específico)*.
+  CIE-10 (`DIAG1`), causa externa (`DIAG2`), días de estada, condición al alta, previsión,
+  y comuna y región **de residencia**.
+- **NO contiene establecimiento ni edad exacta.** La entrega pública viene desidentificada:
+  solo hay tramos etarios y una marca de pertenencia al SNSS. La ficha anterior prometía
+  ambos campos y estaba equivocada. Sin establecimiento **no se puede** medir disponibilidad
+  de camas ni atribuir egresos a un hospital, así que ese uso queda descartado.
+- **Granularidad:** registro de egreso desidentificado, agregable a comuna×año.
+- **Cobertura temporal:** 2001–2024, un ZIP por año, todos respondiendo el 2026-08-02.
+- **Volumen:** ~1,6 millones de egresos al año; el CSV descomprimido pesa entre 220 y 290 MB.
+- **Formato:** ZIP con un CSV (separador `;`) y el diccionario de datos en XLSX.
+- **Encoding:** latin-1 hasta 2023, UTF-8 desde 2024.
+- **URL:** `https://repositoriodeis.minsal.cl/DatosAbiertos/EGRESOS/EGRESOS_{anio}.zip`
+  — *origen: verificada_en_sesion*. El índice de `deis.minsal.cl` es un Ninja Tables que se
+  arma por AJAX y no es raspable; el patrón se recuperó del índice CDX de Wayback y
+  **después** se comprobó contra el servidor real, año por año.
+- **Licencia:** sin declarar, igual que el resto del repositorio DEIS. Ver `LICENSE-DATA.md`.
 - **Trampas:**
-  - Un egreso ≠ una persona: reingresos cuentan varias veces. No usar como prevalencia.
-  - Cambios en la red de establecimientos (aperturas, cierres, cambios de código DEIS)
-    producen saltos que no son epidemiológicos.
+  - **Un egreso ≠ una persona**: los reingresos cuentan varias veces y no hay identificador
+    de paciente, así que es imposible deduplicar. **No usar como prevalencia.**
+  - **La lesión autoinfligida está en `DIAG2`, no en `DIAG1`** — misma trampa que
+    defunciones ([A-004](05-CALIDAD.md#a-004)). En 2023: 0 códigos X60–X84 en `DIAG1` y
+    7.683 en `DIAG2`. Un agrupador aplicado solo al diagnóstico principal devuelve cero
+    sin lanzar ningún error.
+  - **`*` es supresión aplicada por DEIS**, no dato faltante, y desde 2023 alcanza al 8 %
+    de las filas: los totales comunales dejan de sumar el nacional. Ver
+    [A-022](05-CALIDAD.md#a-022).
+  - **`99999` / `Ignorada`** es residencia desconocida, un centinela distinto del anterior.
+  - **2021 usa otro codebook** (sexo numérico, 22 tramos quinquenales) y el esquema varía
+    entre 15, 16 y 18 columnas según el año. Ver [A-023](05-CALIDAD.md#a-023).
+  - **El archivo 2024 llega con los acentos destruidos en origen**, irrecuperables. Solo
+    afecta glosas; los códigos están intactos. Ver [A-021](05-CALIDAD.md#a-021).
   - El sector privado reporta con calidad heterogénea.
-- **Uso:** hospitalizaciones psiquiátricas, estada media, egresos por lesión autoinfligida,
-  proxy de disponibilidad de camas.
+- **Uso:** hospitalizaciones por trastorno mental (F00–F99 en `DIAG1`: 37.773 en 2023),
+  egresos por lesión autoinfligida (X60–X84 en `DIAG2`: 7.683 en 2023), estada media.
+- **Por qué importa:** es el eslabón que faltaba entre el control ambulatorio del REM y la
+  mortalidad de DEIS. Los 7.683 egresos por lesión autoinfligida de 2023 se ubican entre
+  las ~9.900 personas en control por intento suicida en APS y las ~2.000 muertes por
+  suicidio al año.
 
 ### A3. `deis_urgencias` — Atenciones de urgencia
 
@@ -291,12 +320,100 @@ estructurado para responder la pregunta.** Cambió el alcance de la Fase 4 y la 
 
 ### D3. `ine_ipc` — Índice de precios al consumidor
 
-- **Uso:** deflactar. Todo monto se guarda nominal; el real se deriva. **URL:** INE —
-  *por_confirmar*.
+- **Uso:** deflactar. Todo monto se guarda nominal; el real se deriva
+  (`CLAUDE.md` §5). Es la dependencia que falta para
+  [I-07](04-INDICADORES.md#i-07).
+- **Estado: `no_verificada`.** No se encontró un archivo descargable del índice. **URL:**
+  *por_confirmar* — y no se escribe ninguna en `config/sources.yml` hasta tenerla.
+
+**Seis vías cerradas, todas comprobadas el 2026-08-02.** Se anotan para que la próxima
+sesión no las repita:
+
+| Vía | Resultado |
+|---|---|
+| Página del IPC en `ine.gob.cl` | 200, 219 enlaces, **cero** a archivos: los arma JavaScript |
+| `stat.ine.cl` (INE.STAT, un .Stat/SDMX) | 381 datasets, **ninguno** de precios; es de empleo e ingresos |
+| `calculadoraipc.ine.cl` | **La calculadora está rota**: su propio `js/events.js` y su endpoint `reportes/xmlVariacionGrilla.asp` responden 404 |
+| `datos.gob.cl`, dataset `ipc` del INE | Existe, pero con **cero recursos**: es un puntero de vuelta a la página del INE |
+| Índice CDX de Wayback sobre `ine.gob.cl` | Respuesta vacía (la misma técnica sí funcionó para `deis_egresos`) |
+| `si3.bcentral.cl` (BDE del Banco Central) | **Exige inicio de sesión**; no entrega datos de forma anónima |
+
+**Complicación de licencia, aparte de la de acceso.** El dataset del INE en `datos.gob.cl`
+está marcado **CC Non-Commercial**, que contradice los términos generales CC BY-SA 4.0 del
+mismo organismo — la misma contradicción ya registrada para `ine_vitales_anuario` en
+`LICENSE-DATA.md`. Si el deflactor terminara siendo CC-NC, **no podría alimentar `gold`**:
+`ADR 0005` obliga a CC BY-SA y las dos licencias son incompatibles. Conviene resolver la
+licencia **antes** de construir el ingestor, no después.
+
+**Caminos que quedan, en orden de preferencia:**
+
+1. **Solicitud por Ley de Transparencia al INE** pidiendo la serie del IPC en formato
+   reutilizable y su licencia por escrito. Resuelve acceso y licencia de una vez, y ya hay
+   cuatro solicitudes redactadas en `docs/solicitudes/` que sirven de molde.
+2. **Credenciales del Banco Central.** El registro en la BDE es gratuito y su API entrega
+   la serie; requiere una acción humana que la sesión no puede hacer sola.
+3. **Anexo estadístico del boletín mensual del INE**, si publica el índice en XLSX. Los
+   boletines están en `/docs/default-source/índice-de-precios-al-consumidor/boletines/`,
+   pero los nombres llevan hash de Sitefinity y no son deducibles.
+
+**Lo que NO se va a hacer:** tomar el IPC de un agregador de terceros (`mindicador.cl` y
+similares). Funcionan, pero el argumento central del proyecto es la trazabilidad, y un
+intermediario sin trazabilidad propia no puede ser el denominador de una serie de pesos
+reales.
 
 ---
 
 ## E. Denominadores y contexto
+
+### E0. `subdere_cut` — Códigos Únicos Territoriales, el maestro de la DPA
+
+**Verificada el 2026-07-27.** Es la fuente **crítica** del proyecto y llevaba desde Fase 1
+sin ficha propia, mencionada solo de pasada en la sección de licencias.
+
+- **Contiene:** la planilla de códigos y nombres de la División Político-Administrativa:
+  región, provincia y comuna, con los CUT **como texto y con los ceros a la izquierda**.
+- **Por qué es la fuente crítica:** de acá deriva `config/territorio_comunas.csv`, y de ahí
+  la llave `comuna_cut` con la que se une **todo** lo demás. Si este maestro está mal, no
+  falla nada: los joins quedan vacíos y las comunas afectadas aparecen como las más sanas
+  del país. Ver [A-001](05-CALIDAD.md#a-001).
+- **Granularidad:** comuna. **Ancla de reconciliación: 346 comunas en 16 regiones.**
+- **Formato:** XLS. **URL:**
+  `https://www.subdere.gov.cl/sites/default/files/documentos/CUT_2018_v04.xls`
+  — *origen: busqueda_web, verificada con descarga y sha256*. Espejo en `geoportal.cl`.
+- **Versión:** `CUT_2018_v04`, vigente desde el 2018-09-06 — es decir **posterior a la
+  creación de Ñuble**, que es justamente lo que se necesita.
+- **Trampas:**
+  - **Control de vigencia obligatorio: Chillán debe ser `16101`, no `8401`.** Las capas que
+    circulan como «DPA» suelen arrastrar la codificación anterior a 2007 —sin Los Ríos, sin
+    Arica y Parinacota, sin Ñuble— y producen joins vacíos sin un solo error en pantalla.
+    Es un solo dato y detecta ocho años de desfase.
+  - El servidor responde **403 sin user-agent de navegador**.
+- **Licencia:** `sin_declarar`, investigada el 2026-07-27. En `datos.gob.cl` SUBDERE publica
+  CC-NC dos datasets de DPA, pero ambos son **cartografía** (shapefiles con geometrías).
+  Esta planilla es otra cosa: códigos, nombres y provincias, sin una sola coordenada. Un
+  listado de códigos administrativos oficiales es un hecho establecido por acto
+  administrativo, no una obra —la Ley 17.336 excluye los hechos y los textos oficiales del
+  Estado, y Chile no tiene derecho *sui generis* de bases de datos—.
+
+### E0b. `ine_vitales_anuario` — Anuario de Estadísticas Vitales (ancla)
+
+**Verificada el 2026-07-27. No es una fuente del pipeline**, y por eso no tenía ficha: de
+acá salen **dos cifras** que se usan para comprobar el conteo propio, y el documento no se
+redistribuye.
+
+- **Uso:** ancla de reconciliación en año calendario para `deis_defunciones`. Cifras
+  oficiales leídas del PDF (p. 38): **2023 = 122.218** y **2020 = 126.169** defunciones.
+  Ambas coinciden **exacto** con el conteo del archivo de causas, no dentro de tolerancia.
+- **Formato:** PDF. **URL:** anuario 2023 en `ine.gob.cl`, verificada con sha256.
+- **Trampa de lectura:** la Tabla 3 (p. 45) dice 122.**217** porque desagrega por grupo de
+  edad y excluye un registro sin edad; y 63.710 hombres + 58.495 mujeres = 122.205, con 12
+  de sexo no asignado. **La cifra comparable es la de titular, 122.218**, y confundirlas
+  hace fallar un ancla que en realidad cuadra.
+- **Licencia:** declarada CC BY-NC 2.0, **en contradicción** con los términos generales
+  CC BY-SA 4.0 del mismo organismo. Sin resolver. Mientras siga abierta se trata la
+  condición más restrictiva como la vigente para este documento. No contamina la salida del
+  proyecto porque `alimenta_gold: false` y solo se toman dos cifras: un dato aislado no es
+  una obra. Si alguna vez se ingiere de verdad, hay que reabrir [ADR 0005](adr/0005-licencia-datos-sharealike.md).
 
 ### E1. `ine_proyecciones` — Proyecciones de población por comuna, sexo y edad
 
@@ -373,6 +490,40 @@ estructurado para responder la pregunta.** Cambió el alcance de la Fase 4 y la 
   año**, sin error y sin aviso: 345 filas perfectamente plausibles y 24 años perdidos.
 - **Licencia:** `sin_declarar`. SINIM no publica términos de uso explícitos; pendiente de
   aclarar antes de redistribuir el dato derivado.
+
+### E2b. `fonasa_padron_aps` — Padrón de inscritos en APS por establecimiento
+
+**Verificada el 2026-07-29.** Estaba en el catálogo y en uso desde Fase 2 **sin ficha acá**,
+que es un incumplimiento del flujo de `CLAUDE.md` §7: la ficha va primero. Se escribe ahora
+con lo ya verificado.
+
+- **Contiene:** inscritos en atención primaria por establecimiento × tramo (A/B/C/D) × grupo
+  etario × sexo. 243.520 filas para septiembre de 2022, 1.889 establecimientos, 23 grupos
+  etarios. Total nacional 13.585.016.
+- **Granularidad:** establecimiento; agregable a comuna. Las 321 comunas presentes resuelven
+  contra la DPA **sin una sola excepción por nombre**.
+- **Cobertura temporal:** 2019, 2020, 2021 y 2022. **No llega más allá de 2022**, y por eso
+  para 2023-2025 el único denominador disponible sigue siendo `fonasa_inscritos` (SINIM).
+- **Formato:** ZIP con CSV, 41 MB descomprimido, encoding latin-1, campos entre comillas.
+- **URL:** `https://www.fonasa.gob.cl/wp-content/uploads/2024/09/Inscritos-APS-2022.zip`
+  — *origen: verificada_en_sesion*. Índice en `nuevo.fonasa.gob.cl/beneficiarios-y-prestaciones/`.
+  **No** está en `datosabiertos.fonasa.cl`: ese portal es un WordPress con un plugin de
+  gráficos y sin archivos. Concluir que el dato no existía por no encontrarlo ahí fue un
+  error de sesión; vive en el sitio institucional.
+- **Los nombres de archivo no siguen un patrón** (`Resultados-Inscritos-201908.zip`,
+  `Poblacion-Inscrita-EAPS-a-Sep-2021.zip`): hay que tomarlos del índice, no construirlos.
+- **Licencia:** `sin_declarar`.
+- **Trampas:**
+  - **El límite central, y es el mismo de `fonasa_inscritos`:** cubre la APS **municipal**
+    (13.446.800) y «Otra Institución» (138.216), pero **no** los establecimientos
+    dependientes del Servicio de Salud. Faltan 24 comunas completas y en otras el padrón es
+    parcial —Quirihue aparece con 11 inscritos porque su único establecimiento municipal es
+    una posta rural—. Esto es lo que explica [A-015](05-CALIDAD.md#a-015) y lo que reduce la
+    cobertura calculable a 185 de 345 comunas.
+  - `TRAMO` incluye una categoría `X` (787.606 personas) **cuyo significado no se ha
+    verificado**. No usarla como tramo socioeconómico sin aclararlo.
+- **Uso:** fue lo que permitió entender el desajuste de universos de A-015 y decidir en qué
+  comunas la cobertura de I-03 significa algo. No alimenta `gold` como denominador directo.
 
 ### E3. `encavi` — Encuesta Nacional de Calidad de Vida y Salud 2023-2024
 

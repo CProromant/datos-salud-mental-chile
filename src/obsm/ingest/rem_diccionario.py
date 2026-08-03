@@ -51,10 +51,10 @@ SEXOS = {
 class ColumnaRem:
     """Una columna del archivo de datos, con la dimensión que representa."""
 
-    nombre: str          # "COL04"
-    numero: int          # 4
-    grupo_edad: str      # "0 a 4 años"; vacío cuando es la columna de total
-    sexo: str            # "ambos" | "hombres" | "mujeres" | ""
+    nombre: str  # "COL04"
+    numero: int  # 4
+    grupo_edad: str  # "0 a 4 años"; vacío cuando es la columna de total
+    sexo: str  # "ambos" | "hombres" | "mujeres" | ""
 
     @property
     def es_total(self) -> bool:
@@ -68,7 +68,7 @@ class ConceptoRem:
     codigo: str
     grupo: str
     concepto: str
-    columnas: tuple[str, ...]   # nombres de las COLNN que usa esta fila
+    columnas: tuple[str, ...]  # nombres de las COLNN que usa esta fila
 
     @property
     def etiqueta(self) -> str:
@@ -200,9 +200,7 @@ def leer_conceptos(ruta: Path, hoja: str = "P6") -> list[ConceptoRem]:
             for col in range(4, ncols + 1)
             if (m := PATRON_COLUMNA.match(_texto(celda(r, col))))
         )
-        nuevo = ConceptoRem(
-            codigo=codigo, grupo=grupo_actual, concepto=c_, columnas=columnas
-        )
+        nuevo = ConceptoRem(codigo=codigo, grupo=grupo_actual, concepto=c_, columnas=columnas)
         previo = por_codigo.get(codigo)
         if previo is not None:
             repetidos.add(codigo)
@@ -217,6 +215,7 @@ def leer_conceptos(ruta: Path, hoja: str = "P6") -> list[ConceptoRem]:
     if repetidos:
         log.warning(
             "%d códigos repetidos en la hoja; se conservó la aparición con concepto: %s",
-            len(repetidos), sorted(repetidos)[:5],
+            len(repetidos),
+            sorted(repetidos)[:5],
         )
     return list(por_codigo.values())

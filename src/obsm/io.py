@@ -29,6 +29,7 @@ ENCODINGS_CANDIDATOS = ("utf-8-sig", "utf-8", "cp1252", "latin-1")
 # Manifiesto de procedencia
 # --------------------------------------------------------------------------------------
 
+
 @dataclass
 class Manifiesto:
     """Procedencia de un artefacto de datos. Se escribe junto a cada salida.
@@ -51,9 +52,7 @@ class Manifiesto:
     def escribir(self, destino: Path) -> Path:
         destino = Path(destino)
         destino.parent.mkdir(parents=True, exist_ok=True)
-        destino.write_text(
-            json.dumps(asdict(self), ensure_ascii=False, indent=2), encoding="utf-8"
-        )
+        destino.write_text(json.dumps(asdict(self), ensure_ascii=False, indent=2), encoding="utf-8")
         return destino
 
 
@@ -72,6 +71,7 @@ def sha256_archivo(ruta: Path, bloque: int = 1 << 20) -> str:
 # --------------------------------------------------------------------------------------
 # Lectura robusta
 # --------------------------------------------------------------------------------------
+
 
 def detectar_encoding(ruta: Path, muestra_bytes: int = 200_000) -> str:
     """Detecta el encoding probando candidatos en orden de plausibilidad.
@@ -346,9 +346,7 @@ def _rango_http(url: str, desde: int, hasta: int, user_agent: str) -> bytes:
     # de un rango normal. Sirve justo para lo que se necesita acá: leer el final sin
     # conocer el tamaño de antemano.
     rango = f"bytes={desde}" if desde < 0 else f"bytes={desde}-{hasta}"
-    resp = requests.get(
-        url, headers={"User-Agent": user_agent, "Range": rango}, timeout=120
-    )
+    resp = requests.get(url, headers={"User-Agent": user_agent, "Range": rango}, timeout=120)
     resp.raise_for_status()
     return resp.content
 
@@ -486,9 +484,7 @@ def elegir_tabla(
         if not ruta.is_absolute():
             ruta = directorio / ruta
         if not ruta.exists():
-            raise SchemaDriftError(
-                f"[{source_id}] se pidió explícitamente {ruta} y no existe."
-            )
+            raise SchemaDriftError(f"[{source_id}] se pidió explícitamente {ruta} y no existe.")
         return ruta
 
     candidatos = sorted(directorio.glob(patron))

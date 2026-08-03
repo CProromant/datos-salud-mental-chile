@@ -160,13 +160,16 @@ diagnóstico.
 Formato de entrada:
 
 ```
-### A-001 · <fuente> · <fecha de detección> {#a-001}
+### A-0NN · <fuente> · <fecha de detección> {#a-0nn}
 Qué se observó:
 Reproducción: (comando)
 Hipótesis:
 Verificación:
 Decisión: [conservar | marcar | excluir con nota]
 ```
+
+El identificador es correlativo y **no se reutiliza**, ni siquiera si la anomalía resulta
+descartada: las referencias a un `A-0NN` viven en commits, tests y fichas ya publicadas.
 
 ### A-001 · capas cartográficas de comunas · 2026-07-27 {#a-001}
 
@@ -238,6 +241,17 @@ filas del período, tanto en `DIAG1` como en `DIAG2`. Hasta resolverlo, **la ser
 suicidio no puede empezar antes de 1997**. Una versión anterior de este documento afirmaba
 que `E950` se publicaba como `9509`: era una conjetura no verificada y se retiró.
 
+### A-003 · deis_defunciones · 2026-07-27 {#a-003}
+
+**Qué se observó:** `COD_COMUNA` trae 4 caracteres en 1.551.470 filas y 5 en 1.630.976.
+
+**Verificación:** las de 4 corresponden a las regiones 01–09, que perdieron el cero a la
+izquierda (`8304` por `08304`, Laja). Es el problema que `CLAUDE.md §5` anticipa.
+
+**Decisión:** conservar tal cual en `bronze`; `silver` está obligado a pasarlo por
+`territorio.formatear_cut_comuna`. Hay un test que verifica que el problema siga presente
+en el fixture, para que nadie «arregle» la fuente por el lado equivocado.
+
 ### A-004 · deis_defunciones · 2026-07-27 {#a-004}
 
 **Qué se observó:** el código de suicidio no está en la columna de causa básica.
@@ -271,17 +285,6 @@ básica con `DIAG2` vacío) leen ambos la columna correcta. La procedencia queda
 **Control heredado:** `test_el_agrupador_de_suicidio_no_devuelve_cero` corre el fixture de
 estructura real de punta a punta por `silver` y exige un conteo distinto de cero. Ningún
 indicador de mortalidad por causa externa debe darse por bueno sin un test que cuente.
-
-### A-003 · deis_defunciones · 2026-07-27 {#a-003}
-
-**Qué se observó:** `COD_COMUNA` trae 4 caracteres en 1.551.470 filas y 5 en 1.630.976.
-
-**Verificación:** las de 4 corresponden a las regiones 01–09, que perdieron el cero a la
-izquierda (`8304` por `08304`, Laja). Es el problema que `CLAUDE.md §5` anticipa.
-
-**Decisión:** conservar tal cual en `bronze`; `silver` está obligado a pasarlo por
-`territorio.formatear_cut_comuna`. Hay un test que verifica que el problema siga presente
-en el fixture, para que nadie «arregle» la fuente por el lado equivocado.
 
 ### A-005 · reconciliación · 2026-07-27 {#a-005}
 
@@ -924,6 +927,186 @@ directorio**, y que yo había bajado en la misma sesión sin abrir.
 3. **Leer el diccionario que la fuente publica cuesta dos minutos.** Es la tercera vez en
    este proyecto que la respuesta estaba en documentación de la propia fuente sin abrir —
    antes fueron los nombres de las variables de SINIM (A-015) y el manual del REM.
+
+### A-021 · deis_egresos · 2026-08-02 {#a-021}
+
+**Qué se observó:** el archivo `EGRESOS_2024.csv` que publica DEIS contiene **1.199.605
+caracteres U+FFFD** (el rombo con signo de interrogación). Todos los acentos y todas las
+eñes de las glosas están destruidos:
+
+| Lo que debería decir | Lo que dice el archivo publicado |
+|---|---|
+| `Ñuñoa` | `�u�oa` |
+| `Concepción` | `Concepci�n` |
+| `Del Biobío` | `Del B�ob�o` |
+| `menor de un año` | `menor de un a�o` |
+
+Son 90 valores distintos afectados. El archivo es **UTF-8 válido**: no es un problema de
+detección de encoding, y probar codecs no lo arregla. DEIS convirtió el archivo desde
+latin-1 usando reemplazo de errores, y con eso la letra original **se perdió en origen**.
+Los años anteriores llegan en latin-1 y están intactos.
+
+**Qué se decidió:** no reparar. No hay forma de saber qué letra había en cada posición —
+`B�ob�o` podría reconstruirse por contexto, pero reconstruir por contexto es inventar un
+dato y presentarlo como leído. La glosa dañada se conserva tal cual y el hecho queda
+declarado. `transform/` no debe usar estas columnas para nada.
+
+**Por qué casi no importa, y por qué eso es lo interesante:** el daño afecta **solo a las
+glosas**. `COMUNA_RESIDENCIA` (`08101`), `REGION_RESIDENCIA` (`08`) y los códigos CIE-10
+están intactos, porque no llevan tildes. La regla de `CLAUDE.md` §5 —«nunca uses el nombre
+de comuna como llave»— existía por ambigüedad entre grafías; acá pagó por una razón
+distinta y peor. Un pipeline que uniera por nombre perdería Ñuble, Biobío, Valparaíso,
+La Araucanía, Los Ríos, Concepción, Maipú, Viña del Mar y Ñuñoa **de una sola vez**: las
+nueve glosas más frecuentes del archivo están entre las dañadas.
+
+### A-022 · deis_egresos · 2026-08-02 {#a-022}
+
+**Qué se observó:** el valor `*` aparece en los archivos de egresos enmascarando la
+demografía de filas completas. **No es un dato faltante: es supresión aplicada por DEIS.**
+
+| Año | Filas suprimidas | % | Columnas enmascaradas |
+|---|---|---|---|
+| 2001 | 58.076 | 3,7 % | **13** — las 10 de abajo + condición al egreso, `INTERV_Q`, `PROCED` |
+| 2010 | 27.330 | 1,7 % | **10** — pertenencia, sexo, edad, etnia, país, región ×2, previsión ×2, **año** |
+| 2015 | 39.766 | 2,4 % | 10 (ídem) |
+| 2019 | 43.845 | 2,6 % | 10 (ídem) |
+| 2021 | 0 | 0 % | — |
+| 2023 | 128.108 | **7,9 %** | **12** — las 10 + **comuna** y glosa de comuna |
+| 2024 | 124.508 | 7,5 % | 12 (ídem) |
+
+**Lo que nunca se enmascara, en ninguno de los siete años:** `DIAG1`, `DIAG2` y
+`DIAS_ESTADA`. La supresión tapa todo salvo el núcleo clínico, que es la razón de ser del
+registro. Por eso el ingestor declara **el complemento** —lo que se conserva— en vez de
+enumerar lo que se pierde: es la parte estable, y hay un check que falla si algún día el
+diagnóstico también cae, porque ahí la fila dejaría de servir incluso para el total país.
+
+**Consecuencia obligada:** desde 2023, **los totales comunales no suman el total
+nacional**, y la diferencia es del 8 %. No es un error de este pipeline y no hay que
+«cuadrarlo». Cualquier tasa comunal de egresos calculada sobre 2023 tiene un numerador
+incompleto en una magnitud que no se conoce por comuna.
+
+**Tres cosas más que aparecieron al mirarlo:**
+
+1. **La supresión también se lleva el año.** `ANO_EGRESO` viene `*` en los seis años que
+   tienen supresión, sin excepción. Es el efecto más peligroso de los tres: un
+   `groupby("anio")` descarta el 8 % de los egresos de 2023 **sin avisar**, y el resultado
+   se ve perfectamente normal. Como cada archivo publicado es de un solo año, el dato es
+   recuperable con certeza, así que el ingestor lo imputa —pero lo **declara** en
+   `anio_imputado`, y si algún día un archivo trae más de un año deja el campo nulo en vez
+   de repartirlo. Un dato imputado que se lee como leído es peor que uno ausente.
+2. **Hasta 2019 la supresión es inefectiva.** Enmascara la región pero deja la comuna, y
+   los dos primeros dígitos del CUT comunal *son* la región: el campo oculto se reconstruye
+   trivialmente desde uno visible. El proyecto no lo explota; se limita a registrarlo.
+3. **El salto de 2,6 % a 7,9 % entre 2019 y 2023 es un cambio de política de la fuente**,
+   no una variación de los datos. Una serie de egresos comunales que cruce ese corte mide
+   en parte el cambio de criterio de DEIS.
+
+**Cómo se encontró, que es la parte que importa.** El primer modelo daba por hecho que el
+`*` enmascaraba un bloque fijo de columnas demográficas, y con eso 2023, 2024 y 2021
+ingirieron sin protestar y con los conteos correctos de F00–F99 y X60–X84. Parecía
+verificado. Lo que lo destapó fue **2001**, que falló por otra razón —enmascara además la
+condición al egreso— y obligó a barrer columna por columna en los siete años. Recién ahí
+apareció que `ANO_EGRESO` faltaba en todos. La lección se repite: el primer archivo que
+funciona no valida el modelo, y los conteos correctos tampoco, porque el año nulo no movía
+ninguno de los dos totales que yo estaba mirando.
+
+**Qué hace el ingestor:** marca `suprimido_en_origen` y pone las columnas enmascaradas en
+nulo, para que ninguna comuna `"*"` llegue al join territorial. No exige un conjunto fijo
+de columnas —cambió entre entregas— pero **sí exige un solo patrón por archivo**: dos
+formas distintas de enmascarar conviviendo lanzan `SchemaDriftError`.
+
+**Hay tres centinelas de territorio y significan cosas distintas:**
+
+| Valor | Glosa | Qué significa | Filas en 2023 |
+|---|---|---|---|
+| `*` | — | DEIS suprimió la demografía de la fila | 128.108 |
+| `99999` / `99` | `Ignorada` | No se sabe dónde reside la persona | 12.264 |
+| `88888` / `88` | `Extranjero` | **Sí se sabe: no reside en Chile** | 661 |
+
+Los tres van a nulo, pero se marcan **por separado** (`suprimido_en_origen`,
+`residencia_ignorada`, `residencia_extranjero`). Mezclarlos borra que un egreso de
+extranjero tiene residencia conocida, solo que fuera del país, y agregarlos produce comunas
+«99999» y «88888» que no existen.
+
+**Cómo apareció el tercero, que es lo que vale registrar.** Los dos primeros se
+encontraron leyendo el archivo; `88888` apareció **corriendo el pipeline completo**: el
+silver reportó 141.033 filas sin territorio y los dos centinelas conocidos solo explicaban
+140.372. Las 661 de diferencia eran «Extranjero». De ahí salió el control que quedó fijo:
+el reporte del silver publica `sin_territorio_sin_explicar` y **tiene que ser cero**; si
+deja de serlo, la fuente agregó un código que la DPA no reconoce y que el balde de «comuna
+desconocida» se tragaría sin que nadie lo note. Un total que cuadra por partes no es lo
+mismo que un total que cuadra.
+
+### A-023 · deis_egresos · 2026-08-02 {#a-023}
+
+**Qué se observó:** el archivo de **2021 está publicado con otro codebook completo**, y es
+el único año así de los siete revisados.
+
+| | 2001–2019, 2023–2024 | 2021 |
+|---|---|---|
+| `SEXO` | `HOMBRE` / `MUJER` | `1` / `2` / `3` / `9` |
+| `GRUPO_EDAD` | 12 tramos **decenales** | 22 tramos **quinquenales** |
+| Tramo superior | `90 y más` | `85 A MAS` |
+| Tramo inferior | `menor de un año` | cuatro tramos: `menor a 7 días`, `7 A 27 DIAS`, `28 DIAS A 2 MES`, `2 MESES A MENOS DE 1 AÑO` |
+| Columnas | 18 (hasta 2019) / 16 | 15, sin `ETNIA` |
+
+**Por qué importa:** una serie por tramo etario que incluya 2021 **compara cortes
+distintos**. Los tramos quinquenales sí colapsan a decenales hasta los 79 años
+(`1 A 4` + `5 A 9` → `1 a 9`), pero **arriba de 79 no**: quinquenal cierra en `85 y más` y
+decenal en `90 y más`, así que los dos tramos superiores no se recuperan por agregación en
+ninguna dirección. Hay un test que fija este hecho para que nadie escriba ese colapso
+creyendo que es posible.
+
+**Qué hace el ingestor:** clasifica el esquema en `esquema_grupo_edad`
+(`decenal` / `quinquenal` / `mixto`) y **no colapsa**: colapsar es decisión de negocio y
+vive en `transform/`. Un tramo etario desconocido lanza `SchemaDriftError` en vez de
+ignorarse, porque un tramo nuevo cambia el corte de toda la serie.
+
+**Además, el esquema de columnas varía entre 15, 16 y 18 según el año**, y desde 2019 el
+nombre de la primera columna llega truncado (`PERTENENCIA_ESTABLECIMIENTO_SALU`, sin la D).
+Por eso las columnas que varían están declaradas opcionales: exigirlas dejaría media serie
+sin poder ingerirse.
+
+**Hallazgo colateral:** el archivo de **2015 ya trae región 16 (Ñuble)**, creada en 2018.
+DEIS re-codificó hacia atrás, que es lo contrario de lo que advierte `CLAUDE.md` §5 para
+series históricas. No se parchó: el join va por CUT comunal, que es estable.
+
+### A-024 · glosa06 · 2026-08-03 {#a-024}
+
+**Qué se observó:** en `espera_por_especialidad.csv`, la psiquiatría adulta aparece bajo
+**dos valores distintos** de `especialidad_norm`, uno por trimestre:
+
+| Período | `especialidad_fuente` | `especialidad_norm` | `etiqueta` | registros |
+|---|---|---|---|---|
+| 2025-09 | `PSIQUIATRÍA ADULTO` | `PSIQUIATRIA ADULTO` | `Psiquiatría adulta` | 22.963 |
+| 2026-03 | `Psiquiatría adulta` | `PSIQUIATRIA ADULT**A**` | `Psiquiatría adulta` | 23.134 |
+
+**Por qué pasa:** `especialidad_norm` hace lo que promete —quita tildes y unifica
+mayúsculas— pero eso no reconcilia que la fuente **le cambió el nombre a la especialidad**
+entre un informe y el siguiente, de «adulto» a «adulta». Son dos cosas distintas:
+normalizar texto y reconciliar renombres.
+
+**Por qué importa:** la ficha del dataset decía «`especialidad_norm`: úsala para filtrar y
+unir». Quien siguiera esa instrucción para seguir la espera de psiquiatría adulta en el
+tiempo obtendría **una serie partida en dos claves, con un punto cada una**, y ningún error
+en pantalla. Es exactamente el modo de falla que el proyecto persigue: el resultado se ve
+normal.
+
+**Verificación:** de las 75 especialidades del archivo, 53 aparecen en los dos trimestres y
+22 en uno solo (2×53 + 22 = 128 filas). Parte de esas 22 son renombres como este, no
+especialidades que aparezcan o desaparezcan de la lista de espera.
+
+**Decisión:** no se toca el dato ni el normalizador. `especialidad_norm` es una
+transformación reproducible del texto de origen y cambiarla alteraría una serie ya
+publicada, lo que `docs/07` sujeta a versión nueva. Lo que se corrige es **la instrucción**:
+para cruzar períodos hay que usar `etiqueta`, que sí es el nombre canónico y vale
+`Psiquiatría adulta` en los dos trimestres. La ficha quedó corregida y la advertencia es
+explícita.
+
+**Pendiente:** `etiqueta` solo está poblada para las especialidades de salud mental, que es
+para lo que se creó. Para cualquier otra especialidad **el cruce entre trimestres sigue sin
+una llave estable**, y eso limita el archivo para usos fuera del alcance del proyecto. Si
+alguna vez se publica para uso general, hay que resolverlo antes.
 
 ## Pendientes de verificación heredados del andamiaje
 

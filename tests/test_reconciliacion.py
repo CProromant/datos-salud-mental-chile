@@ -56,10 +56,10 @@ class TestCatalogoReal:
 
     def test_el_denominador_tiene_tolerancia_mas_estricta(self):
         anclas = {a.id: a for a in cargar_anclas()}
-        assert (anclas["poblacion_nacional_2020"].tolerancia_relativa
-                < anclas["defunciones_totales_2020"].tolerancia_relativa), (
-            "sumar el mismo archivo no admite la misma holgura que comparar organismos"
-        )
+        assert (
+            anclas["poblacion_nacional_2020"].tolerancia_relativa
+            < anclas["defunciones_totales_2020"].tolerancia_relativa
+        ), "sumar el mismo archivo no admite la misma holgura que comparar organismos"
 
 
 class TestEvaluacion:
@@ -69,10 +69,13 @@ class TestEvaluacion:
         assert a.evaluar(df) == 2
 
     def test_suma_columna(self):
-        a = Ancla(**_ancla(
-            metrica={"tipo": "suma_columna", "columna": "poblacion"},
-            filtro={"anio": 2020}, valor=30,
-        ))
+        a = Ancla(
+            **_ancla(
+                metrica={"tipo": "suma_columna", "columna": "poblacion"},
+                filtro={"anio": 2020},
+                valor=30,
+            )
+        )
         df = pd.DataFrame({"anio": [2020, 2020, 2021], "poblacion": [10, 20, 99]})
         assert a.evaluar(df) == 30
 
@@ -124,8 +127,9 @@ class TestElGuardBloquea:
         assert resumen(res)["FALLA"] == 2
 
     def test_una_diferencia_de_una_unidad_en_un_millon_no_alarma(self):
-        anclas = [Ancla(**_ancla(valor=1_000_001, filtro={"anio": 2020},
-                                 tolerancia_relativa=0.005))]
+        anclas = [
+            Ancla(**_ancla(valor=1_000_001, filtro={"anio": 2020}, tolerancia_relativa=0.005))
+        ]
         res = reconciliar({"fuente": self._tabla(1_000_000)}, anclas)
         assert res[0]["estado"] == "ok"
 
@@ -190,18 +194,22 @@ class TestFiltroPorPrefijo:
     """Un capítulo CIE-10 son miles de códigos: no se filtra por igualdad."""
 
     def _df(self):
-        return pd.DataFrame({
-            "anio": [2023] * 5,
-            "sexo": ["hombre", "hombre", "hombre", "mujer", "hombre"],
-            "causa_cie10": ["X700", "V892", "I219", "X701", "T71X"],
-        })
+        return pd.DataFrame(
+            {
+                "anio": [2023] * 5,
+                "sexo": ["hombre", "hombre", "hombre", "mujer", "hombre"],
+                "causa_cie10": ["X700", "V892", "I219", "X701", "T71X"],
+            }
+        )
 
     def test_selecciona_el_capitulo_completo(self):
-        a = Ancla(**_ancla(
-            filtro={"anio": 2023, "sexo": "hombre"},
-            filtro_prefijo={"causa_cie10": ["V", "W", "X", "Y"]},
-            valor=2,
-        ))
+        a = Ancla(
+            **_ancla(
+                filtro={"anio": 2023, "sexo": "hombre"},
+                filtro_prefijo={"causa_cie10": ["V", "W", "X", "Y"]},
+                valor=2,
+            )
+        )
         # X700 y V892 son hombres y causa externa. I219 es circulatoria, T71X es
         # capítulo XIX (naturaleza de la lesión) y X701 es mujer.
         assert a.evaluar(self._df()) == 2
@@ -209,11 +217,13 @@ class TestFiltroPorPrefijo:
     def test_es_insensible_a_la_caja(self):
         df = self._df()
         df["causa_cie10"] = df["causa_cie10"].str.lower()
-        a = Ancla(**_ancla(
-            filtro={"anio": 2023, "sexo": "hombre"},
-            filtro_prefijo={"causa_cie10": ["v", "w", "X", "Y"]},
-            valor=2,
-        ))
+        a = Ancla(
+            **_ancla(
+                filtro={"anio": 2023, "sexo": "hombre"},
+                filtro_prefijo={"causa_cie10": ["v", "w", "X", "Y"]},
+                valor=2,
+            )
+        )
         assert a.evaluar(df) == 2
 
     def test_no_confunde_el_capitulo_XIX_con_el_XX(self):

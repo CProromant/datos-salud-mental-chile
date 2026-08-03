@@ -68,7 +68,9 @@ class TestCodigoCorrecto:
     def test_falla_si_desaparece_la_columna_de_codigo_vigente(self, tmp_path):
         crudo = FIXTURE.read_text(encoding="utf-8")
         destino = tmp_path / "sin_codigo.csv"
-        destino.write_text(crudo.replace("EstablecimientoCodigo;", "OtroNombre;", 1), encoding="utf-8")
+        destino.write_text(
+            crudo.replace("EstablecimientoCodigo;", "OtroNombre;", 1), encoding="utf-8"
+        )
         with pytest.raises(SchemaDriftError, match="EstablecimientoCodigo"):
             DeisEstablecimientos().preparar(destino)
 
@@ -91,7 +93,7 @@ class TestComposicionAps:
 
     def test_identifica_la_comuna_sin_aps_municipal(self, aps):
         tabla, _ = aps
-        for cut in ("02301", "05201", "11101"):   # Tocopilla, Isla de Pascua, Coyhaique
+        for cut in ("02301", "05201", "11101"):  # Tocopilla, Isla de Pascua, Coyhaique
             fila = tabla[tabla["comuna_cut"] == cut].iloc[0]
             assert fila["fraccion_municipal"] == 0, f"{cut} no tiene APS municipal"
 
@@ -120,9 +122,9 @@ class TestComposicionAps:
 
     def test_el_reporte_clasifica_las_comunas(self, aps):
         _, rep = aps
-        assert rep["comunas_solo_municipal"] == 3      # Iquique, Santiago, Lautaro
-        assert rep["comunas_mixtas"] == 1              # Quirihue
-        assert rep["comunas_sin_aps_municipal"] == 3   # Tocopilla, Isla de Pascua, Coyhaique
+        assert rep["comunas_solo_municipal"] == 3  # Iquique, Santiago, Lautaro
+        assert rep["comunas_mixtas"] == 1  # Quirihue
+        assert rep["comunas_sin_aps_municipal"] == 3  # Tocopilla, Isla de Pascua, Coyhaique
         assert rep["cut_invalidos"] == 0
 
     def test_falla_si_no_queda_ninguna_aps(self, bronze):

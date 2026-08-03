@@ -64,7 +64,9 @@ class TestFiltradoPorSeccion:
         malo = tmp_path / "otra_seccion.txt"
         malo.write_text(
             "Mes;IdServicio;Ano;IdEstablecimiento;CodigoPrestacion;IdRegion;IdComuna;Col01\n"
-            "12;21;2023;121355;P9990000;9;09108;5\n", encoding="utf-8")
+            "12;21;2023;121355;P9990000;9;09108;5\n",
+            encoding="utf-8",
+        )
         with pytest.raises(SchemaDriftError, match="ninguna fila"):
             RemPoblacionControl(mapeo=MAPEO).preparar(malo)
 
@@ -131,7 +133,9 @@ class TestMapeoFaltante:
         archivo = tmp_path / "2013.txt"
         archivo.write_text(
             "Mes;IdServicio;Ano;IdEstablecimiento;CodigoPrestacion;IdRegion;IdComuna;Col01\n"
-            "12;21;2013;121355;P6221600;9;09108;5\n", encoding="utf-8")
+            "12;21;2013;121355;P6221600;9;09108;5\n",
+            encoding="utf-8",
+        )
         with pytest.raises(SchemaDriftError) as exc:
             RemPoblacionControl(mapeo=MAPEO).preparar(archivo)
         # El mensaje tiene que servir para actuar: qué años hay y por qué faltan los otros.
@@ -205,14 +209,17 @@ class TestSilverDelRem:
 
 
 class TestGrupoEdadRem:
-    @pytest.mark.parametrize("texto,esperado", [
-        ("0 a 4 años", "00-04"),
-        ("5 a 9 años", "05-09"),
-        ("75 a 79 años", "75-79"),
-        ("80 y más años", "80+"),
-        ("80 y mas años", "80+"),
-        ("10 - 14 años", "10-14"),
-    ])
+    @pytest.mark.parametrize(
+        "texto,esperado",
+        [
+            ("0 a 4 años", "00-04"),
+            ("5 a 9 años", "05-09"),
+            ("75 a 79 años", "75-79"),
+            ("80 y más años", "80+"),
+            ("80 y mas años", "80+"),
+            ("10 - 14 años", "10-14"),
+        ],
+    )
     def test_traduce_las_formas_conocidas(self, texto, esperado):
         from obsm.transform.silver import grupo_edad_rem
 
@@ -260,8 +267,11 @@ class TestGoldDelRem:
     def test_no_suma_ambos_sexos_con_hombres_y_mujeres(self, gold):
         # Las tres columnas describen la misma población. Sumarlas duplica a cada persona.
         df, _ = gold
-        junio = df[(df["comuna_cut"] == "09108") & (df["periodo"] == "2023-06")
-                   & (df["etiqueta"] == "DEPRESIÓN LEVE")]
+        junio = df[
+            (df["comuna_cut"] == "09108")
+            & (df["periodo"] == "2023-06")
+            & (df["etiqueta"] == "DEPRESIÓN LEVE")
+        ]
         assert int(junio["personas"].iloc[0]) == 4
 
     def test_advierte_que_los_periodos_no_se_suman(self, gold):
@@ -299,8 +309,7 @@ class TestAislamientoEntreAnios:
     def _argumentos(self, tmp_path, desde, hasta):
         from types import SimpleNamespace
 
-        return SimpleNamespace(config=None, dpa=None, desde=desde, hasta=hasta,
-                               forzar=False)
+        return SimpleNamespace(config=None, dpa=None, desde=desde, hasta=hasta, forzar=False)
 
     def test_un_typeerror_en_un_anio_no_aborta_los_demas(self, tmp_path, monkeypatch):
         from obsm import cli
@@ -324,9 +333,7 @@ class TestAislamientoEntreAnios:
 
         codigo = cli.cmd_rem_ingerir(self._argumentos(tmp_path, 2014, 2016))
 
-        assert procesados == [2014, 2016], (
-            "el año que falló se llevó por delante a los otros"
-        )
+        assert procesados == [2014, 2016], "el año que falló se llevó por delante a los otros"
         assert codigo == 0, "hubo años exitosos: el comando no debe reportar fracaso total"
 
     def test_si_fallan_todos_el_comando_reporta_error(self, tmp_path, monkeypatch):

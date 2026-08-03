@@ -21,16 +21,16 @@ class TestNumeros:
     @pytest.mark.parametrize(
         "entrada,esperado",
         [
-            ("1.234,5", 1234.5),      # formato chileno
-            ("1,234.5", 1234.5),      # formato anglosajón
+            ("1.234,5", 1234.5),  # formato chileno
+            ("1,234.5", 1234.5),  # formato anglosajón
             ("1234.5", 1234.5),
             ("12,7%", 12.7),
             ("  42 ", 42.0),
-            ("$ 1.500", 1500.0),       # punto de miles chileno
+            ("$ 1.500", 1500.0),  # punto de miles chileno
             ("1.234.567", 1234567.0),  # varios puntos: inequívocamente miles
             ("-1.500", -1500.0),
             ("1,5", 1.5),
-            ("0.005", 0.005),          # la excepción: parte entera 0 -> proporción
+            ("0.005", 0.005),  # la excepción: parte entera 0 -> proporción
             ("12.75", 12.75),
             (7, 7.0),
             (3.5, 3.5),
@@ -73,7 +73,8 @@ class TestEncoding:
 
     def test_detecta_utf8(self):
         assert detectar_encoding(FIXTURES / "deis_defunciones" / "muestra_utf8.csv") in {
-            "utf-8", "utf-8-sig"
+            "utf-8",
+            "utf-8-sig",
         }
 
     def test_ambos_archivos_dan_el_mismo_texto(self):
@@ -88,8 +89,12 @@ class TestEncoding:
 class TestManifiesto:
     def test_escribe_json_legible(self, tmp_path):
         m = Manifiesto(
-            source_id="x", url="https://ejemplo.cl", fecha_extraccion="2026-07-26T00:00:00+00:00",
-            sha256="abc", bytes=10, encoding="utf-8",
+            source_id="x",
+            url="https://ejemplo.cl",
+            fecha_extraccion="2026-07-26T00:00:00+00:00",
+            sha256="abc",
+            bytes=10,
+            encoding="utf-8",
         )
         destino = m.escribir(tmp_path / "m.json")
         contenido = destino.read_text(encoding="utf-8")
@@ -162,16 +167,19 @@ class TestElegirTabla:
     @pytest.fixture()
     def almacen(self, tmp_path, monkeypatch):
         from obsm import io
+
         monkeypatch.setattr(io, "DIR_DATOS", tmp_path)
         return tmp_path / "silver" / "ine_proyecciones"
 
     def test_sin_archivos_devuelve_none(self, almacen):
         from obsm.io import elegir_tabla
+
         almacen.mkdir(parents=True)
         assert elegir_tabla("silver", "ine_proyecciones") is None
 
     def test_con_uno_lo_devuelve(self, almacen):
         from obsm.io import elegir_tabla
+
         almacen.mkdir(parents=True)
         (almacen / "base_2017.parquet").write_bytes(b"x")
         assert elegir_tabla("silver", "ine_proyecciones").name == "base_2017.parquet"
@@ -179,6 +187,7 @@ class TestElegirTabla:
     def test_con_dos_lanza_en_vez_de_elegir(self, almacen):
         from obsm.errors import SchemaDriftError
         from obsm.io import elegir_tabla
+
         almacen.mkdir(parents=True)
         # El orden alfabético elegiría base_2024, que es el que un `sorted()[-1]` habría
         # tomado por accidente. Que acierte por casualidad es peor que fallar.
@@ -190,6 +199,7 @@ class TestElegirTabla:
     def test_el_mensaje_dice_como_resolverlo(self, almacen):
         from obsm.errors import SchemaDriftError
         from obsm.io import elegir_tabla
+
         almacen.mkdir(parents=True)
         (almacen / "a.parquet").write_bytes(b"x")
         (almacen / "b.parquet").write_bytes(b"y")
@@ -201,6 +211,7 @@ class TestElegirTabla:
 
     def test_el_desempate_explicito_es_aceptable(self, almacen):
         from obsm.io import elegir_tabla
+
         almacen.mkdir(parents=True)
         (almacen / "base_2017.parquet").write_bytes(b"x")
         (almacen / "base_2024.parquet").write_bytes(b"y")
@@ -211,6 +222,7 @@ class TestElegirTabla:
     def test_un_preferido_inexistente_falla(self, almacen):
         from obsm.errors import SchemaDriftError
         from obsm.io import elegir_tabla
+
         almacen.mkdir(parents=True)
         with pytest.raises(SchemaDriftError, match="no existe"):
             elegir_tabla("silver", "ine_proyecciones", preferido="fantasma.parquet")

@@ -86,12 +86,21 @@ NIVELES = {
 class DeisEstablecimientos(Ingestor):
     source_id = "deis_establecimientos"
     columnas_requeridas = (
-        "establecimiento_deis", "comuna_cut_fuente", "dependencia",
-        "nivel_atencion", "sistema_salud", "vigente",
+        "establecimiento_deis",
+        "comuna_cut_fuente",
+        "dependencia",
+        "nivel_atencion",
+        "sistema_salud",
+        "vigente",
     )
     columnas_opcionales = (
-        "establecimiento_nombre", "tipo_establecimiento", "comuna_nombre",
-        "region_cut_fuente", "servicio_salud", "fecha_inicio", "fecha_cierre",
+        "establecimiento_nombre",
+        "tipo_establecimiento",
+        "comuna_nombre",
+        "region_cut_fuente",
+        "servicio_salud",
+        "fecha_inicio",
+        "fecha_cierre",
     )
 
     def _leer(self, ruta: Path) -> pd.DataFrame:
@@ -153,8 +162,15 @@ class DeisEstablecimientos(Ingestor):
 
         log.info(
             "[%s] %d establecimientos, %d vigentes, %d de primer nivel público",
-            self.source_id, len(out), int(out["vigente"].sum()),
-            int((out["vigente"] & out["nivel_atencion"].eq("primario")
-                 & out["sistema_salud"].eq("publico")).sum()),
+            self.source_id,
+            len(out),
+            int(out["vigente"].sum()),
+            int(
+                (
+                    out["vigente"]
+                    & out["nivel_atencion"].eq("primario")
+                    & out["sistema_salud"].eq("publico")
+                ).sum()
+            ),
         )
         return out

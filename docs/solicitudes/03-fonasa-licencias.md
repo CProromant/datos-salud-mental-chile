@@ -1,8 +1,10 @@
 # Solicitud 3 — FONASA: términos de uso del padrón de inscritos en APS
 
 **Organismo:** Fondo Nacional de Salud (FONASA)
-**Estado:** sin enviar
-**Enviada el:** ___  **N° de seguimiento:** ___  **Respuesta esperada:** ___
+**Estado:** **enviada**, acuse de recibo recibido
+**Enviada el:** 2026-08-03  **N° de seguimiento:** `AO004T0010729`
+**Acusó recibo:** Fondo Nacional de Salud (FONASA)
+**Plazo legal:** 2026-08-31 (20 días hábiles) · con prórroga, 2026-09-14
 
 ---
 

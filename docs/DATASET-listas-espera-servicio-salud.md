@@ -5,7 +5,8 @@ Este documento acompaña a `listas_espera_servicio_salud.csv`. Léelo antes de u
 
 - **Versión del dataset:** `2026.07.3` — el código que lo produjo es `v0.2.0`
 - **Licencia:** CC BY-SA 4.0 — ver `LICENSE-DATA.md`. Permite uso comercial.
-- **Cobertura:** 29 Servicios de Salud más el total nacional × 26 trimestres × 3 listas.
+- **Cobertura:** 2.340 filas = 29 Servicios de Salud más el total nacional × 26 trimestres
+  (2019-03 a 2025-06) × 3 listas. La grilla está completa.
   2.340 filas.
 - **Fuente:** visualizador de listas de espera del MINSAL (`listaesperasalud.cl`),
   Subsecretaría de Redes Asistenciales.

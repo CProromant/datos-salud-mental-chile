@@ -135,9 +135,7 @@ class IneProyecciones(Ingestor):
         de esquema **antes** de posprocesar: una columna requerida que nace después de la
         validación hace fallar la ingesta con un mensaje que culpa a la fuente.
         """
-        candidatas = [
-            c for c in df.columns if str(c).strip().lower().startswith(PREFIJO_SEXO)
-        ]
+        candidatas = [c for c in df.columns if str(c).strip().lower().startswith(PREFIJO_SEXO)]
         if len(candidatas) != 1:
             raise SchemaDriftError(
                 f"[{self.source_id}] se esperaba exactamente una columna de sexo que "

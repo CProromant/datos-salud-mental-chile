@@ -1,0 +1,7 @@
+PERTENENCIA_ESTABLECIMIENTO_SALUD;SEXO;GRUPO_EDAD;GLOSA_PAIS_ORIGEN;COMUNA_RESIDENCIA;GLOSA_COMUNA_RESIDENCIA;REGION_RESIDENCIA;GLOSA_REGION_RESIDENCIA;PREVISION;GLOSA_PREVISION;ANO_EGRESO;DIAG1;DIAG2;DIAS_ESTADA;CONDICION_EGRESO
+No Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;1;1 A 4 AÑOS;Argentina;05605;El Tabo;05;De Valparaíso;2;ISAPRE;2021;K590;;1;1
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;2;15 A 19 AÑOS;Chileno;13101;Santiago;13;Metropolitana de Santiago;1;FONASA;2021;T391;X600;2;1
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;1;30 A 34 AÑOS;Chileno;13101;Santiago;13;Metropolitana de Santiago;1;FONASA;2021;F200;;30;1
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;2;85 A MAS;Chileno;09101;Temuco;09;De La Araucanía;1;FONASA;2021;I219;;4;2
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;1;menor a 7 días;Chileno;09101;Temuco;09;De La Araucanía;1;FONASA;2021;P219;;9;1
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;3;28 DIAS A 2 MES;Chileno;09101;Temuco;09;De La Araucanía;1;FONASA;2021;P599;;3;1

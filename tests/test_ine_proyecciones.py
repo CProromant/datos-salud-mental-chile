@@ -57,7 +57,11 @@ class TestTerritorio:
     def test_silver_es_quien_lo_completa(self, bronze):
         from obsm.territorio import formatear_cut_comuna
 
-        assert formatear_cut_comuna(bronze["comuna_cut_fuente"].iloc[0]) in {"01101", "13120", "11101"}
+        assert formatear_cut_comuna(bronze["comuna_cut_fuente"].iloc[0]) in {
+            "01101",
+            "13120",
+            "11101",
+        }
         assert formatear_cut_comuna("1101") == "01101"
 
     def test_lee_los_nombres_con_tilde(self, bronze):
@@ -158,8 +162,10 @@ class TestIntegracionConSilver:
     def test_el_total_nacional_se_puede_reconstruir_por_anio(self, bronze):
         # Es la operación que hace gold para obtener el denominador de una tasa nacional.
         totales = bronze.groupby("anio")["poblacion"].sum()
-        assert totales[2002] == sum([1469, 2100, 615] * 2 + [3200, 5400, 1810] * 2
-                                    + [90, 140, 33] * 2) + 2  # +2 = Antártica
+        assert (
+            totales[2002]
+            == sum([1469, 2100, 615] * 2 + [3200, 5400, 1810] * 2 + [90, 140, 33] * 2) + 2
+        )  # +2 = Antártica
         assert totales[2003] > totales[2002]
 
     def test_la_grilla_no_tiene_duplicados(self, bronze):

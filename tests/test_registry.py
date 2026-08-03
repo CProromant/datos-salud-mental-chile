@@ -85,10 +85,18 @@ class TestReglas:
             cargar_registro(ruta)
 
     def test_verificada_con_origen_por_confirmar_es_contradiccion(self, tmp_path):
-        ruta = _escribir(tmp_path, [{
-            "id": "x", "nombre": "X", "estado": "verificada",
-            "fecha_verificacion": "2026-07-26", "origen_url": "por_confirmar",
-        }])
+        ruta = _escribir(
+            tmp_path,
+            [
+                {
+                    "id": "x",
+                    "nombre": "X",
+                    "estado": "verificada",
+                    "fecha_verificacion": "2026-07-26",
+                    "origen_url": "por_confirmar",
+                }
+            ],
+        )
         with pytest.raises(ObsmError, match="contradicción"):
             cargar_registro(ruta)
 
@@ -113,25 +121,45 @@ class TestProcedencia:
     """
 
     def test_source_version_es_campo_y_no_cae_en_extra(self, tmp_path):
-        ruta = _escribir(tmp_path, [{
-            "id": "x", "nombre": "X", "source_version": "CIFRAS_OFICIALES 1990-2023",
-        }])
+        ruta = _escribir(
+            tmp_path,
+            [
+                {
+                    "id": "x",
+                    "nombre": "X",
+                    "source_version": "CIFRAS_OFICIALES 1990-2023",
+                }
+            ],
+        )
         f = cargar_registro(ruta).get("x")
         assert f.source_version == "CIFRAS_OFICIALES 1990-2023"
         assert "source_version" not in f.extra
 
     def test_url_principal_prefiere_el_archivo_sobre_el_indice(self, tmp_path):
-        ruta = _escribir(tmp_path, [{
-            "id": "x", "nombre": "X",
-            "url_indice": "https://ejemplo.cl/#datosabiertos",
-            "url_archivo": "https://ejemplo.cl/datos/archivo.zip",
-        }])
+        ruta = _escribir(
+            tmp_path,
+            [
+                {
+                    "id": "x",
+                    "nombre": "X",
+                    "url_indice": "https://ejemplo.cl/#datosabiertos",
+                    "url_archivo": "https://ejemplo.cl/datos/archivo.zip",
+                }
+            ],
+        )
         assert cargar_registro(ruta).get("x").url_principal.endswith("archivo.zip")
 
     def test_url_principal_cae_al_indice_si_no_hay_archivo(self, tmp_path):
-        ruta = _escribir(tmp_path, [{
-            "id": "x", "nombre": "X", "url_indice": "https://ejemplo.cl/indice",
-        }])
+        ruta = _escribir(
+            tmp_path,
+            [
+                {
+                    "id": "x",
+                    "nombre": "X",
+                    "url_indice": "https://ejemplo.cl/indice",
+                }
+            ],
+        )
         assert cargar_registro(ruta).get("x").url_principal == "https://ejemplo.cl/indice"
 
     def test_la_fuente_real_de_defunciones_tiene_procedencia_completa(self):
@@ -202,17 +230,33 @@ class TestCompatibilidadDeLicencias:
     )
     def test_el_guard_detecta_de_verdad(self, tmp_path, extra, detecta):
         """Sin esto, el test del catálogo real podría estar pasando por no mirar nada."""
-        ruta = _escribir(tmp_path, [{
-            "id": "x", "nombre": "X", "estado": "verificada",
-            "fecha_verificacion": "2026-01-01", **extra,
-        }])
+        ruta = _escribir(
+            tmp_path,
+            [
+                {
+                    "id": "x",
+                    "nombre": "X",
+                    "estado": "verificada",
+                    "fecha_verificacion": "2026-01-01",
+                    **extra,
+                }
+            ],
+        )
         assert bool(self._incompatibles(cargar_registro(ruta))) is detecta
 
     def test_una_fuente_no_verificada_no_dispara_el_guard(self, tmp_path):
         # El catálogo puede contener hipótesis; lo que no puede es publicarlas.
-        ruta = _escribir(tmp_path, [{
-            "id": "x", "nombre": "X", "estado": "no_verificada", "licencia": "CC BY-NC 4.0",
-        }])
+        ruta = _escribir(
+            tmp_path,
+            [
+                {
+                    "id": "x",
+                    "nombre": "X",
+                    "estado": "no_verificada",
+                    "licencia": "CC BY-NC 4.0",
+                }
+            ],
+        )
         assert self._incompatibles(cargar_registro(ruta)) == []
 
     def test_ninguna_fuente_que_alimenta_gold_tiene_clausula_incompatible(self):
@@ -260,8 +304,9 @@ class TestDependenciasDeclaradas:
             requisitos += extra
         # Varios paquetes se importan con otro nombre: `pyyaml` como `yaml`,
         # `pymupdf` como `fitz`.
-        declarados = {r.split(">")[0].split("=")[0].split("[")[0].strip().lower()
-                      for r in requisitos}
+        declarados = {
+            r.split(">")[0].split("=")[0].split("[")[0].strip().lower() for r in requisitos
+        }
         declarados |= {"yaml", "fitz"}
 
         propios = {"obsm", "tests"}
@@ -280,9 +325,7 @@ class TestDependenciasDeclaradas:
                     for m in mods:
                         if m in estandar or m in propios or m.lower() in declarados:
                             continue
-                        sin_declarar.setdefault(m, set()).add(
-                            str(ruta.relative_to(raiz))
-                        )
+                        sin_declarar.setdefault(m, set()).add(str(ruta.relative_to(raiz)))
         assert not sin_declarar, (
             f"paquetes importados y no declarados en pyproject.toml: "
             f"{ {k: sorted(v) for k, v in sin_declarar.items()} }"
@@ -303,20 +346,37 @@ class TestCifrasDeLaDocumentacion:
     @staticmethod
     def _raiz():
         import pathlib
+
         return pathlib.Path(__file__).resolve().parents[1]
 
     @staticmethod
     def _declarado(texto: str, etiqueta: str) -> int | None:
         """Lee `| <etiqueta> | <n> ... |` de una tabla markdown."""
         import re
+
         m = re.search(rf"\|\s*{etiqueta}[^|]*\|\s*([\d.]+)", texto, re.I)
         return int(m.group(1).replace(".", "")) if m else None
 
-    def test_el_numero_de_anomalias_es_el_real(self):
+    @staticmethod
+    def _ids_de_anomalias() -> list[str]:
+        """Ids de las anomalías reales, **saltando los bloques de código**.
+
+        El salto no es cosmético: el documento trae una plantilla de ejemplo dentro de un
+        bloque cerrado con backticks, que un regex ingenuo cuenta como una anomalía más.
+        Durante un tiempo ese conteo dio el número correcto solo porque la plantilla usaba
+        el id de una anomalía real y `set()` lo colapsaba —dos errores que se tapaban.
+        """
+        import pathlib
         import re
+
+        raiz = pathlib.Path(__file__).resolve().parents[1]
+        texto = (raiz / "docs" / "05-CALIDAD.md").read_text(encoding="utf-8")
+        sin_bloques = re.sub(r"```.*?```", "", texto, flags=re.S)
+        return re.findall(r"^### (A-\d+)", sin_bloques, re.M)
+
+    def test_el_numero_de_anomalias_es_el_real(self):
         raiz = self._raiz()
-        calidad = (raiz / "docs" / "05-CALIDAD.md").read_text(encoding="utf-8")
-        reales = len(set(re.findall(r"^### (A-\d+)", calidad, re.M)))
+        reales = len(set(self._ids_de_anomalias()))
         for doc in ("README.md", "PLAN.md"):
             texto = (raiz / doc).read_text(encoding="utf-8")
             declarado = self._declarado(texto, "[Aa]nomalías documentadas")
@@ -324,10 +384,81 @@ class TestCifrasDeLaDocumentacion:
                 f"{doc} declara {declarado} anomalías y docs/05-CALIDAD.md tiene {reales}"
             )
 
+    def test_el_estado_de_cada_indicador_coincide_con_su_ficha(self):
+        """`config/indicators.yml` y `docs/04` tienen que decir lo mismo.
+
+        Se desalinearon: I-05 e I-06 figuraban `implementado` en el YAML mientras su ficha
+        seguía diciendo «definido … sin implementar», y en el caso de I-06 la serie ya
+        estaba **publicada**. Quien lea la ficha para saber si puede usar un indicador se
+        lleva la respuesta contraria a la real.
+        """
+        import re
+
+        import yaml
+
+        raiz = self._raiz()
+        estados = {
+            i["id"]: str(i.get("estado", ""))
+            for i in yaml.safe_load(
+                (raiz / "config" / "indicators.yml").read_text(encoding="utf-8")
+            )["indicadores"]
+        }
+        doc = (raiz / "docs" / "04-INDICADORES.md").read_text(encoding="utf-8")
+        fichas = dict(re.findall(r"\{#(i-\d+)\}\n\n- \*\*Estado:\*\*\s*([^\n.]*)", doc))
+        faltan = sorted(set(estados) - {k.upper() for k in fichas})
+        assert not faltan, f"indicadores sin ficha en docs/04: {faltan}"
+        for iid, estado in estados.items():
+            texto = fichas[iid.lower()].lower()
+            # `implementado_no_publicable` se redacta como «implementado, no publicable».
+            raiz_estado = estado.split("_")[0].lower()
+            assert raiz_estado in texto.replace("*", ""), (
+                f"{iid}: el catálogo dice {estado!r} y su ficha dice {texto.strip()!r}"
+            )
+
+    def test_cada_fuente_del_catalogo_tiene_ficha_propia(self):
+        """`CLAUDE.md` §7 pone la ficha como paso 1 de agregar una fuente.
+
+        Se saltó tres veces: `fonasa_padron_aps` se usó desde Fase 2 sin ficha, y
+        `subdere_cut` —el maestro territorial, la fuente marcada `critico: true`— llevaba
+        desde Fase 1 mencionado solo de pasada. Una fuente sin ficha es una fuente cuyas
+        trampas viven únicamente en los comentarios del YAML.
+        """
+        import re
+
+        import yaml
+
+        raiz = self._raiz()
+        cat = yaml.safe_load((raiz / "config" / "sources.yml").read_text(encoding="utf-8"))
+        ids = {f["id"] for f in cat["fuentes"]}
+        texto = (raiz / "docs" / "01-FUENTES.md").read_text(encoding="utf-8")
+        con_ficha = set(re.findall(r"^### [A-Z]\d+[a-z]?\. `([a-z0-9_]+)`", texto, re.M))
+        assert not (ids - con_ficha), (
+            f"fuentes en el catálogo sin ficha propia en docs/01-FUENTES.md: "
+            f"{sorted(ids - con_ficha)}"
+        )
+        assert not (con_ficha - ids), (
+            f"fichas en docs/01-FUENTES.md sin entrada en el catálogo, que es la fuente de "
+            f"verdad (CLAUDE.md §3): {sorted(con_ficha - ids)}"
+        )
+
+    def test_ningun_id_de_anomalia_esta_repetido(self):
+        """Dos anomalías con el mismo id dejan ambiguas las referencias desde tests y fichas."""
+        ids = self._ids_de_anomalias()
+        repetidos = sorted({i for i in ids if ids.count(i) > 1})
+        assert not repetidos, f"ids de anomalía repetidos en docs/05-CALIDAD.md: {repetidos}"
+
+    def test_las_anomalias_van_en_orden(self):
+        """Un registro que se lee de arriba abajo tiene que estar ordenado para servir."""
+        ids = self._ids_de_anomalias()
+        assert ids == sorted(ids), (
+            f"docs/05-CALIDAD.md no está en orden correlativo. Orden actual: {ids}"
+        )
+
     def test_el_numero_de_fuentes_verificadas_es_el_real(self):
         import re
 
         import yaml
+
         raiz = self._raiz()
         cat = yaml.safe_load((raiz / "config" / "sources.yml").read_text(encoding="utf-8"))
         fuentes = cat["fuentes"]
@@ -352,13 +483,12 @@ class TestCifrasDeLaDocumentacion:
         import yaml
 
         from obsm.ingest import INGESTORES
+
         raiz = self._raiz()
         cat = yaml.safe_load((raiz / "config" / "sources.yml").read_text(encoding="utf-8"))
         ids = {f["id"] for f in cat["fuentes"]}
         huerfanos = sorted(set(INGESTORES) - ids)
-        assert not huerfanos, (
-            f"ingestores sin entrada en config/sources.yml: {huerfanos}"
-        )
+        assert not huerfanos, f"ingestores sin entrada en config/sources.yml: {huerfanos}"
 
 
 class TestParserDelCLI:
@@ -373,14 +503,26 @@ class TestParserDelCLI:
 
     def test_el_parser_se_construye(self):
         from obsm.cli import construir_parser
+
         assert construir_parser() is not None
 
     def test_todos_los_subcomandos_declarados_responden(self):
         from obsm.cli import construir_parser
+
         p = construir_parser()
         accion = next(a for a in p._actions if a.dest == "grupo")
-        esperados = {"sources", "territorio", "ingest", "build", "rem", "glosa06",
-                     "espera", "run", "qa"}
+        esperados = {
+            "sources",
+            "territorio",
+            "ingest",
+            "build",
+            "rem",
+            "glosa06",
+            "espera",
+            "egresos",
+            "run",
+            "qa",
+        }
         assert esperados <= set(accion.choices), (
             f"faltan subcomandos: {sorted(esperados - set(accion.choices))}"
         )
@@ -388,6 +530,7 @@ class TestParserDelCLI:
     def test_cada_subcomando_tiene_funcion_asociada(self):
         # Un subcomando sin `set_defaults(func=...)` acepta la invocación y no hace nada.
         from obsm.cli import construir_parser
+
         p = construir_parser()
         accion = next(a for a in p._actions if a.dest == "grupo")
         sin_func = []
@@ -395,12 +538,26 @@ class TestParserDelCLI:
             tiene = sp.get_default("func") is not None
             if not tiene:
                 sub = next((a for a in sp._actions if a.choices and hasattr(a, "dest")), None)
-                tiene = bool(sub and all(
-                    s.get_default("func") is not None for s in sub.choices.values()
-                ))
+                tiene = bool(
+                    sub and all(s.get_default("func") is not None for s in sub.choices.values())
+                )
             if not tiene:
                 sin_func.append(nombre)
         assert not sin_func, f"subcomandos sin función: {sin_func}"
+
+    def test_egresos_no_trae_recursos_de_ayuda_por_defecto(self):
+        """`docs/06` no admite un valor por defecto acá.
+
+        Si `--recursos-ayuda` tuviera uno, la serie de lesión autoinfligida se escribiría
+        sola con números de ayuda que nadie verificó ese día — que es exactamente el daño
+        que la regla evita. El default vacío es lo que hace que la puerta exista.
+        """
+        from obsm.cli import construir_parser
+
+        args = construir_parser().parse_args(["egresos", "EGRESOS_2023.zip"])
+        assert args.recursos_ayuda == []
+        # Y el umbral de la serie sensible es el de mortalidad, no el de actividad.
+        assert args.k_autoinfligida == 10
 
 
 class TestEnlacesDeLaDocumentacion:
@@ -439,7 +596,8 @@ class TestEnlacesDeLaDocumentacion:
                 out.add(explicita.group(1))
                 titulo = titulo[: explicita.start()].strip()
             s = "".join(
-                c for c in unicodedata.normalize("NFKD", titulo.lower())
+                c
+                for c in unicodedata.normalize("NFKD", titulo.lower())
                 if not unicodedata.combining(c)
             )
             out.add(re.sub(r"\s+", "-", re.sub(r"[^\w\s-]", "", s).strip()))
@@ -452,6 +610,7 @@ class TestEnlacesDeLaDocumentacion:
     @staticmethod
     def _raiz():
         import pathlib
+
         return pathlib.Path(__file__).resolve().parents[1]
 
     def test_ningun_enlace_interno_roto(self):
@@ -467,7 +626,9 @@ class TestEnlacesDeLaDocumentacion:
                 base = (doc.parent / ruta).resolve() if ruta else doc.resolve()
                 if not base.exists():
                     rotos.append(f"{doc.name}: [{m.group(1)[:20]}]({destino}) — no existe")
-                elif ancla and base.suffix == ".md" and ancla not in self._encabezados_y_anclas(base):
+                elif (
+                    ancla and base.suffix == ".md" and ancla not in self._encabezados_y_anclas(base)
+                ):
                     rotos.append(f"{doc.name}: [{m.group(1)[:20]}]({destino}) — ancla ausente")
         assert not rotos, "enlaces rotos:\n  " + "\n  ".join(rotos)
 

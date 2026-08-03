@@ -18,8 +18,15 @@ from obsm.indicators.tasas import (
 class TestGrupoQuinquenal:
     @pytest.mark.parametrize(
         "edad,esperado",
-        [(0, "00-04"), (4, "00-04"), (5, "05-09"), (17, "15-19"), (84, "80-84"),
-         (85, "85+"), (97, "85+")],
+        [
+            (0, "00-04"),
+            (4, "00-04"),
+            (5, "05-09"),
+            (17, "15-19"),
+            (84, "80-84"),
+            (85, "85+"),
+            (97, "85+"),
+        ],
     )
     def test_casos(self, edad, esperado):
         assert grupo_quinquenal(edad) == esperado

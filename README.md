@@ -63,7 +63,7 @@ Los enlaces `CSV` bajan el archivo de la **última versión publicada** directam
 [release completo](https://github.com/CProromant/datos-salud-mental-chile/releases/latest) trae además el ZIP con todo el conjunto y sus manifiestos.
 
 **Ninguna se lee bien sin su ficha, y las tres nuevas menos que las anteriores:** la de
-cobertura tiene **la mitad de sus filas sin valor a propósito**, la de listas de espera **no
+cobertura tiene **casi dos tercios de sus filas sin valor a propósito**, la de listas de espera **no
 baja a comuna**, y la de especialidad **no cruza con territorio** porque ninguna fuente
 pública lo hace. Cada límite está declarado en el archivo, columna por columna.
 
@@ -160,11 +160,11 @@ Detalle en [`docs/02-ARQUITECTURA.md`](docs/02-ARQUITECTURA.md).
 
 | | |
 |---|---|
-| Tests | 556+ pasando |
+| Tests | 652 pasando |
 | Lint y tipos | limpios |
-| Fuentes verificadas con descarga real | 11 de 19 |
+| Fuentes verificadas con descarga real | 12 de 20 |
 | Anclas de reconciliación automáticas | 5 de 5 cuadrando |
-| Anomalías documentadas | 20 |
+| Anomalías documentadas | 24 |
 
 Una fuente está `verificada` solo cuando alguien **abrió el archivo y lo entendió** — no
 cuando el servidor respondió 200.

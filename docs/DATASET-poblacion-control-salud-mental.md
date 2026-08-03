@@ -5,7 +5,11 @@ archivo.
 
 - **Versión del dataset:** `2026.07.1` — el código que lo produjo es `v0.2.0`
 - **Licencia:** CC BY-SA 4.0 — ver `LICENSE-DATA.md`. Permite uso comercial.
-- **Cobertura:** 345 comunas × 24 cortes semestrales (2014-06 a 2025-12) × 70 conceptos.
+- **Cobertura:** 228.572 filas. La grilla es de 345 comunas × 24 cortes semestrales
+  (2014-06 a 2025-12) × 70 conceptos, pero **no está completa**: solo hay fila cuando el
+  REM reportó ese concepto en esa comuna y ese corte. Multiplicar las tres dimensiones da
+  579.600, dos veces y media el archivo real. Una fila ausente no es un cero: es que no se
+  reportó, y la diferencia importa.
 - **Fuente:** REM Serie P, sección P6 — DEIS/MINSAL.
 
 ## Qué contiene

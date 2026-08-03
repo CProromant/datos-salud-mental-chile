@@ -278,10 +278,37 @@ evidencia de la imposibilidad, y decirlo en la ficha.
 
 1. **Un dueño institucional** que use y defienda la herramienta (centro académico, sociedad
    científica, Defensoría de la Niñez, un Servicio de Salud). Sin esto el proyecto muere en
-   el mes seis. Conseguirlo es tarea de la Fase 1, en paralelo al código.
+   el mes seis.
+
+   > **Corregido el 2026-08-03: no es tarea de la Fase 1.** El plan decía «conseguirlo es
+   > tarea de la Fase 1, en paralelo al código» y eso resultó irreal. Un proyecto sin serie
+   > propia que mostrar no puede pedirle a una sociedad científica que ponga su nombre, y
+   > una revisión clínica solicitada en frío, sin respaldo, tiene pocas probabilidades. El
+   > orden correcto es el inverso: **primero la evidencia de que la herramienta sirve,
+   > después el respaldo.**
+   >
+   > Para que «todavía no» no se convierta en «nunca» por deriva, el gatillo queda escrito.
+   > Se sale a buscar dueño institucional cuando se cumplan las tres:
+   >
+   > - [ ] **Seis series publicadas y descargables**, con ficha cada una. Van cinco; I-11
+   >       (egresos por trastorno mental) es la sexta y no tiene bloqueo ético.
+   > - [ ] **Un hallazgo citable que nadie más publique.** Ya hay dos candidatos medidos:
+   >       el gasto en salud mental es el **0,05 %** identificable de la partida 16, y
+   >       **ninguna fuente pública cruza especialidad con territorio** pese a que la
+   >       Glosa 06 lo obliga.
+   > - [ ] **Respuesta a las solicitudes de Transparencia** (vencen el 2026-08-31). Llegar
+   >       con las licencias resueltas, o con la negativa documentada, es parte del caso.
+   >
+   > Cumplidas las tres, la conversación deja de ser «ayúdenme a construir esto» y pasa a
+   > ser «esto ya existe y funciona; úsenlo». Es una posición distinta para pedir.
+
 2. **Un revisor con competencia epidemiológica** para las fichas de indicador.
 3. **Un revisor con competencia en salud mental y prevención de suicidio** para todo lo que
-   se publique sobre suicidio.
+   se publique sobre suicidio. **Bloquea I-05 e I-12**, que están implementados y detenidos
+   solo por esto. `docs/09` impide que lo resuelva quien construye los indicadores, así que
+   no hay atajo propio: llega con el dueño institucional o con alguien dispuesto a revisar
+   dos fichas acotadas. Mientras tanto las dos series quedan escritas, probadas y sin salir,
+   que es el estado correcto y no una deuda.
 4. **Las licencias de las fuentes.** Resuelto para el INE el 2026-07-27: publica bajo
    CC BY-SA 4.0, y como sus proyecciones son el denominador de toda tasa, su cláusula
    CompartirIgual obliga al derivado. El proyecto adoptó CC BY-SA 4.0 para `gold`
@@ -292,9 +319,9 @@ evidencia de la imposibilidad, y decirlo en la ficha.
    fuente bajo CC BY o dominio público no da problema, pero una con cláusula no comercial
    obligaría a reabrir la decisión antes de publicar. Es una dependencia externa porque no
    se resuelve programando, se resuelve leyendo o preguntando al organismo. La vía concreta
-   es una solicitud por Ley de Transparencia. **Las cuatro están redactadas** en
-   `docs/solicitudes/` y pendientes de enviar; no cuestan trabajo técnico y tardan 20 días
-   hábiles, así que el reloj corre solo desde que se envían.
+   es una solicitud por Ley de Transparencia. **Las cuatro se enviaron el 2026-08-03**, con acuse de recibo y número de
+   seguimiento (ver `docs/solicitudes/`). Plazo legal: **2026-08-31**; con prórroga,
+   2026-09-14. El reloj ya corre.
 
 ## Métricas del propio proyecto
 
@@ -304,16 +331,19 @@ evidencia de la imposibilidad, y decirlo en la ficha.
 - Uso: descargas, citas, consultas de la API.
 - Fallos silenciosos detectados en producción: objetivo cero, y cada uno genera un test.
 
-**Marcador al 2026-07-29** (fin de Fase 2):
+**Marcador al 2026-08-03** (Fases 0 a 3 cerradas, Fase 4 reconocida):
 
 | métrica | valor | al 2026-07-27 |
 |---|---|---|
-| fuentes verificadas con descarga real | 11 de 19 | 4 de 17 |
-| indicadores activos con ficha y verificación externa | 3 (I-01, I-02, I-03) | 2 |
+| fuentes verificadas con descarga real | 12 de 20 | 4 de 17 |
+| ingestores funcionando | 8 | 2 |
+| series publicadas | 5 (release v0.3.0) | 1 |
+| indicadores activos con ficha y verificación externa | 4 (I-01, I-02, I-03, I-06) | 2 |
+| indicadores implementados sin publicar | 3 (I-05, I-11, I-12) | 0 |
 | anclas de reconciliación automáticas | 5, todas cuadrando | 5 |
-| anomalías documentadas con reproducción y decisión | 20 | 9 |
-| tests | 556 | 323 |
-| fallos silenciosos detectados **antes** de producción | 8, cada uno con su test | 5 |
+| anomalías documentadas con reproducción y decisión | 24 | 9 |
+| tests | 652 | 323 |
+| fallos silenciosos detectados **antes** de producción | 10, cada uno con su test | 5 |
 
 La última fila es la que importa y conviene leerla con cuidado: son defectos que no lanzaban
 excepción y que habrían publicado números plausibles y falsos. Ninguno lo encontró el CI. Los

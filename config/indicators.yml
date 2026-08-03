@@ -31,7 +31,7 @@ indicadores:
 
   - id: I-03
     nombre: "Cobertura del programa de salud mental en APS"
-    estado: implementado
+    estado: activo
     fase: 2
     fuente: rem_salud_mental
     denominador: fonasa_inscritos
@@ -71,7 +71,7 @@ indicadores:
     nombre: "Espera en psiquiatría adulto e infanto-adolescente"
     requiere: [glosa06, listaespera_minsal]
     limitacion: "ninguna fuente pública cruza especialidad con territorio"
-    estado: implementado
+    estado: activo
     fase: 3
     fuente: glosa06
     unidad: [casos, dias]
@@ -114,3 +114,23 @@ indicadores:
     metodo: cusum
     salida: issue_interno
     prohibido: [publicacion_automatica, notificacion_publica]
+
+  - id: I-11
+    nombre: "Egresos hospitalarios por trastorno mental"
+    requiere: [deis_egresos]
+    limitacion: "un egreso no es una persona; sin edad exacta no admite estandarización"
+    estado: implementado
+    fase: 2
+    fuente: deis_egresos
+    unidad: [egresos, dias]
+    nivel_maximo_publicable: comuna
+
+  - id: I-12
+    nombre: "Egresos hospitalarios por lesión autoinfligida"
+    requiere: [deis_egresos]
+    limitacion: "docs/06: exige revisión clínica y recursos de ayuda antes de publicar"
+    estado: implementado_no_publicable
+    fase: 2
+    fuente: deis_egresos
+    unidad: [egresos]
+    nivel_maximo_publicable: comuna

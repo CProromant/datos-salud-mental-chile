@@ -84,8 +84,7 @@ class Registro:
     def get(self, source_id: str) -> Fuente:
         if source_id not in self.fuentes:
             raise ObsmError(
-                f"Fuente desconocida: {source_id!r}. Fuentes disponibles: "
-                f"{sorted(self.fuentes)}"
+                f"Fuente desconocida: {source_id!r}. Fuentes disponibles: {sorted(self.fuentes)}"
             )
         return self.fuentes[source_id]
 
@@ -102,9 +101,7 @@ class Registro:
         )
 
     def por_fase(self, fase: int) -> list[Fuente]:
-        return sorted(
-            (f for f in self if f.fase == fase), key=lambda f: (f.prioridad or 99, f.id)
-        )
+        return sorted((f for f in self if f.fase == fase), key=lambda f: (f.prioridad or 99, f.id))
 
     def resumen(self) -> dict:
         return {
@@ -147,9 +144,7 @@ def _validar(f: Fuente) -> None:
             f"Una verificación sin fecha caduca sin que nadie lo note."
         )
     if f.estado == "verificada" and f.origen_url == "por_confirmar":
-        raise ObsmError(
-            f"[{f.id}] contradicción: estado verificada con origen_url por_confirmar"
-        )
+        raise ObsmError(f"[{f.id}] contradicción: estado verificada con origen_url por_confirmar")
 
 
 def verificar_urls(registro: Registro, timeout: int = 30) -> list[dict]:

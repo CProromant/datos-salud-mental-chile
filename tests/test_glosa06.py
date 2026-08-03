@@ -162,18 +162,21 @@ class TestPeriodo:
     def test_lee_las_dos_formas_de_escribir_el_trimestre(self, texto, esperado):
         # Dos informes consecutivos usan formas distintas: romanos y ordinales en palabra.
         from obsm.ingest.glosa06 import periodo_del_informe
+
         assert periodo_del_informe([texto]) == esperado
 
     def test_el_mes_es_el_de_cierre_del_trimestre(self):
         # El corte de la lista es el último día del trimestre: «III trimestre 2025» son
         # los datos al 30 de septiembre, no al 1 de julio.
         from obsm.ingest.glosa06 import periodo_del_informe
+
         assert periodo_del_informe(["III trimestre 2025"]) == "2025-09"
 
     def test_falla_ante_una_forma_nueva(self):
         # Deducirlo del nombre del archivo no sirve: los dos nombres publicados no
         # comparten patrón y uno ni siquiera trae el año.
         from obsm.ingest.glosa06 import periodo_del_informe
+
         with pytest.raises(SchemaDriftError, match="trimestre"):
             periodo_del_informe(["Informe correspondiente a Q3 2025"])
 
@@ -181,6 +184,7 @@ class TestPeriodo:
 class TestIngestor:
     def test_agrega_el_periodo_a_cada_fila(self):
         from obsm.ingest.glosa06 import Glosa06, parsear_tabla_especialidades
+
         tabla, _ = parsear_tabla_especialidades(_texto("2025_T3_tabla15.txt"))
         assert len(tabla) == 66
         # El fixture de texto no trae la portada, así que se prueba la composición
@@ -197,6 +201,7 @@ class TestGoldEspecialidad:
         import pandas as pd
 
         from obsm.transform.gold import tabla_espera_especialidad
+
         t25, _ = parsear_tabla_especialidades(_texto("2025_T3_tabla15.txt"))
         t26, _ = parsear_tabla_especialidades(_texto("2026_T1_tabla15.txt"))
         t25.insert(0, "periodo", "2025-09")

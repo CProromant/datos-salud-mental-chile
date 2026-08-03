@@ -28,10 +28,9 @@ def diccionario(tmp_path):
     ws["G10"] = "GRUPO DE EDAD (en años)"
     ws["G11"] = "0 a 4 años"
     ws["I11"] = "5 a 9 años"
-    ws.merge_cells("G11:H11")      # el grupo etario cubre hombres + mujeres
+    ws.merge_cells("G11:H11")  # el grupo etario cubre hombres + mujeres
     ws.merge_cells("I11:J11")
-    sexos = ["Ambos sexos", "Hombres", "Mujeres",
-             "Hombres", "Mujeres", "Hombres", "Mujeres"]
+    sexos = ["Ambos sexos", "Hombres", "Mujeres", "Hombres", "Mujeres", "Hombres", "Mujeres"]
     for col, sexo in zip("DEFGHIJ", sexos, strict=True):
         ws[f"{col}12"] = sexo
     for i, col in enumerate("DEFGHIJ", start=1):
@@ -86,15 +85,17 @@ class TestColumnas:
         por_edad: dict[str, list[str]] = {}
         for c in cols:
             por_edad.setdefault(c.grupo_edad, []).append(c.sexo)
-        assert por_edad == {"0 a 4 años": ["hombres", "mujeres"],
-                            "5 a 9 años": ["hombres", "mujeres"]}
+        assert por_edad == {
+            "0 a 4 años": ["hombres", "mujeres"],
+            "5 a 9 años": ["hombres", "mujeres"],
+        }
 
     def test_la_fila_de_columnas_se_busca_y_no_se_asume(self, diccionario, tmp_path):
         # El detalle empieza en la fila 13 en 2023 pero no en todos los años. Anclar en
         # un número es la forma más común de leer mal un formulario que se reordena.
         wb = openpyxl.load_workbook(diccionario)
         ws = wb["P6"]
-        ws.insert_rows(1, 5)          # se corre todo cinco filas hacia abajo
+        ws.insert_rows(1, 5)  # se corre todo cinco filas hacia abajo
         movido = tmp_path / "movido.xlsx"
         wb.save(movido)
         assert len(leer_columnas(movido)) == len(leer_columnas(diccionario))
@@ -123,8 +124,15 @@ class TestConceptos:
 
     def test_registra_que_columnas_usa_cada_concepto(self, diccionario):
         con = {c.codigo: c for c in leer_conceptos(diccionario)}
-        assert con["P6221600"].columnas == ("COL01", "COL02", "COL03", "COL04",
-                                            "COL05", "COL06", "COL07")
+        assert con["P6221600"].columnas == (
+            "COL01",
+            "COL02",
+            "COL03",
+            "COL04",
+            "COL05",
+            "COL06",
+            "COL07",
+        )
 
     def test_las_filas_de_encabezado_no_son_conceptos(self, diccionario):
         # «FACTORES DE RIESGO Y CONDICIONANTES» no tiene código: es un título, no un dato.

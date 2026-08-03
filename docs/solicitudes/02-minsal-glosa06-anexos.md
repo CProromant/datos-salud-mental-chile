@@ -1,8 +1,10 @@
 # Solicitud 2 — MINSAL / Redes Asistenciales: anexos digitales de la Glosa 06
 
 **Organismo:** Ministerio de Salud (Subsecretaría de Redes Asistenciales)
-**Estado:** sin enviar
-**Enviada el:** ___  **N° de seguimiento:** ___  **Respuesta esperada:** ___
+**Estado:** **enviada**, acuse de recibo recibido
+**Enviada el:** 2026-08-03  **N° de seguimiento:** `AO002T0011347`
+**Acusó recibo:** Subsecretaría de Redes Asistenciales (MINSAL)
+**Plazo legal:** 2026-08-31 (20 días hábiles) · con prórroga, 2026-09-14
 
 ---
 

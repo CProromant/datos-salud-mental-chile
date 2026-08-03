@@ -104,8 +104,7 @@ def cargar_anclas(ruta: Path | str | None = None) -> list[Ancla]:
         desconocidos = set(item) - campos
         if desconocidos:
             raise ObsmError(
-                f"[{item.get('id', '?')}] campos desconocidos en anclas.yml: "
-                f"{sorted(desconocidos)}"
+                f"[{item.get('id', '?')}] campos desconocidos en anclas.yml: {sorted(desconocidos)}"
             )
         a = Ancla(**item)
         _validar(a)
@@ -169,11 +168,13 @@ def reconciliar(
 
     for a in anclas:
         if a.source_id not in tablas:
-            resultados.append({
-                "ancla": a.id,
-                "estado": "omitida",
-                "motivo": f"no se cargó la tabla de {a.source_id!r}",
-            })
+            resultados.append(
+                {
+                    "ancla": a.id,
+                    "estado": "omitida",
+                    "motivo": f"no se cargó la tabla de {a.source_id!r}",
+                }
+            )
             continue
 
         observado = a.evaluar(tablas[a.source_id])
@@ -187,17 +188,17 @@ def reconciliar(
             "referencia": a.referencia,
         }
         try:
-            dif = verificar_reconciliacion(
-                observado, a.valor, a.tolerancia_relativa, etiqueta=a.id
-            )
+            dif = verificar_reconciliacion(observado, a.valor, a.tolerancia_relativa, etiqueta=a.id)
             fila.update({"estado": "ok", "diferencia_relativa": dif})
             log.info("reconciliación ok: %s (dif %.4f%%)", a.id, dif * 100)
         except ReconciliationError as exc:
-            fila.update({
-                "estado": "FALLA",
-                "diferencia_relativa": abs(observado - a.valor) / abs(a.valor),
-                "detalle": str(exc),
-            })
+            fila.update(
+                {
+                    "estado": "FALLA",
+                    "diferencia_relativa": abs(observado - a.valor) / abs(a.valor),
+                    "detalle": str(exc),
+                }
+            )
             resultados.append(fila)
             if estricto:
                 raise

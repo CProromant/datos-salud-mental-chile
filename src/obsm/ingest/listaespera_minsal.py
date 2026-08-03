@@ -105,9 +105,12 @@ def periodo_iso(trimestre: str) -> str:
 
 class ListaEsperaMinsal(Ingestor):
     source_id = "listaespera_minsal"
-    columnas_requeridas = ("servicio", "periodo", "anio", *(
-        f"{lista}_{m}" for lista in LISTAS for m in METRICAS
-    ))
+    columnas_requeridas = (
+        "servicio",
+        "periodo",
+        "anio",
+        *(f"{lista}_{m}" for lista in LISTAS for m in METRICAS),
+    )
     columnas_opcionales = ("trimestre",)
 
     def _leer(self, ruta: Path) -> pd.DataFrame:
@@ -156,15 +159,19 @@ class ListaEsperaMinsal(Ingestor):
             log.warning(
                 "[%s] hay medianas antes de %d, cuando la fuente no las publicaba. "
                 "Revisar si cambió la cobertura histórica.",
-                self.source_id, PRIMER_ANIO_CON_MEDIANA,
+                self.source_id,
+                PRIMER_ANIO_CON_MEDIANA,
             )
         out.attrs["cobertura_mediana"] = {
-            f"{lista}_mediana": float(out[f"{lista}_mediana"].notna().mean())
-            for lista in LISTAS
+            f"{lista}_mediana": float(out[f"{lista}_mediana"].notna().mean()) for lista in LISTAS
         }
         log.info(
             "[%s] %d filas, %d servicios, %d trimestres (%s a %s)",
-            self.source_id, len(out), out["servicio"].nunique(), out["periodo"].nunique(),
-            out["periodo"].min(), out["periodo"].max(),
+            self.source_id,
+            len(out),
+            out["servicio"].nunique(),
+            out["periodo"].nunique(),
+            out["periodo"].min(),
+            out["periodo"].max(),
         )
         return out

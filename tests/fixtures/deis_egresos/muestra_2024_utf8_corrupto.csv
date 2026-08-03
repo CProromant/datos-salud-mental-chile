@@ -1,0 +1,5 @@
+PERTENENCIA_ESTABLECIMIENTO_SALU;SEXO;GRUPO_EDAD;ETNIA;GLOSA_PAIS_ORIGEN;COMUNA_RESIDENCIA;GLOSA_COMUNA_RESIDENCIA;REGION_RESIDENCIA;GLOSA_REGION_RESIDENCIA;PREVISION;GLOSA_PREVISION;ANO_EGRESO;DIAG1;DIAG2;DIAS_ESTADA;CONDICION_EGRESO
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;MUJER;10 a 19;No se identifica con alguna etnia;Chileno;05101;Valpara�so;05;De Valpara�so;1;FONASA;2024;T424;X610;3;1
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;HOMBRE;20 a 29;No se identifica con alguna etnia;Chileno;13120;�u�oa;13;Metropolitana de Santiago;1;FONASA;2024;F200;;15;1
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;MUJER;90 y m�s;No se identifica con alguna etnia;Chileno;08101;Concepci�n;08;Del B�ob�o;1;FONASA;2024;I219;;6;2
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;HOMBRE;menor de un a�o;No se identifica con alguna etnia;Chileno;16101;Chill�n;16;De �uble;1;FONASA;2024;P599;;4;1

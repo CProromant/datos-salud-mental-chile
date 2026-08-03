@@ -26,9 +26,7 @@ from ..territorio import (
 log = logging.getLogger(__name__)
 
 
-def resolver_cut(
-    codigos: pd.Series, dpa: DPA | None = None
-) -> tuple[list[str], dict]:
+def resolver_cut(codigos: pd.Series, dpa: DPA | None = None) -> tuple[list[str], dict]:
     """Lleva códigos de comuna de la fuente a CUT canónico, validando existencia.
 
     Devuelve (cuts, reporte). Hay dos formas distintas de estar mal y se cuentan por
@@ -151,7 +149,7 @@ def clave_servicio(nombre: str) -> str:
     """
     s = " ".join(str(nombre or "").split()).lower()
     if s.startswith(PREFIJO_SERVICIO_SALUD):
-        s = s[len(PREFIJO_SERVICIO_SALUD):]
+        s = s[len(PREFIJO_SERVICIO_SALUD) :]
     # `normalizar_texto` ya elimina tildes, puntos y ambos apóstrofos, que es justo lo que
     # separa `B.O'Higgins` del maestro de `O’HIGGINS` del visualizador.
     s = normalizar_texto(s).upper().replace(" ", "_").replace("-", "_")
@@ -184,10 +182,9 @@ def mapa_servicio_comuna(
                 f"[deis_establecimientos] falta {col!r} para mapear servicio a comuna."
             )
     nombre = out["servicio_salud"].fillna("").astype(str)
-    es_servicio = (
-        nombre.str.lower().str.startswith(PREFIJO_SERVICIO_SALUD)
-        & ~nombre.str.lower().isin(SERVICIOS_NO_REALES)
-    )
+    es_servicio = nombre.str.lower().str.startswith(
+        PREFIJO_SERVICIO_SALUD
+    ) & ~nombre.str.lower().isin(SERVICIOS_NO_REALES)
     out = out.loc[es_servicio].copy()
     out["comuna_cut"], rep_cut = resolver_cut(out["comuna_cut_fuente"], dpa=dpa)
     out["servicio_clave"] = out["servicio_salud"].map(clave_servicio)
@@ -200,12 +197,14 @@ def mapa_servicio_comuna(
     )
     por_comuna = mapa.groupby("comuna_cut").size()
     reporte = dict(rep_cut)
-    reporte.update({
-        "comunas": int(len(por_comuna)),
-        "servicios": int(mapa["servicio_clave"].nunique()),
-        "comunas_con_mas_de_un_servicio": int((por_comuna > 1).sum()),
-        "comunas_ambiguas": sorted(por_comuna[por_comuna > 1].index)[:10],
-    })
+    reporte.update(
+        {
+            "comunas": int(len(por_comuna)),
+            "servicios": int(mapa["servicio_clave"].nunique()),
+            "comunas_con_mas_de_un_servicio": int((por_comuna > 1).sum()),
+            "comunas_ambiguas": sorted(por_comuna[por_comuna > 1].index)[:10],
+        }
+    )
     return mapa, reporte
 
 
@@ -253,7 +252,8 @@ def normalizar_listaespera(
                 "[listaespera_minsal] %d servicios de la serie no están en el maestro de "
                 "DEIS: %s. Suele ser un alias nuevo; agregarlo a ALIAS_SERVICIO_SALUD con "
                 "su test, nunca resolverlo inline.",
-                len(huerfanos), huerfanos[:5],
+                len(huerfanos),
+                huerfanos[:5],
             )
 
     dimensiones = ["servicio_clave", "periodo"]
@@ -275,7 +275,8 @@ def normalizar_listaespera(
     reporte["rango"] = [agregado["periodo"].min(), agregado["periodo"].max()]
     reporte["cobertura_mediana"] = {
         c: round(float(agregado[c].notna().mean()), 3)
-        for c in agregado.columns if c.endswith("_mediana")
+        for c in agregado.columns
+        if c.endswith("_mediana")
     }
     return agregado, reporte
 
@@ -285,9 +286,7 @@ def normalizar_listaespera(
 DEPENDENCIAS_MUNICIPALES = ("municipal", "delegado")
 
 
-def componer_aps_comunal(
-    df: pd.DataFrame, dpa: DPA | None = None
-) -> tuple[pd.DataFrame, dict]:
+def componer_aps_comunal(df: pd.DataFrame, dpa: DPA | None = None) -> tuple[pd.DataFrame, dict]:
     """Cuenta, por comuna, cuánta de su atención primaria pública administra el municipio.
 
     Devuelve (silver, reporte) con una fila por `comuna_cut`: `aps_total`, `aps_municipal`,
@@ -451,9 +450,7 @@ def normalizar_inscritos(
     reporte["celdas_con_dato"] = int(con_dato.sum())
     reporte["inscritos_total"] = int(agregado.loc[con_dato, "poblacion_inscrita"].sum())
     reporte["motivos"] = (
-        agregado.loc[agregado["motivo_sin_dato"] != "", "motivo_sin_dato"]
-        .value_counts()
-        .to_dict()
+        agregado.loc[agregado["motivo_sin_dato"] != "", "motivo_sin_dato"].value_counts().to_dict()
     )
     return agregado, reporte
 
@@ -483,9 +480,7 @@ def grupo_edad_rem(texto: str) -> str:
     return "desconocido"
 
 
-def normalizar_rem(
-    df: pd.DataFrame, dpa: DPA | None = None
-) -> tuple[pd.DataFrame, dict]:
+def normalizar_rem(df: pd.DataFrame, dpa: DPA | None = None) -> tuple[pd.DataFrame, dict]:
     """Lleva el REM de bronze a la grilla canónica.
 
     Devuelve (silver, reporte) con una fila por `comuna_cut × periodo × concepto ×
@@ -545,8 +540,17 @@ def normalizar_rem(
     reporte["etiquetas_normalizadas"] = int(out["etiqueta_norm"].nunique())
 
     dimensiones = [
-        "comuna_cut", "region_cut", "periodo", "codigo_prestacion", "grupo", "concepto",
-        "etiqueta", "etiqueta_norm", "grupo_edad", "sexo", "es_total_etario",
+        "comuna_cut",
+        "region_cut",
+        "periodo",
+        "codigo_prestacion",
+        "grupo",
+        "concepto",
+        "etiqueta",
+        "etiqueta_norm",
+        "grupo_edad",
+        "sexo",
+        "es_total_etario",
     ]
     agregado = (
         out.groupby(dimensiones, dropna=False)["valor"]
@@ -631,6 +635,116 @@ def normalizar_defunciones(
         ag = AGRUPADORES[aid]
         out[f"es_{aid.lower()}"] = out["causa_cie10"].map(ag.contiene)
 
+    reporte["filas_salida"] = len(out)
+    return out, reporte
+
+
+def normalizar_egresos(
+    df: pd.DataFrame,
+    dpa: DPA | None = None,
+    agrupadores: list[str] | None = None,
+) -> tuple[pd.DataFrame, dict]:
+    """Lleva egresos hospitalarios de bronze a la grilla canónica.
+
+    Mismo contrato que `normalizar_defunciones` —devuelve (silver, reporte)— con tres
+    diferencias que vienen de la fuente y que **no se pueden disimular**:
+
+    1. **No hay edad exacta, solo tramos.** La entrega pública de DEIS viene
+       desidentificada. Eso impide estandarizar por edad contra las proyecciones del INE,
+       que están en edad simple: no hay grilla común. Se conserva `grupo_edad_norm` tal
+       como lo clasificó el ingestor y **no** se inventa un `grupo_edad` quinquenal, que
+       daría la falsa impresión de que la tasa estandarizada es calculable.
+    2. **Una parte de las filas no tiene territorio, y no es un defecto del pipeline.**
+       DEIS suprime la demografía del 7,9 % de los egresos de 2023 (A-022) y marca otro
+       tanto como residencia ignorada. Esas filas van a `COMUNA_DESCONOCIDA` y siguen
+       contando para el total nacional, que es lo único para lo que sirven. El reporte
+       las separa por causa: suprimidas en origen contra ignoradas.
+    3. **Un egreso no es una persona.** Los reingresos cuentan varias veces y no hay
+       identificador de paciente. Esta función agrega eventos, nunca personas, y el
+       reporte lo declara para que no se pierda entre capas.
+    """
+    reporte: dict = {"filas_entrada": len(df)}
+    out = df.copy()
+
+    if "_es_fila_total" in out.columns:
+        marca_total = out["_es_fila_total"].fillna(False).astype(bool)
+    else:
+        marca_total = detectar_filas_total(out)
+    reporte["filas_total_descartadas"] = int(marca_total.sum())
+    out = out.loc[~marca_total].copy()
+
+    # Territorio. El CUT de la fuente manda; el nombre no se usa como respaldo a propósito,
+    # porque el archivo de 2024 llega con las glosas destruidas en origen (A-021) y unir por
+    # nombre perdería Ñuble, Biobío, Valparaíso y La Araucanía de una vez.
+    out["comuna_cut"], rep_cut = resolver_cut(out.get("comuna_cut_fuente"), dpa=dpa)
+    reporte.update(rep_cut)
+    out["region_cut"] = out["comuna_cut"].str[:2]
+
+    # Por qué falta el territorio: son dos causas distintas y mezclarlas borra la
+    # información de por qué el total comunal no suma el nacional.
+    sin_territorio = out["comuna_cut"] == COMUNA_DESCONOCIDA
+    atribuidas = pd.Series(False, index=out.index)
+    for col, clave in (
+        ("suprimido_en_origen", "sin_territorio_por_supresion"),
+        ("residencia_ignorada", "sin_territorio_por_residencia_ignorada"),
+        ("residencia_extranjero", "sin_territorio_por_residencia_extranjero"),
+    ):
+        if col in out.columns:
+            marca = out[col].fillna(False).astype(bool)
+            reporte[clave] = int((sin_territorio & marca).sum())
+            atribuidas |= marca
+    reporte["sin_territorio_total"] = int(sin_territorio.sum())
+    # Lo que queda sin explicar es lo que hay que mirar: un CUT que la DPA no reconoce y
+    # que no es ninguno de los tres centinelas conocidos. Con los tres declarados el resto
+    # debería ser cero; si no lo es, la fuente trae un código nuevo y hay que averiguar
+    # cuál antes de que se lo trague el balde de «desconocida».
+    reporte["sin_territorio_sin_explicar"] = int((sin_territorio & ~atribuidas).sum())
+    if reporte["sin_territorio_sin_explicar"]:
+        log.warning(
+            "[egresos] %d filas sin territorio que no son supresión, ni residencia "
+            "ignorada, ni extranjero: hay un código que la DPA no reconoce y que no está "
+            "declarado como centinela",
+            reporte["sin_territorio_sin_explicar"],
+        )
+
+    # Edad: se conserva el tramo, no se fabrica uno quinquenal (ver punto 1 del docstring).
+    # El renombre a `grupo_edad_fuente` es deliberado: en el silver de defunciones
+    # `grupo_edad` es la grilla quinquenal compatible con el denominador del INE, y acá
+    # sería un tramo decenal de la fuente. Dos cosas distintas con el mismo nombre en dos
+    # silvers es exactamente cómo alguien estandariza contra la grilla equivocada sin que
+    # nada falle.
+    if "grupo_edad" in out.columns:
+        out = out.rename(columns={"grupo_edad": "grupo_edad_fuente"})
+    if "esquema_grupo_edad" in out.columns:
+        esquemas = sorted(set(out["esquema_grupo_edad"].dropna()))
+        reporte["esquemas_grupo_edad"] = esquemas
+        if len(esquemas) > 1:
+            # Mezclar cortes decenales y quinquenales en una misma serie compara cosas
+            # distintas (A-023). No se aborta —el total por comuna y año sigue siendo
+            # válido— pero queda declarado para que `gold` decida.
+            log.warning(
+                "el silver de egresos mezcla esquemas etarios %s; una serie por edad "
+                "sobre esta combinación compara cortes distintos",
+                esquemas,
+            )
+    reporte["edad_exacta_disponible"] = False
+
+    # Clasificación CIE-10 sobre la causa derivada por el ingestor: la externa cuando
+    # existe y el diagnóstico principal cuando no. Es lo que hace que un mismo pase
+    # encuentre los F00-F99 del diagnóstico y los X60-X84 de la causa externa (A-004).
+    ids = agrupadores or list(AGRUPADORES)
+    for aid in ids:
+        ag = AGRUPADORES[aid]
+        out[f"es_{aid.lower()}"] = out["causa_cie10"].map(ag.contiene)
+
+    for col, clave in (
+        ("suprimido_en_origen", "filas_suprimidas_en_origen"),
+        ("anio_imputado", "filas_con_anio_imputado"),
+    ):
+        if col in out.columns:
+            reporte[clave] = int(out[col].fillna(False).sum())
+
+    reporte["unidad"] = "egresos (eventos), NO personas: los reingresos cuentan varias veces"
     reporte["filas_salida"] = len(out)
     return out, reporte
 
