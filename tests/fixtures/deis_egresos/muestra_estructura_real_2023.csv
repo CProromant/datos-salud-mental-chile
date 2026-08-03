@@ -1,0 +1,10 @@
+PERTENENCIA_ESTABLECIMIENTO_SALU;SEXO;GRUPO_EDAD;ETNIA;GLOSA_PAIS_ORIGEN;COMUNA_RESIDENCIA;GLOSA_COMUNA_RESIDENCIA;REGION_RESIDENCIA;GLOSA_REGION_RESIDENCIA;PREVISION;GLOSA_PREVISION;ANO_EGRESO;DIAG1;DIAG2;DIAS_ESTADA;CONDICION_EGRESO
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;HOMBRE;20 a 29;No se identifica con alguna etnia;Chileno;01101;Iquique;01;De Tarapacá;1;FONASA;2023;F200;;45;1
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;MUJER;10 a 19;No se identifica con alguna etnia;Chileno;05101;Valparaíso;05;De Valparaíso;1;FONASA;2023;T424;X610;3;1
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;MUJER;30 a 39;No se identifica con alguna etnia;Chileno;13120;Ñuñoa;13;Metropolitana de Santiago;2;ISAPRE;2023;T509;X619;2;1
+No Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;HOMBRE;40 a 49;Si se identifica con alguna etnia;Chileno;16101;Chillán;16;De Ñuble;1;FONASA;2023;F102;;12;1
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;MUJER;90 y más;No se identifica con alguna etnia;Chileno;11101;Coyhaique;11;Aysén;1;FONASA;2023;I219;;8;2
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;HOMBRE;menor de un año;No se identifica con alguna etnia;Extranjero;08101;Concepción;08;Del Bíobío;99;DESCONOCIDO;2023;P599;;5;1
+*;*;*;*;*;*;*;*;*;*;*;*;O820;;2;1
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;MUJER;50 a 59;No se identifica con alguna etnia;Chileno;05101;Valparaíso;05;De Valparaíso;1;FONASA;2023;F332;;20;1
+Pertenecientes al Sistema Nacional de Servicios de Salud, SNSS;HOMBRE;60 a 69;No se identifica con alguna etnia;Chileno;99999;Ignorada;99;Ignorada;1;FONASA;2023;J189;;6;1

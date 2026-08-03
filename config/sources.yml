@@ -90,20 +90,47 @@ fuentes:
   - id: deis_egresos
     nombre: "Egresos hospitalarios"
     organismo: "DEIS / MINSAL"
-    dominio: "deis.minsal.cl"
+    dominio: "repositoriodeis.minsal.cl"
     url_indice: "https://deis.minsal.cl/#datosabiertos"
-    origen_url: busqueda_web
-    fecha_origen_url: "2026-07-26"
-    estado: no_verificada
-    formato: csv
+    # El índice se arma por AJAX (Ninja Tables) y no es raspable: el patrón se recuperó
+    # del índice CDX de Wayback y DESPUÉS se comprobó contra el servidor real, año por año.
+    url_archivo: "https://repositoriodeis.minsal.cl/DatosAbiertos/EGRESOS/EGRESOS_2023.zip"
+    patron_url_anual: "https://repositoriodeis.minsal.cl/DatosAbiertos/EGRESOS/EGRESOS_{anio}.zip"
+    anios_disponibles: "2001-2024"
+    origen_url: verificada_en_sesion
+    fecha_origen_url: "2026-08-02"
+    estado: verificada
+    fecha_verificacion: "2026-08-02"
+    # Hashes del año por defecto (2023), calculados sobre la descarga real de esta sesión.
+    # El ZIP trae además "Diccionario BD egresos hospitalario.xlsx", que documenta la
+    # semántica pero NO los nombres: llama DIAS_ESTAD a lo que el CSV llama DIAS_ESTADA.
+    sha256: "b2db209d5751611ad68c56a07afd7d8ce51804533ac24bb3460c100d1db027d4"
+    archivo_extraido: "EGRESOS_2023.csv"
+    sha256_extraido: "4b5d1d573254d2597d41c6ac953808281b92ea43d85e49a67f0d3393f21fe5de"
+    formato: zip_csv
     granularidad: registro_egreso
     unidad_territorial: comuna_residencia
     periodicidad: anual
     prioridad: 2
     fase: 2
+    licencia: sin_declarar
+    # Nombres reales del CSV de 2023, leídos del archivo. NO hay establecimiento ni edad
+    # exacta: la entrega pública viene desidentificada y solo trae tramos etarios.
     variables_esperadas:
-      [anio, establecimiento_deis, sexo, edad, comuna_residencia, diagnostico_cie10, dias_estada, condicion_egreso]
-    notas: "Un egreso no es una persona. No usar como prevalencia."
+      [PERTENENCIA_ESTABLECIMIENTO_SALU, SEXO, GRUPO_EDAD, ETNIA, GLOSA_PAIS_ORIGEN,
+       COMUNA_RESIDENCIA, GLOSA_COMUNA_RESIDENCIA, REGION_RESIDENCIA, GLOSA_REGION_RESIDENCIA,
+       PREVISION, GLOSA_PREVISION, ANO_EGRESO, DIAG1, DIAG2, DIAS_ESTADA, CONDICION_EGRESO]
+    encoding: "latin-1 hasta 2023; utf-8 desde 2024"
+    separador: ";"
+    notas: >-
+      Un egreso no es una persona: los reingresos cuentan varias veces y no hay
+      identificador de paciente. No usar como prevalencia.
+      La lesión autoinfligida vive en DIAG2, no en DIAG1 (misma trampa que defunciones,
+      A-004): en 2023 hay 0 códigos X60-X84 en DIAG1 y 7.683 en DIAG2.
+      El '*' es supresión aplicada por DEIS, no dato faltante: enmascara en bloque sexo,
+      edad, comuna, región y previsión en 128.108 filas de 2023 (A-022).
+      El archivo 2024 viene con los acentos destruidos en origen, irrecuperables (A-021).
+      El esquema varía entre 15, 16 y 18 columnas, y 2021 usa otro codebook completo (A-023).
 
   - id: deis_urgencias
     nombre: "Atenciones de urgencia por causa agrupada"

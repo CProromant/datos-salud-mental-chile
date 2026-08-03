@@ -14,17 +14,27 @@ no por facilidad ni por organismo.
 Las tres están **ya en el catálogo como `no_verificada`** y son del mismo portal DEIS que
 ya sabemos descargar. Es el trabajo de mejor relación valor/esfuerzo que queda.
 
-### 1. `deis_egresos` — Egresos hospitalarios
+### 1. `deis_egresos` — Egresos hospitalarios ✅ **incorporada el 2026-08-02**
 
-**Qué agrega:** la hospitalización psiquiátrica, que hoy es un agujero. El proyecto sabe
+**Qué agregó:** la hospitalización psiquiátrica, que era un agujero. El proyecto sabía
 cuánta gente está en control ambulatorio (REM) y cuánta muere (DEIS), pero nada de lo que
-pasa en medio: quién se hospitaliza, por cuánto tiempo, con qué diagnóstico.
+pasa en medio. Ahora hay 2001–2024, ~1,6 millones de egresos por año: **37.773
+hospitalizaciones por trastorno mental** y **7.683 egresos por lesión autoinfligida** en
+2023, que se ubican justo entre las ~9.900 personas en control por intento suicida en APS y
+las ~2.000 muertes por suicidio al año.
 
-**Por qué primero:** mismo portal, mismo formato y mismas trampas que `deis_defunciones`,
-que ya está resuelto. Y habilita el desenlace intermedio entre control y muerte.
+**Se cumplió lo previsto:** mismo portal y misma trampa de `DIAG2` que `deis_defunciones`.
 
-**Trampa conocida:** un egreso no es una persona. Los reingresos cuentan varias veces, así
-que no sirve como prevalencia.
+**No se cumplió lo previsto:** la fuente **no trae establecimiento ni edad exacta** —viene
+desidentificada—, así que el uso «proxy de disponibilidad de camas» que prometía la ficha
+A2 quedó descartado. Y trajo cuatro trampas que no estaban en el pronóstico:
+[A-021](05-CALIDAD.md#a-021) (acentos destruidos en origen en 2024),
+[A-022](05-CALIDAD.md#a-022) (supresión propia de DEIS que alcanza al 8 % de las filas) y
+[A-023](05-CALIDAD.md#a-023) (2021 publicado con otro codebook completo).
+
+**Trampa que sí estaba prevista y sigue vigente:** un egreso no es una persona. Los
+reingresos cuentan varias veces y no hay identificador de paciente, así que no sirve como
+prevalencia.
 
 ### 2. `suseso_licencias` — Licencias médicas por trastornos mentales
 
@@ -171,7 +181,7 @@ traer identificadores, se reporta al organismo y no se usa.
 
 ## Orden recomendado
 
-1. **`deis_egresos`** — cierra el hueco entre control y muerte, con el portal ya resuelto.
+1. ~~**`deis_egresos`**~~ — hecha el 2026-08-02. Cerró el hueco entre control y muerte.
 2. **`ine_ipc`** — desbloquea I-07, es chico y concreto.
 3. **`suseso_licencias`** — la única medida del costo económico que existe.
 4. **`deis_urgencias`** — pero **primero verificar si aísla lesión autoinfligida**; si no, se

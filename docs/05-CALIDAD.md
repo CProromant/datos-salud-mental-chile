@@ -925,6 +925,132 @@ directorio**, y que yo había bajado en la misma sesión sin abrir.
    este proyecto que la respuesta estaba en documentación de la propia fuente sin abrir —
    antes fueron los nombres de las variables de SINIM (A-015) y el manual del REM.
 
+### A-021 · deis_egresos · 2026-08-02 {#a-021}
+
+**Qué se observó:** el archivo `EGRESOS_2024.csv` que publica DEIS contiene **1.199.605
+caracteres U+FFFD** (el rombo con signo de interrogación). Todos los acentos y todas las
+eñes de las glosas están destruidos:
+
+| Lo que debería decir | Lo que dice el archivo publicado |
+|---|---|
+| `Ñuñoa` | `�u�oa` |
+| `Concepción` | `Concepci�n` |
+| `Del Biobío` | `Del B�ob�o` |
+| `menor de un año` | `menor de un a�o` |
+
+Son 90 valores distintos afectados. El archivo es **UTF-8 válido**: no es un problema de
+detección de encoding, y probar codecs no lo arregla. DEIS convirtió el archivo desde
+latin-1 usando reemplazo de errores, y con eso la letra original **se perdió en origen**.
+Los años anteriores llegan en latin-1 y están intactos.
+
+**Qué se decidió:** no reparar. No hay forma de saber qué letra había en cada posición —
+`B�ob�o` podría reconstruirse por contexto, pero reconstruir por contexto es inventar un
+dato y presentarlo como leído. La glosa dañada se conserva tal cual y el hecho queda
+declarado. `transform/` no debe usar estas columnas para nada.
+
+**Por qué casi no importa, y por qué eso es lo interesante:** el daño afecta **solo a las
+glosas**. `COMUNA_RESIDENCIA` (`08101`), `REGION_RESIDENCIA` (`08`) y los códigos CIE-10
+están intactos, porque no llevan tildes. La regla de `CLAUDE.md` §5 —«nunca uses el nombre
+de comuna como llave»— existía por ambigüedad entre grafías; acá pagó por una razón
+distinta y peor. Un pipeline que uniera por nombre perdería Ñuble, Biobío, Valparaíso,
+La Araucanía, Los Ríos, Concepción, Maipú, Viña del Mar y Ñuñoa **de una sola vez**: las
+nueve glosas más frecuentes del archivo están entre las dañadas.
+
+### A-022 · deis_egresos · 2026-08-02 {#a-022}
+
+**Qué se observó:** el valor `*` aparece en los archivos de egresos enmascarando la
+demografía de filas completas. **No es un dato faltante: es supresión aplicada por DEIS.**
+
+| Año | Filas suprimidas | % | Columnas enmascaradas |
+|---|---|---|---|
+| 2001 | 58.076 | 3,7 % | **13** — las 10 de abajo + condición al egreso, `INTERV_Q`, `PROCED` |
+| 2010 | 27.330 | 1,7 % | **10** — pertenencia, sexo, edad, etnia, país, región ×2, previsión ×2, **año** |
+| 2015 | 39.766 | 2,4 % | 10 (ídem) |
+| 2019 | 43.845 | 2,6 % | 10 (ídem) |
+| 2021 | 0 | 0 % | — |
+| 2023 | 128.108 | **7,9 %** | **12** — las 10 + **comuna** y glosa de comuna |
+| 2024 | 124.508 | 7,5 % | 12 (ídem) |
+
+**Lo que nunca se enmascara, en ninguno de los siete años:** `DIAG1`, `DIAG2` y
+`DIAS_ESTADA`. La supresión tapa todo salvo el núcleo clínico, que es la razón de ser del
+registro. Por eso el ingestor declara **el complemento** —lo que se conserva— en vez de
+enumerar lo que se pierde: es la parte estable, y hay un check que falla si algún día el
+diagnóstico también cae, porque ahí la fila dejaría de servir incluso para el total país.
+
+**Consecuencia obligada:** desde 2023, **los totales comunales no suman el total
+nacional**, y la diferencia es del 8 %. No es un error de este pipeline y no hay que
+«cuadrarlo». Cualquier tasa comunal de egresos calculada sobre 2023 tiene un numerador
+incompleto en una magnitud que no se conoce por comuna.
+
+**Tres cosas más que aparecieron al mirarlo:**
+
+1. **La supresión también se lleva el año.** `ANO_EGRESO` viene `*` en los seis años que
+   tienen supresión, sin excepción. Es el efecto más peligroso de los tres: un
+   `groupby("anio")` descarta el 8 % de los egresos de 2023 **sin avisar**, y el resultado
+   se ve perfectamente normal. Como cada archivo publicado es de un solo año, el dato es
+   recuperable con certeza, así que el ingestor lo imputa —pero lo **declara** en
+   `anio_imputado`, y si algún día un archivo trae más de un año deja el campo nulo en vez
+   de repartirlo. Un dato imputado que se lee como leído es peor que uno ausente.
+2. **Hasta 2019 la supresión es inefectiva.** Enmascara la región pero deja la comuna, y
+   los dos primeros dígitos del CUT comunal *son* la región: el campo oculto se reconstruye
+   trivialmente desde uno visible. El proyecto no lo explota; se limita a registrarlo.
+3. **El salto de 2,6 % a 7,9 % entre 2019 y 2023 es un cambio de política de la fuente**,
+   no una variación de los datos. Una serie de egresos comunales que cruce ese corte mide
+   en parte el cambio de criterio de DEIS.
+
+**Cómo se encontró, que es la parte que importa.** El primer modelo daba por hecho que el
+`*` enmascaraba un bloque fijo de columnas demográficas, y con eso 2023, 2024 y 2021
+ingirieron sin protestar y con los conteos correctos de F00–F99 y X60–X84. Parecía
+verificado. Lo que lo destapó fue **2001**, que falló por otra razón —enmascara además la
+condición al egreso— y obligó a barrer columna por columna en los siete años. Recién ahí
+apareció que `ANO_EGRESO` faltaba en todos. La lección se repite: el primer archivo que
+funciona no valida el modelo, y los conteos correctos tampoco, porque el año nulo no movía
+ninguno de los dos totales que yo estaba mirando.
+
+**Qué hace el ingestor:** marca `suprimido_en_origen` y pone las columnas enmascaradas en
+nulo, para que ninguna comuna `"*"` llegue al join territorial. No exige un conjunto fijo
+de columnas —cambió entre entregas— pero **sí exige un solo patrón por archivo**: dos
+formas distintas de enmascarar conviviendo lanzan `SchemaDriftError`.
+
+**Centinela distinto y conviviendo con este:** `99999` / `Ignorada` en la comuna (`99` en
+la región) significa **residencia desconocida**, no supresión. Está en los seis años
+revisados, entre 4.830 y 18.257 filas. Va a nulo y se marca aparte en
+`residencia_ignorada`; sin eso aparece una comuna «99999» que no existe.
+
+### A-023 · deis_egresos · 2026-08-02 {#a-023}
+
+**Qué se observó:** el archivo de **2021 está publicado con otro codebook completo**, y es
+el único año así de los siete revisados.
+
+| | 2001–2019, 2023–2024 | 2021 |
+|---|---|---|
+| `SEXO` | `HOMBRE` / `MUJER` | `1` / `2` / `3` / `9` |
+| `GRUPO_EDAD` | 12 tramos **decenales** | 22 tramos **quinquenales** |
+| Tramo superior | `90 y más` | `85 A MAS` |
+| Tramo inferior | `menor de un año` | cuatro tramos: `menor a 7 días`, `7 A 27 DIAS`, `28 DIAS A 2 MES`, `2 MESES A MENOS DE 1 AÑO` |
+| Columnas | 18 (hasta 2019) / 16 | 15, sin `ETNIA` |
+
+**Por qué importa:** una serie por tramo etario que incluya 2021 **compara cortes
+distintos**. Los tramos quinquenales sí colapsan a decenales hasta los 79 años
+(`1 A 4` + `5 A 9` → `1 a 9`), pero **arriba de 79 no**: quinquenal cierra en `85 y más` y
+decenal en `90 y más`, así que los dos tramos superiores no se recuperan por agregación en
+ninguna dirección. Hay un test que fija este hecho para que nadie escriba ese colapso
+creyendo que es posible.
+
+**Qué hace el ingestor:** clasifica el esquema en `esquema_grupo_edad`
+(`decenal` / `quinquenal` / `mixto`) y **no colapsa**: colapsar es decisión de negocio y
+vive en `transform/`. Un tramo etario desconocido lanza `SchemaDriftError` en vez de
+ignorarse, porque un tramo nuevo cambia el corte de toda la serie.
+
+**Además, el esquema de columnas varía entre 15, 16 y 18 según el año**, y desde 2019 el
+nombre de la primera columna llega truncado (`PERTENENCIA_ESTABLECIMIENTO_SALU`, sin la D).
+Por eso las columnas que varían están declaradas opcionales: exigirlas dejaría media serie
+sin poder ingerirse.
+
+**Hallazgo colateral:** el archivo de **2015 ya trae región 16 (Ñuble)**, creada en 2018.
+DEIS re-codificó hacia atrás, que es lo contrario de lo que advierte `CLAUDE.md` §5 para
+series históricas. No se parchó: el join va por CUT comunal, que es estable.
+
 ## Pendientes de verificación heredados del andamiaje
 
 1. Contrastar los rangos CIE-10 de `cie10.py` contra la lista tabular oficial vigente.

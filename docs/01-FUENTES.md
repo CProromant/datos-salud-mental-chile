@@ -46,19 +46,48 @@ observatorio.
 
 ### A2. `deis_egresos` — Egresos hospitalarios
 
+**Verificada el 2026-08-02**: siete archivos anuales abiertos y contados por completo
+(2001, 2010, 2015, 2019, 2021, 2023, 2024).
+
 - **Contiene:** egresos de establecimientos públicos y privados, con diagnóstico principal
-  CIE-10, días de estada, condición al alta, establecimiento, comuna de residencia.
-- **Granularidad:** registro de egreso.
-- **Latencia:** anual, con rezago.
-- **URL raíz:** portal de datos abiertos DEIS — *origen: busqueda_web (raíz), por_confirmar
-  (archivo específico)*.
+  CIE-10 (`DIAG1`), causa externa (`DIAG2`), días de estada, condición al alta, previsión,
+  y comuna y región **de residencia**.
+- **NO contiene establecimiento ni edad exacta.** La entrega pública viene desidentificada:
+  solo hay tramos etarios y una marca de pertenencia al SNSS. La ficha anterior prometía
+  ambos campos y estaba equivocada. Sin establecimiento **no se puede** medir disponibilidad
+  de camas ni atribuir egresos a un hospital, así que ese uso queda descartado.
+- **Granularidad:** registro de egreso desidentificado, agregable a comuna×año.
+- **Cobertura temporal:** 2001–2024, un ZIP por año, todos respondiendo el 2026-08-02.
+- **Volumen:** ~1,6 millones de egresos al año; el CSV descomprimido pesa entre 220 y 290 MB.
+- **Formato:** ZIP con un CSV (separador `;`) y el diccionario de datos en XLSX.
+- **Encoding:** latin-1 hasta 2023, UTF-8 desde 2024.
+- **URL:** `https://repositoriodeis.minsal.cl/DatosAbiertos/EGRESOS/EGRESOS_{anio}.zip`
+  — *origen: verificada_en_sesion*. El índice de `deis.minsal.cl` es un Ninja Tables que se
+  arma por AJAX y no es raspable; el patrón se recuperó del índice CDX de Wayback y
+  **después** se comprobó contra el servidor real, año por año.
+- **Licencia:** sin declarar, igual que el resto del repositorio DEIS. Ver `LICENSE-DATA.md`.
 - **Trampas:**
-  - Un egreso ≠ una persona: reingresos cuentan varias veces. No usar como prevalencia.
-  - Cambios en la red de establecimientos (aperturas, cierres, cambios de código DEIS)
-    producen saltos que no son epidemiológicos.
+  - **Un egreso ≠ una persona**: los reingresos cuentan varias veces y no hay identificador
+    de paciente, así que es imposible deduplicar. **No usar como prevalencia.**
+  - **La lesión autoinfligida está en `DIAG2`, no en `DIAG1`** — misma trampa que
+    defunciones ([A-004](05-CALIDAD.md#a-004)). En 2023: 0 códigos X60–X84 en `DIAG1` y
+    7.683 en `DIAG2`. Un agrupador aplicado solo al diagnóstico principal devuelve cero
+    sin lanzar ningún error.
+  - **`*` es supresión aplicada por DEIS**, no dato faltante, y desde 2023 alcanza al 8 %
+    de las filas: los totales comunales dejan de sumar el nacional. Ver
+    [A-022](05-CALIDAD.md#a-022).
+  - **`99999` / `Ignorada`** es residencia desconocida, un centinela distinto del anterior.
+  - **2021 usa otro codebook** (sexo numérico, 22 tramos quinquenales) y el esquema varía
+    entre 15, 16 y 18 columnas según el año. Ver [A-023](05-CALIDAD.md#a-023).
+  - **El archivo 2024 llega con los acentos destruidos en origen**, irrecuperables. Solo
+    afecta glosas; los códigos están intactos. Ver [A-021](05-CALIDAD.md#a-021).
   - El sector privado reporta con calidad heterogénea.
-- **Uso:** hospitalizaciones psiquiátricas, estada media, egresos por lesión autoinfligida,
-  proxy de disponibilidad de camas.
+- **Uso:** hospitalizaciones por trastorno mental (F00–F99 en `DIAG1`: 37.773 en 2023),
+  egresos por lesión autoinfligida (X60–X84 en `DIAG2`: 7.683 en 2023), estada media.
+- **Por qué importa:** es el eslabón que faltaba entre el control ambulatorio del REM y la
+  mortalidad de DEIS. Los 7.683 egresos por lesión autoinfligida de 2023 se ubican entre
+  las ~9.900 personas en control por intento suicida en APS y las ~2.000 muertes por
+  suicidio al año.
 
 ### A3. `deis_urgencias` — Atenciones de urgencia
 
