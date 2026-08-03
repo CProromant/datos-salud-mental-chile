@@ -1,0 +1,138 @@
+TEXTOS LISTOS PARA PEGAR EN portaltransparencia.cl
+======================================================================
+Generado desde los archivos de docs/solicitudes/. Una solicitud por organismo:
+no se agrupan, porque cada organismo responde por separado y cada una recibe
+su propio número de seguimiento.
+
+======================================================================
+Solicitud 1 — MINSAL / DEIS: términos de uso de los datos abiertos
+ORGANISMO: Ministerio de Salud (Subsecretaría de Salud Pública — DEIS)
+======================================================================
+
+Solicito conocer los términos de uso y la licencia bajo los cuales el Departamento de
+Estadísticas e Información de Salud (DEIS) publica sus conjuntos de datos abiertos, en
+particular los dos siguientes:
+
+1. Defunciones con causa básica de muerte, publicadas en
+   repositoriodeis.minsal.cl/DatosAbiertos/VITALES/ (archivo
+   DEFUNCIONES_FUENTE_DEIS_1990_2023_CIFRAS_OFICIALES.zip).
+2. Resúmenes Estadísticos Mensuales (REM), publicados en
+   repositoriodeis.minsal.cl/DatosAbiertos/REM/.
+
+Concretamente solicito:
+
+a) El acto administrativo, resolución o instructivo que fije los términos de uso de
+   esos conjuntos de datos, si existe.
+
+b) De no existir un acto formal, la respuesta institucional sobre si esos datos se
+   entienden publicados bajo alguna licencia de datos abiertos (por ejemplo Creative
+   Commons CC BY, CC BY-SA o CC0) o en dominio público, y si su reutilización —incluida
+   la elaboración de obras derivadas y su redistribución— está permitida.
+
+Motivo de la consulta. Ninguno de los dos portales declara licencia. En
+datos.gob.cl el propio Ministerio sí la declara para otros conjuntos: por ejemplo
+«Establecimientos de Salud» aparece como CC0 (dominio público). Esa diferencia hace
+razonable preguntar por los dos conjuntos anteriores en vez de inferirla.
+
+La consulta se origina en un proyecto sin fines de lucro que publica indicadores
+agregados de salud mental a partir de fuentes públicas, con supresión estadística y sin
+redistribuir la microdata. Saber la licencia permite citar y reutilizar correctamente, y
+declararlo a quien use esos indicadores.
+
+
+======================================================================
+Solicitud 2 — MINSAL / Redes Asistenciales: anexos digitales de la Glosa 06
+ORGANISMO: Ministerio de Salud (Subsecretaría de Redes Asistenciales)
+======================================================================
+
+El informe trimestral de la Glosa 06 de la Ley de Presupuestos (Partida 16) señala,
+en su sección correspondiente a la letra i):
+
+> «Dada la magnitud de los datos, esta información se adjunta en archivos digitales
+> complementarios. En estos anexos se incluye el detalle desagregado de la lista de
+> espera GES y No GES por establecimiento, región y comuna.»
+
+Esos archivos complementarios no están enlazados en minsal.cl/eje-tiempos-de-espera/,
+que es donde se publican los informes.
+
+Solicito:
+
+a) Los archivos digitales complementarios correspondientes a los informes del
+   tercer trimestre de 2025 y del primer trimestre de 2026, en el formato
+   procesable en que se generan (CSV, XLSX o equivalente).
+
+b) Si esos anexos incluyen el desglose por especialidad médica, la confirmación de
+   ello; y en caso de no incluirlo, la indicación de en qué instrumento se publica el
+   desglose por especialidad cruzado con Servicio de Salud, incluidos el promedio y
+   la mediana de días de espera.
+
+c) Los términos de uso aplicables a esos archivos: si su reutilización y
+   redistribución —incluida la elaboración de obras derivadas y su publicación— está
+   permitida, y bajo qué condiciones.
+
+Fundamento de la letra b). La propia Glosa 06 exige, entre las tablas que el
+Ministerio debe publicar: *«Una tabla de la lista de espera No GES de nueva consulta de
+especialidad, desglosada por cada una de las especialidades, que incluya el número de
+registros y pacientes y el promedio y la mediana de días de espera»*.
+
+En los informes revisados, la tabla por especialidad entrega solo el número de
+registros, sin promedio ni mediana de días. La consulta busca ubicar dónde se publica
+esa información, no cuestionar el cumplimiento.
+
+Sobre la letra c). Se pregunta porque el acceso a un documento por vía de
+transparencia no equivale por sí solo a autorización para republicarlo. El proyecto que
+origina la consulta publica indicadores agregados y no redistribuye archivos de origen,
+pero prefiere tener la respuesta del organismo antes que inferirla.
+
+
+======================================================================
+Solicitud 3 — FONASA: términos de uso del padrón de inscritos en APS
+ORGANISMO: Fondo Nacional de Salud (FONASA)
+======================================================================
+
+Solicito conocer los términos de uso y la licencia bajo los cuales FONASA publica o
+entrega los siguientes conjuntos de datos:
+
+1. El padrón de población inscrita validada en atención primaria, por establecimiento
+   y comuna, que FONASA genera en el proceso de validación para el pago per cápita.
+2. La población inscrita validada en servicios de salud municipal por comuna y año,
+   que SUBDERE publica en SINIM declarando a FONASA como fuente.
+
+Concretamente:
+
+a) El acto administrativo o instructivo que fije los términos de uso de esos datos,
+   si existe.
+
+b) De no existir, la respuesta institucional sobre si su reutilización y
+   redistribución —incluida la elaboración de obras derivadas— está permitida, y bajo qué
+   condiciones.
+
+c) Adicionalmente, y si es información de acceso público: dónde se publica el padrón de
+   inscritos validados en formato procesable. El portal de datos abiertos de FONASA
+   presenta la información mediante gráficos, sin ofrecer los archivos subyacentes ni un
+   índice descargable.
+
+
+======================================================================
+Solicitud 4 — SUBDERE: términos de uso de los datos de SINIM
+ORGANISMO: Subsecretaría de Desarrollo Regional y Administrativo (SUBDERE)
+======================================================================
+
+Solicito conocer los términos de uso y la licencia bajo los cuales el Sistema Nacional
+de Información Municipal (SINIM) publica sus datos, en particular los descargables desde
+datos.sinim.gov.cl.
+
+Concretamente:
+
+a) El acto administrativo, resolución o instructivo que fije los términos de uso de
+   los datos de SINIM, si existe.
+
+b) De no existir, la respuesta institucional sobre si su reutilización y
+   redistribución —incluida la elaboración de obras derivadas— está permitida, y bajo qué
+   condiciones.
+
+c) Consulta específica sobre la variable «Población Inscrita Validada en Servicios de
+   Salud Municipal (FONASA)» (código HPISM): dado que SINIM declara a FONASA como
+   fuente, si los términos de uso aplicables son los de SINIM o los del organismo que
+   origina el dato.
+

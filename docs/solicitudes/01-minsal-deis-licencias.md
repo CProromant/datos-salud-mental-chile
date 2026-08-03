@@ -1,8 +1,10 @@
 # Solicitud 1 — MINSAL / DEIS: términos de uso de los datos abiertos
 
 **Organismo:** Ministerio de Salud (Subsecretaría de Salud Pública — DEIS)
-**Estado:** sin enviar
-**Enviada el:** ___  **N° de seguimiento:** ___  **Respuesta esperada:** ___
+**Estado:** **enviada**, acuse de recibo recibido
+**Enviada el:** 2026-08-03  **N° de seguimiento:** `AO001T0028240`
+**Acusó recibo:** Subsecretaría de Salud Pública (MINSAL)
+**Plazo legal:** 2026-08-31 (20 días hábiles) · con prórroga, 2026-09-14
 
 ---
 

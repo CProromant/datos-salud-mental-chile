@@ -1,8 +1,10 @@
 # Solicitud 4 — SUBDERE: términos de uso de los datos de SINIM
 
 **Organismo:** Subsecretaría de Desarrollo Regional y Administrativo (SUBDERE)
-**Estado:** sin enviar
-**Enviada el:** ___  **N° de seguimiento:** ___  **Respuesta esperada:** ___
+**Estado:** **enviada**, acuse de recibo recibido
+**Enviada el:** 2026-08-03  **N° de seguimiento:** `AB002T0005532`
+**Acusó recibo:** Subsecretaría de Desarrollo Regional y Administrativo (SUBDERE)
+**Plazo legal:** 2026-08-31 (20 días hábiles) · con prórroga, 2026-09-14
 
 ---
 

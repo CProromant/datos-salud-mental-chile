@@ -292,9 +292,9 @@ evidencia de la imposibilidad, y decirlo en la ficha.
    fuente bajo CC BY o dominio público no da problema, pero una con cláusula no comercial
    obligaría a reabrir la decisión antes de publicar. Es una dependencia externa porque no
    se resuelve programando, se resuelve leyendo o preguntando al organismo. La vía concreta
-   es una solicitud por Ley de Transparencia. **Las cuatro están redactadas** en
-   `docs/solicitudes/` y pendientes de enviar; no cuestan trabajo técnico y tardan 20 días
-   hábiles, así que el reloj corre solo desde que se envían.
+   es una solicitud por Ley de Transparencia. **Las cuatro se enviaron el 2026-08-03**, con acuse de recibo y número de
+   seguimiento (ver `docs/solicitudes/`). Plazo legal: **2026-08-31**; con prórroga,
+   2026-09-14. El reloj ya corre.
 
 ## Métricas del propio proyecto
 

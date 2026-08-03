@@ -1,14 +1,26 @@
 # Solicitudes por Ley de Transparencia
 
-Cuatro solicitudes redactadas y **sin enviar**. Resuelven la dependencia externa n.º 4 del
-[PLAN](../../PLAN.md): las licencias de las fuentes, que no se resuelven programando.
+Cuatro solicitudes **enviadas el 2026-08-03**, las cuatro con acuse de recibo. Resuelven la
+dependencia externa n.º 4 del [PLAN](../../PLAN.md): las licencias de las fuentes, que no se
+resuelven programando.
 
-| # | Organismo | Qué pide | Estado |
+| # | Organismo | Qué pide | N° de seguimiento |
 |---|---|---|---|
-| [1](01-minsal-deis-licencias.md) | MINSAL / DEIS | licencia de defunciones y del REM | sin enviar |
-| [2](02-minsal-glosa06-anexos.md) | MINSAL / Redes Asistenciales | los anexos digitales de la Glosa 06 | sin enviar |
-| [3](03-fonasa-licencias.md) | FONASA | licencia del padrón de inscritos, y dónde se publica | sin enviar |
-| [4](04-subdere-sinim-licencias.md) | SUBDERE | licencia de los datos de SINIM | sin enviar |
+| [1](01-minsal-deis-licencias.md) | MINSAL / Subsecretaría de Salud Pública (DEIS) | licencia de defunciones y del REM | `AO001T0028240` |
+| [2](02-minsal-glosa06-anexos.md) | MINSAL / Subsecretaría de Redes Asistenciales | los anexos digitales de la Glosa 06 | `AO002T0011347` |
+| [3](03-fonasa-licencias.md) | FONASA | licencia del padrón de inscritos, y dónde se publica | `AO004T0010729` |
+| [4](04-subdere-sinim-licencias.md) | SUBDERE | licencia de los datos de SINIM | `AB002T0005532` |
+
+**Plazo legal: 2026-08-31** (20 días hábiles desde el envío, descontando el feriado del 15
+de agosto). Con la prórroga de 10 días que la ley permite al organismo, **2026-09-14**.
+
+Si al vencimiento no hay respuesta, o si la respuesta niega el acceso, procede un **amparo
+ante el Consejo para la Transparencia** dentro de los 15 días hábiles siguientes. Es
+gratuito y se presenta en el mismo portal.
+
+**La n.º 1 es la que puede mover el proyecto.** Si DEIS contesta «no comercial», hay que
+reabrir el [ADR 0005](../adr/0005-licencia-datos-sharealike.md): esa cláusula y la CC BY-SA
+del INE son incompatibles entre sí y no hay licencia que satisfaga a ambas.
 
 ## Cómo se envían
 
