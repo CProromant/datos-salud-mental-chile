@@ -320,8 +320,46 @@ estructurado para responder la pregunta.** Cambió el alcance de la Fase 4 y la 
 
 ### D3. `ine_ipc` — Índice de precios al consumidor
 
-- **Uso:** deflactar. Todo monto se guarda nominal; el real se deriva. **URL:** INE —
-  *por_confirmar*.
+- **Uso:** deflactar. Todo monto se guarda nominal; el real se deriva
+  (`CLAUDE.md` §5). Es la dependencia que falta para
+  [I-07](04-INDICADORES.md#i-07).
+- **Estado: `no_verificada`.** No se encontró un archivo descargable del índice. **URL:**
+  *por_confirmar* — y no se escribe ninguna en `config/sources.yml` hasta tenerla.
+
+**Seis vías cerradas, todas comprobadas el 2026-08-02.** Se anotan para que la próxima
+sesión no las repita:
+
+| Vía | Resultado |
+|---|---|
+| Página del IPC en `ine.gob.cl` | 200, 219 enlaces, **cero** a archivos: los arma JavaScript |
+| `stat.ine.cl` (INE.STAT, un .Stat/SDMX) | 381 datasets, **ninguno** de precios; es de empleo e ingresos |
+| `calculadoraipc.ine.cl` | **La calculadora está rota**: su propio `js/events.js` y su endpoint `reportes/xmlVariacionGrilla.asp` responden 404 |
+| `datos.gob.cl`, dataset `ipc` del INE | Existe, pero con **cero recursos**: es un puntero de vuelta a la página del INE |
+| Índice CDX de Wayback sobre `ine.gob.cl` | Respuesta vacía (la misma técnica sí funcionó para `deis_egresos`) |
+| `si3.bcentral.cl` (BDE del Banco Central) | **Exige inicio de sesión**; no entrega datos de forma anónima |
+
+**Complicación de licencia, aparte de la de acceso.** El dataset del INE en `datos.gob.cl`
+está marcado **CC Non-Commercial**, que contradice los términos generales CC BY-SA 4.0 del
+mismo organismo — la misma contradicción ya registrada para `ine_vitales_anuario` en
+`LICENSE-DATA.md`. Si el deflactor terminara siendo CC-NC, **no podría alimentar `gold`**:
+`ADR 0005` obliga a CC BY-SA y las dos licencias son incompatibles. Conviene resolver la
+licencia **antes** de construir el ingestor, no después.
+
+**Caminos que quedan, en orden de preferencia:**
+
+1. **Solicitud por Ley de Transparencia al INE** pidiendo la serie del IPC en formato
+   reutilizable y su licencia por escrito. Resuelve acceso y licencia de una vez, y ya hay
+   cuatro solicitudes redactadas en `docs/solicitudes/` que sirven de molde.
+2. **Credenciales del Banco Central.** El registro en la BDE es gratuito y su API entrega
+   la serie; requiere una acción humana que la sesión no puede hacer sola.
+3. **Anexo estadístico del boletín mensual del INE**, si publica el índice en XLSX. Los
+   boletines están en `/docs/default-source/índice-de-precios-al-consumidor/boletines/`,
+   pero los nombres llevan hash de Sitefinity y no son deducibles.
+
+**Lo que NO se va a hacer:** tomar el IPC de un agregador de terceros (`mindicador.cl` y
+similares). Funcionan, pero el argumento central del proyecto es la trazabilidad, y un
+intermediario sin trazabilidad propia no puede ser el denominador de una serie de pesos
+reales.
 
 ---
 
