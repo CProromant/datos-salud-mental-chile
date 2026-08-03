@@ -22,17 +22,22 @@ def _rem(filas):
     """silver del REM: (comuna, periodo, etiqueta, personas)."""
     return pd.DataFrame(
         [
-            {"comuna_cut": c, "periodo": p, "etiqueta": e, "etiqueta_norm": e,
-             "valor": v, "es_total_etario": True, "sexo": "ambos"}
+            {
+                "comuna_cut": c,
+                "periodo": p,
+                "etiqueta": e,
+                "etiqueta_norm": e,
+                "valor": v,
+                "es_total_etario": True,
+                "sexo": "ambos",
+            }
             for c, p, e, v in filas
         ]
     )
 
 
 def _ins(filas, **cols):
-    df = pd.DataFrame(
-        [{"comuna_cut": c, "anio": a, "poblacion_inscrita": v} for c, a, v in filas]
-    )
+    df = pd.DataFrame([{"comuna_cut": c, "anio": a, "poblacion_inscrita": v} for c, a, v in filas])
     df["poblacion_inscrita"] = df["poblacion_inscrita"].astype("Int64")
     for k, v in cols.items():
         df[k] = v
@@ -40,9 +45,7 @@ def _ins(filas, **cols):
 
 
 def _aps(filas):
-    return pd.DataFrame(
-        [{"comuna_cut": c, "fraccion_municipal": f} for c, f in filas]
-    )
+    return pd.DataFrame([{"comuna_cut": c, "fraccion_municipal": f} for c, f in filas])
 
 
 def _pob(filas):
@@ -162,19 +165,27 @@ class TestRefutacionPorNumerador:
 
     def test_mas_personas_en_control_que_inscritos_refuta_el_denominador(self):
         # Sierra Gorda, dic-2025: 275 en control sobre 24 «inscritos».
-        df = pd.DataFrame({
-            "comuna_cut": ["02103"], "anio": [2025],
-            "personas": [275], "poblacion_inscrita": [24],
-        })
+        df = pd.DataFrame(
+            {
+                "comuna_cut": ["02103"],
+                "anio": [2025],
+                "personas": [275],
+                "poblacion_inscrita": [24],
+            }
+        )
         out, rep = refutar_denominador_con_numerador(df)
         assert bool(out.iloc[0]["denominador_refutado"])
         assert rep["celdas_refutadas"] == 1
 
     def test_no_refuta_un_denominador_mayor_que_el_numerador(self):
-        df = pd.DataFrame({
-            "comuna_cut": ["01101"], "anio": [2025],
-            "personas": [500], "poblacion_inscrita": [10_000],
-        })
+        df = pd.DataFrame(
+            {
+                "comuna_cut": ["01101"],
+                "anio": [2025],
+                "personas": [500],
+                "poblacion_inscrita": [10_000],
+            }
+        )
         out, rep = refutar_denominador_con_numerador(df)
         assert not bool(out.iloc[0]["denominador_refutado"])
         assert rep["celdas_refutadas"] == 0
@@ -183,12 +194,14 @@ class TestRefutacionPorNumerador:
         # Probado en 2020. Los años anteriores están verificados y sanos: marcarlos sería
         # descartar dato bueno. Los posteriores comparten el régimen de reporte roto y en
         # 2025 el derrumbe conjunto borra la evidencia individual.
-        df = pd.DataFrame({
-            "comuna_cut": ["02103"] * 4,
-            "anio": [2015, 2020, 2022, 2025],
-            "personas": [100, 275, 200, 275],
-            "poblacion_inscrita": [8_000, 24, 300, 24],
-        })
+        df = pd.DataFrame(
+            {
+                "comuna_cut": ["02103"] * 4,
+                "anio": [2015, 2020, 2022, 2025],
+                "personas": [100, 275, 200, 275],
+                "poblacion_inscrita": [8_000, 24, 300, 24],
+            }
+        )
         out, rep = refutar_denominador_con_numerador(df)
         por_anio = out.set_index("anio")["comuna_refutada"]
         assert not por_anio[2015], "2015 está sano y no se toca"
@@ -196,10 +209,14 @@ class TestRefutacionPorNumerador:
         assert rep["primer_anio_por_comuna"] == {"02103": 2020}
 
     def test_una_comuna_sana_no_se_contagia_de_otra(self):
-        df = pd.DataFrame({
-            "comuna_cut": ["02103", "01101"], "anio": [2025, 2025],
-            "personas": [275, 500], "poblacion_inscrita": [24, 10_000],
-        })
+        df = pd.DataFrame(
+            {
+                "comuna_cut": ["02103", "01101"],
+                "anio": [2025, 2025],
+                "personas": [275, 500],
+                "poblacion_inscrita": [24, 10_000],
+            }
+        )
         out, _ = refutar_denominador_con_numerador(df)
         assert bool(out[out["comuna_cut"] == "02103"].iloc[0]["comuna_refutada"])
         assert not bool(out[out["comuna_cut"] == "01101"].iloc[0]["comuna_refutada"])

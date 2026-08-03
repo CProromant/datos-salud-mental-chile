@@ -21,8 +21,14 @@ AYUDA = ["Salud Responde — (pendiente de verificar en la fecha de publicación
 def _silver(filas):
     return pd.DataFrame(
         [
-            {"comuna_cut": c, "periodo": p, "etiqueta_norm": e, "valor": v,
-             "es_total_etario": True, "sexo": "ambos"}
+            {
+                "comuna_cut": c,
+                "periodo": p,
+                "etiqueta_norm": e,
+                "valor": v,
+                "es_total_etario": True,
+                "sexo": "ambos",
+            }
             for c, p, e, v in filas
         ]
     )
@@ -61,12 +67,15 @@ class TestQuiebreDeSerie:
         # Antes no son ceros: no existían en el formulario. Dejarlos publicaría un salto
         # de registro como si fuera un salto de conducta.
         g, meta = tabla_ideacion_intento(
-            _silver([
-                ("01101", "2018-12", "IDEACION", 0),
-                ("01101", "2019-06", "IDEACION", 40),
-                ("01101", "2025-12", "IDEACION", 100),
-            ]),
-            recursos_ayuda=AYUDA, k=0,
+            _silver(
+                [
+                    ("01101", "2018-12", "IDEACION", 0),
+                    ("01101", "2019-06", "IDEACION", 40),
+                    ("01101", "2025-12", "IDEACION", 100),
+                ]
+            ),
+            recursos_ayuda=AYUDA,
+            k=0,
         )
         assert g["periodo"].min() == PRIMER_PERIODO_CONDUCTA_SUICIDA
         assert meta["filas_anteriores_al_quiebre_descartadas"] == 1
@@ -104,12 +113,15 @@ class TestLecturaSegura:
 class TestSupresion:
     def test_suprime_bajo_k(self):
         g, _ = tabla_ideacion_intento(
-            _silver([
-                ("01101", "2025-12", "IDEACION", 3),
-                ("01107", "2025-12", "IDEACION", 40),
-                ("01401", "2025-12", "IDEACION", 900),
-            ]),
-            recursos_ayuda=AYUDA, k=5,
+            _silver(
+                [
+                    ("01101", "2025-12", "IDEACION", 3),
+                    ("01107", "2025-12", "IDEACION", 40),
+                    ("01401", "2025-12", "IDEACION", 900),
+                ]
+            ),
+            recursos_ayuda=AYUDA,
+            k=5,
         )
         por_comuna = g.set_index("comuna_cut")["personas"]
         assert pd.isna(por_comuna["01101"])

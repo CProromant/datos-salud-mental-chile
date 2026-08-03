@@ -311,10 +311,11 @@ evidencia de la imposibilidad, y decirlo en la ficha.
 | fuentes verificadas con descarga real | 12 de 20 | 4 de 17 |
 | ingestores funcionando | 8 | 2 |
 | series publicadas | 5 (release v0.3.0) | 1 |
-| indicadores activos con ficha y verificación externa | 3 (I-01, I-02, I-03) | 2 |
+| indicadores activos con ficha y verificación externa | 4 (I-01, I-02, I-03, I-06) | 2 |
+| indicadores implementados sin publicar | 3 (I-05, I-11, I-12) | 0 |
 | anclas de reconciliación automáticas | 5, todas cuadrando | 5 |
 | anomalías documentadas con reproducción y decisión | 24 | 9 |
-| tests | 625 | 323 |
+| tests | 652 | 323 |
 | fallos silenciosos detectados **antes** de producción | 10, cada uno con su test | 5 |
 
 La última fila es la que importa y conviene leerla con cuidado: son defectos que no lanzaban

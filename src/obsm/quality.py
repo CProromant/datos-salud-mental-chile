@@ -179,9 +179,7 @@ def validar_sin_duplicados(df: pd.DataFrame, llave: list[str]) -> None:
     dup = df.duplicated(subset=llave, keep=False)
     if dup.any():
         ejemplos = df.loc[dup, llave].drop_duplicates().head(5).to_dict("records")
-        raise ValueError(
-            f"Llave {llave} duplicada en {int(dup.sum())} filas. Ejemplos: {ejemplos}"
-        )
+        raise ValueError(f"Llave {llave} duplicada en {int(dup.sum())} filas. Ejemplos: {ejemplos}")
 
 
 #: Variables etarias que SINIM publica junto al total inscrito.
@@ -238,20 +236,21 @@ def marcar_total_incoherente_con_tramos(
     ancho = (
         tramos[tramos["variable_codigo"].isin(codigos)]
         .pivot_table(
-            index=["comuna_cut", "anio"], columns="variable_codigo",
-            values="poblacion_inscrita", aggfunc="sum",
+            index=["comuna_cut", "anio"],
+            columns="variable_codigo",
+            values="poblacion_inscrita",
+            aggfunc="sum",
         )
         .reset_index()
     )
     # min_count exige los tres tramos: con uno faltante la suma sería una cota más baja de
     # lo que corresponde y la comparación acusaría coherencia donde no la hay.
     columnas = [c for c in codigos if c in ancho.columns]
-    ancho["_cota"] = (
-        ancho[columnas].sum(axis=1, min_count=len(codigos)) if columnas else pd.NA
-    )
+    ancho["_cota"] = ancho[columnas].sum(axis=1, min_count=len(codigos)) if columnas else pd.NA
 
-    out = inscritos.merge(ancho[["comuna_cut", "anio", "_cota"]], on=["comuna_cut", "anio"],
-                          how="left")
+    out = inscritos.merge(
+        ancho[["comuna_cut", "anio", "_cota"]], on=["comuna_cut", "anio"], how="left"
+    )
     comparable = out["poblacion_inscrita"].notna() & out["_cota"].notna()
     out["razon_tramos"] = out["poblacion_inscrita"] / out["_cota"].where(out["_cota"] > 0)
     out["total_menor_que_tramos"] = comparable & (out["poblacion_inscrita"] < out["_cota"])
@@ -261,9 +260,7 @@ def marcar_total_incoherente_con_tramos(
         "tramos_faltantes": faltantes,
         "celdas_comparables": int(comparable.sum()),
         "celdas_incoherentes": int(out["total_menor_que_tramos"].sum()),
-        "comunas_incoherentes": int(
-            out.loc[out["total_menor_que_tramos"], "comuna_cut"].nunique()
-        ),
+        "comunas_incoherentes": int(out.loc[out["total_menor_que_tramos"], "comuna_cut"].nunique()),
         "anios_incoherentes": sorted(
             int(a) for a in out.loc[out["total_menor_que_tramos"], "anio"].unique()
         ),

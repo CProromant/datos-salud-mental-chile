@@ -15,6 +15,28 @@ disponible la versión anterior.
   CDX de Wayback y después se comprobó contra el servidor real, año por año.
 - **A-004 se repite exacta en egresos:** la lesión autoinfligida vive en `DIAG2`, no en
   `DIAG1`. Cero códigos X60-X84 en el diagnóstico principal, en los siete años.
+- **Camino completo hasta `gold`,** con `obsm egresos <archivo>`: `silver.normalizar_egresos`,
+  `gold.tabla_egresos_salud_mental` (**I-11**) y `gold.tabla_egresos_autoinfligida`
+  (**I-12**). Sobre el archivo real de 2023: 327 filas comunales con 37.707 egresos por
+  trastorno mental publicados de 37.773, y 291 filas con 7.136 de 7.683 por lesión
+  autoinfligida. Cero celdas visibles entre 1 y k-1 en ambas.
+- **I-12 nace con la puerta de `docs/06` cerrada,** igual que I-05: la firma exige
+  `recursos_ayuda` y el CLI **no trae valor por defecto**, así que la serie de conducta
+  suicida no se escribe sola. La revisión clínica sigue pendiente y el meta lo declara.
+- **Tercer centinela territorial descubierto al correr el pipeline completo:** `88888` /
+  `Extranjero`, 661 filas en 2023. El silver reportaba 141.033 filas sin territorio y los
+  dos centinelas conocidos explicaban 140.372. De ahí salió `sin_territorio_sin_explicar`,
+  que **tiene que ser cero**: si la fuente agrega un código nuevo, el balde de «comuna
+  desconocida» se lo tragaría sin dejar rastro. Ahora las tres causas cuadran exacto.
+- **Bug propio corregido antes de que llegara a los datos:** el enmascarado del ingestor
+  recorría todas las columnas y convertía `_es_fila_total` al string `"False"`. Como
+  `bool("False")` es `True`, el silver descartaba **todas** las filas creyéndolas totales y
+  la tabla salía vacía sin un solo error. Lo destapó construir el transform, no los 62
+  tests del ingestor.
+- `grupo_edad` del silver de egresos pasa a llamarse `grupo_edad_fuente`: en el silver de
+  defunciones ese nombre es la grilla quinquenal compatible con el INE, y compartirlo entre
+  dos capas con significados distintos es cómo alguien estandariza contra la grilla
+  equivocada sin que nada falle.
 
 ### Anomalías nuevas
 - **A-021:** el archivo 2024 de DEIS trae 1.199.605 caracteres irrecuperables. Es UTF-8

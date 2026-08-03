@@ -160,7 +160,7 @@ Detalle en [`docs/02-ARQUITECTURA.md`](docs/02-ARQUITECTURA.md).
 
 | | |
 |---|---|
-| Tests | 625 pasando |
+| Tests | 652 pasando |
 | Lint y tipos | limpios |
 | Fuentes verificadas con descarga real | 12 de 20 |
 | Anclas de reconciliación automáticas | 5 de 5 cuadrando |

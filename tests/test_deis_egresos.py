@@ -55,10 +55,10 @@ class TestLaLesionAutoinfligidaVivEnDiag2:
         """`causa_cie10` es la columna que debe usar `transform/`: sirve para ambos grupos."""
         causa = bronze["causa_cie10"]
         assert causa.map(LESION_AUTOINFLIGIDA_MORBILIDAD.contiene).sum() == 2
-        assert causa.map(TRASTORNOS_MENTALES.contiene).sum() == 3
+        assert causa.map(TRASTORNOS_MENTALES.contiene).sum() == 4
 
     def test_los_trastornos_mentales_viven_en_diag1_y_no_en_diag2(self, bronze):
-        assert bronze["diagnostico_principal"].map(TRASTORNOS_MENTALES.contiene).sum() == 3
+        assert bronze["diagnostico_principal"].map(TRASTORNOS_MENTALES.contiene).sum() == 4
         assert bronze["causa_externa"].map(TRASTORNOS_MENTALES.contiene).sum() == 0
 
     def test_la_derivacion_no_esconde_egresos_psiquiatricos(self, bronze):
@@ -393,7 +393,7 @@ class TestContratoBasico:
 
     def test_condicion_egreso_segun_el_diccionario_del_zip(self, bronze):
         assert bronze["condicion_egreso"].value_counts()["fallecido"] == 1
-        assert bronze["condicion_egreso"].value_counts()["vivo"] == 8
+        assert bronze["condicion_egreso"].value_counts()["vivo"] == 9
 
     def test_dias_estada_es_entero_nullable(self, bronze):
         assert bronze["dias_estada"].dtype == "Int64"
@@ -410,6 +410,21 @@ class TestContratoBasico:
         """Ñuble existe desde 2018; sus comunas aparecen bajo 08 en series anteriores."""
         chillan = bronze[bronze["comuna_cut_fuente"] == "16101"].iloc[0]
         assert chillan["region_cut_fuente"] == "16"
+
+    def test_la_marca_de_fila_total_sigue_siendo_booleana(self, bronze):
+        """Regresión: el enmascarado recorría todas las columnas y convertía esta a texto.
+
+        `_es_fila_total` la agrega la clase base antes del posproceso. Al pasarla por
+        `astype(str)` quedaba valiendo `"False"`, y como `bool("False")` es `True`, el
+        silver descartaba **todas** las filas creyéndolas totales: la tabla salía vacía sin
+        un solo error. Solo se enmascaran columnas que vinieron de la fuente.
+        """
+        assert bronze[DeisEgresos.COL_FILA_TOTAL].dtype == bool
+        assert not bronze[DeisEgresos.COL_FILA_TOTAL].any()
+
+    def test_las_marcas_derivadas_son_booleanas(self, bronze):
+        for col in ("suprimido_en_origen", "residencia_ignorada", "anio_imputado"):
+            assert bronze[col].dtype == bool, f"{col} dejó de ser booleana"
 
     def test_no_hay_columnas_duplicadas(self, bronze):
         assert not bronze.columns.duplicated().any()
@@ -429,7 +444,7 @@ class TestUnEgresoNoEsUnaPersona:
         assert not any(
             c in bronze.columns for c in ("rut", "id_paciente", "folio", "identificador")
         )
-        assert len(bronze) == 9
+        assert len(bronze) == 10
         # Dos egresos de Valparaíso que podrían ser la misma persona reingresando.
         assert (bronze["comuna_cut_fuente"] == "05101").sum() == 2
 

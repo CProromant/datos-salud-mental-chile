@@ -63,10 +63,14 @@ Trampas de esta fuente, todas verificadas sobre los archivos completos:
    explota, solo lo registra. El ingestor no puede exigir un conjunto fijo sin dejar
    afuera media serie, así que declara **el complemento** —las tres columnas que nunca se
    enmascaran— y exige **coherencia interna**: un solo patrón por archivo.
-9. **`99999` / `Ignorada` es un centinela distinto de `*`.** Significa residencia
-   desconocida, no supresión, y aparece en los seis años revisados (4.830 a 18.257 filas).
-   Va a nulo y se marca aparte en `residencia_ignorada`, porque agregarlo como si fuera
-   una comuna produce una comuna «99999» que no existe.
+9. **Hay tres centinelas de territorio y significan cosas distintas.** Además del `*` de
+   supresión están `99999` / `Ignorada` —residencia desconocida, 4.830 a 18.257 filas según
+   el año— y `88888` / `Extranjero` —la persona no reside en Chile, 661 filas en 2023—.
+   Los tres van a nulo, pero se marcan **por separado** (`suprimido_en_origen`,
+   `residencia_ignorada`, `residencia_extranjero`): agregarlos produce comunas «99999» y
+   «88888» que no existen, y mezclarlos entre sí borra que un egreso de extranjero **sí**
+   tiene residencia conocida, solo que fuera del país. Sumados explican exactamente las
+   141.033 filas sin territorio de 2023.
 10. **El archivo de 2015 ya trae región 16 (Ñuble)**, creada en 2018: DEIS re-codificó
     hacia atrás. Es lo contrario de lo que advierte CLAUDE.md §5 para series históricas,
     donde esas comunas aparecen bajo 08. No se parcha acá: el join va por CUT comunal, que
@@ -136,6 +140,13 @@ COLUMNAS_NUNCA_ENMASCARADAS = (
 #: Dejarlo pasar crea una comuna «99999» en cualquier agregación territorial.
 COMUNA_IGNORADA = "99999"
 REGION_IGNORADA = "99"
+
+#: Residencia en el extranjero, glosada `Extranjero`. **Es un tercer significado distinto**
+#: de los otros dos: no es que DEIS lo ocultara ni que no se sepa, es que la persona no
+#: reside en Chile. 661 filas en 2023. Contarla en cualquier comuna chilena es un error, y
+#: mezclarla con «ignorada» borra que el egreso sí tiene un dato de residencia conocido.
+COMUNA_EXTRANJERO = "88888"
+REGION_EXTRANJERO = "88"
 
 #: `CONDICION_EGRESO` según el diccionario que viene dentro del ZIP: «1=Vivo 2=Fallecido».
 CONDICION_EGRESO = {"1": "vivo", "2": "fallecido"}
@@ -323,7 +334,15 @@ class DeisEgresos(Ingestor):
 
     def _marcar_supresion(self, out: pd.DataFrame) -> pd.DataFrame:
         """Marca `suprimido_en_origen` y anula el centinela. Ver trampas 2 y 8."""
-        presentes = [c for c in out.columns if c not in COLUMNAS_NUNCA_ENMASCARADAS]
+        # Solo columnas que vinieron de la fuente: son las únicas que pueden traer su
+        # centinela. Recorrer `out.columns` entero arrasaba con `_es_fila_total`, que la
+        # clase base agrega antes del posproceso: quedaba convertida al **string**
+        # `"False"`, y `bool("False")` es `True`, así que `silver` descartaba las filas
+        # creyéndolas totales y la tabla salía vacía sin un solo error.
+        del_origen = dict.fromkeys(MAPA_COLUMNAS.values())
+        presentes = [
+            c for c in del_origen if c in out.columns and c not in COLUMNAS_NUNCA_ENMASCARADAS
+        ]
         marcas = pd.DataFrame(
             {c: out[c].astype(str).str.strip() == CENTINELA_SUPRIMIDO for c in presentes},
             index=out.index,
@@ -383,13 +402,17 @@ class DeisEgresos(Ingestor):
         existe en cualquier agregación territorial. Ver trampa 9.
         """
         ignorada = pd.Series(False, index=out.index)
+        extranjero = pd.Series(False, index=out.index)
         if "comuna_cut_fuente" in out.columns:
-            ignorada = out["comuna_cut_fuente"].astype(str).str.strip() == COMUNA_IGNORADA
-            out.loc[ignorada, "comuna_cut_fuente"] = pd.NA
+            cod = out["comuna_cut_fuente"].astype(str).str.strip()
+            ignorada = cod == COMUNA_IGNORADA
+            extranjero = cod == COMUNA_EXTRANJERO
+            out.loc[ignorada | extranjero, "comuna_cut_fuente"] = pd.NA
         if "region_cut_fuente" in out.columns:
-            reg_ignorada = out["region_cut_fuente"].astype(str).str.strip() == REGION_IGNORADA
-            out.loc[reg_ignorada, "region_cut_fuente"] = pd.NA
+            reg = out["region_cut_fuente"].astype(str).str.strip()
+            out.loc[reg.isin((REGION_IGNORADA, REGION_EXTRANJERO)), "region_cut_fuente"] = pd.NA
         out["residencia_ignorada"] = ignorada
+        out["residencia_extranjero"] = extranjero
         return out
 
     def _normalizar_anio_y_estada(self, out: pd.DataFrame) -> pd.DataFrame:

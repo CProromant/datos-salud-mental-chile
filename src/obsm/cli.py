@@ -26,19 +26,26 @@ def _log(verbose: bool) -> None:
 
 # -- sources ----------------------------------------------------------------------------
 
+
 def cmd_sources_list(args) -> int:
     reg = cargar_registro(args.config)
     resumen = reg.resumen()
-    print(f"{len(reg)} fuentes | verificadas={resumen['verificadas']} "
-          f"no_verificadas={resumen['no_verificadas']} rotas={resumen['rotas']}\n")
+    print(
+        f"{len(reg)} fuentes | verificadas={resumen['verificadas']} "
+        f"no_verificadas={resumen['no_verificadas']} rotas={resumen['rotas']}\n"
+    )
     print(f"{'id':28} {'estado':16} {'origen_url':16} {'fase':>4} {'prio':>4}  organismo")
     print("-" * 100)
     for f in sorted(reg, key=lambda f: (f.fase or 99, f.prioridad or 99, f.id)):
-        print(f"{f.id:28} {f.estado:16} {str(f.origen_url):16} "
-              f"{str(f.fase or ''):>4} {str(f.prioridad or ''):>4}  {f.organismo or ''}")
+        print(
+            f"{f.id:28} {f.estado:16} {str(f.origen_url):16} "
+            f"{str(f.fase or ''):>4} {str(f.prioridad or ''):>4}  {f.organismo or ''}"
+        )
     if resumen["verificadas"] == 0:
-        print("\nNinguna fuente verificada todavía: el pipeline de producción está bloqueado "
-              "por diseño. Correr `obsm sources verify` con red y actualizar sources.yml.")
+        print(
+            "\nNinguna fuente verificada todavía: el pipeline de producción está bloqueado "
+            "por diseño. Correr `obsm sources verify` con red y actualizar sources.yml."
+        )
     return 0
 
 
@@ -48,8 +55,10 @@ def cmd_sources_verify(args) -> int:
     print(json.dumps(resultados, ensure_ascii=False, indent=2))
     fallidos = [r for r in resultados if r.get("resultado") != "ok"]
     print(f"\n{len(resultados) - len(fallidos)}/{len(resultados)} URLs respondieron.")
-    print("Recordatorio: responder 200 no es verificar. Hay que abrir el archivo, "
-          "confirmar que es lo que dice ser y recién ahí editar `estado` a mano.")
+    print(
+        "Recordatorio: responder 200 no es verificar. Hay que abrir el archivo, "
+        "confirmar que es lo que dice ser y recién ahí editar `estado` a mano."
+    )
     return 1 if fallidos else 0
 
 
@@ -61,6 +70,7 @@ def cmd_sources_show(args) -> int:
 
 
 # -- territorio -------------------------------------------------------------------------
+
 
 def cmd_territorio_validar(args) -> int:
     dpa = cargar_dpa(args.dpa)
@@ -91,6 +101,7 @@ def cmd_territorio_resolver(args) -> int:
 
 
 # -- qa ---------------------------------------------------------------------------------
+
 
 def cmd_qa(args) -> int:
     """Comprobaciones que se pueden correr sin red ni datos descargados."""
@@ -151,8 +162,10 @@ def _qa_reconciliacion() -> int:
             tablas[source_id] = pd.read_parquet(elegido)
 
     if not tablas:
-        print(f"[--] reconciliación: {len(anclas)} anclas declaradas, sin silver para "
-              f"contrastar. Correr `obsm build silver` primero.")
+        print(
+            f"[--] reconciliación: {len(anclas)} anclas declaradas, sin silver para "
+            f"contrastar. Correr `obsm build silver` primero."
+        )
         return ambiguas
 
     resultados = reconciliar(tablas, anclas, estricto=False)
@@ -160,15 +173,20 @@ def _qa_reconciliacion() -> int:
     omitidas = [r for r in resultados if r["estado"] == "omitida"]
     ok = len(resultados) - len(fallas) - len(omitidas)
     estado = "ok" if not fallas else "FALLA"
-    print(f"[{estado}] reconciliación: {ok}/{len(resultados)} anclas cuadran"
-          + (f", {len(omitidas)} sin datos" if omitidas else ""))
+    print(
+        f"[{estado}] reconciliación: {ok}/{len(resultados)} anclas cuadran"
+        + (f", {len(omitidas)} sin datos" if omitidas else "")
+    )
     for r in fallas:
-        print(f"     - {r['ancla']}: calculado={r['observado']:,.0f} "
-              f"oficial={r['oficial']:,.0f} dif={r['diferencia_relativa']:.2%}")
+        print(
+            f"     - {r['ancla']}: calculado={r['observado']:,.0f} "
+            f"oficial={r['oficial']:,.0f} dif={r['diferencia_relativa']:.2%}"
+        )
     return (1 if fallas else 0) + ambiguas
 
 
 # -- ingest / build ---------------------------------------------------------------------
+
 
 def cmd_ingest(args) -> int:
     from .ingest import INGESTORES
@@ -176,18 +194,23 @@ def cmd_ingest(args) -> int:
     reg = cargar_registro(args.config)
     fuente = reg.exigir_verificada(args.id, permitir_no_verificada=args.permitir_no_verificada)
     if args.id not in INGESTORES:
-        print(f"ERROR: no hay ingestor implementado para {args.id!r}. "
-              f"Disponibles: {sorted(INGESTORES)}", file=sys.stderr)
+        print(
+            f"ERROR: no hay ingestor implementado para {args.id!r}. "
+            f"Disponibles: {sorted(INGESTORES)}",
+            file=sys.stderr,
+        )
         return 1
     ruta = Path(args.archivo)
     if not ruta.exists():
-        print(f"ERROR: no existe {ruta}. Descarga el archivo y pásalo con --archivo "
-              f"(ver la receta de descarga en CLAUDE.md §4).", file=sys.stderr)
+        print(
+            f"ERROR: no existe {ruta}. Descarga el archivo y pásalo con --archivo "
+            f"(ver la receta de descarga en CLAUDE.md §4).",
+            file=sys.stderr,
+        )
         return 1
     df, manifiesto = INGESTORES[args.id](fuente).ingerir(ruta)
     sha = manifiesto.sha256 or "sin-hash"
-    print(f"bronze escrito: {len(df)} filas | sha256={sha[:12]}… "
-          f"| encoding={manifiesto.encoding}")
+    print(f"bronze escrito: {len(df)} filas | sha256={sha[:12]}… | encoding={manifiesto.encoding}")
     return 0
 
 
@@ -284,16 +307,26 @@ def cmd_run(args) -> int:
             print(f"ERROR obteniendo el archivo de {source_id}: {exc}", file=sys.stderr)
             return 1
 
-        if not paso(f"ingest {source_id}", cmd_ingest,
-                    id=source_id, archivo=str(ruta), permitir_no_verificada=False):
+        if not paso(
+            f"ingest {source_id}",
+            cmd_ingest,
+            id=source_id,
+            archivo=str(ruta),
+            permitir_no_verificada=False,
+        ):
             return 1
-        if not paso(f"build silver {source_id}", cmd_build_silver,
-                    source=source_id, entrada=None):
+        if not paso(f"build silver {source_id}", cmd_build_silver, source=source_id, entrada=None):
             return 1
 
-    if not paso(f"build gold ({args.agrupador})", cmd_build_gold,
-                source="deis_defunciones", agrupador=args.agrupador,
-                poblacion=None, k=args.k, sin_reconciliar=False):
+    if not paso(
+        f"build gold ({args.agrupador})",
+        cmd_build_gold,
+        source="deis_defunciones",
+        agrupador=args.agrupador,
+        poblacion=None,
+        k=args.k,
+        sin_reconciliar=False,
+    ):
         return 1
 
     print(f"\n{'=' * 70}\n  RESUMEN\n{'=' * 70}")
@@ -340,9 +373,13 @@ def cmd_rem_mapear(args) -> int:
             ilegibles.append(f"{anio}: no se pudo leer el ZIP ({type(exc).__name__})")
             continue
 
-        dicc = [m for m in miembros
-                if re.search(r"dicc", m.nombre, re.I)
-                and re.search(r"SP[-_ ]?\d", m.nombre, re.I) and m.bytes_reales > 0]
+        dicc = [
+            m
+            for m in miembros
+            if re.search(r"dicc", m.nombre, re.I)
+            and re.search(r"SP[-_ ]?\d", m.nombre, re.I)
+            and m.bytes_reales > 0
+        ]
         if not dicc:
             ilegibles.append(f"{anio}: sin diccionario de la Serie P en el ZIP")
             continue
@@ -367,10 +404,8 @@ def cmd_rem_mapear(args) -> int:
 
         salida["anios"][anio] = {
             "diccionario": dicc[0].nombre.split("/")[-1],
-            "conceptos": {c.codigo: {"grupo": c.grupo, "concepto": c.concepto}
-                          for c in conceptos},
-            "columnas": {c.nombre: {"grupo_edad": c.grupo_edad, "sexo": c.sexo}
-                         for c in columnas},
+            "conceptos": {c.codigo: {"grupo": c.grupo, "concepto": c.concepto} for c in conceptos},
+            "columnas": {c.nombre: {"grupo_edad": c.grupo_edad, "sexo": c.sexo} for c in columnas},
         }
         print(f"  {anio}: {len(conceptos):>3} conceptos, {len(columnas):>3} columnas")
 
@@ -412,8 +447,10 @@ def _procesar_anio_rem(fuente, url, miembro, anio, dir_raw, destino, forzar):
 
     crudo = dir_raw / f"serie_p_{anio}{Path(miembro.nombre).suffix or '.txt'}"
     if not crudo.exists() or forzar:
-        print(f"{anio}: bajando {miembro.nombre.split('/')[-1]} "
-              f"({miembro.bytes_comprimidos / 1024 / 1024:.0f} MB)")
+        print(
+            f"{anio}: bajando {miembro.nombre.split('/')[-1]} "
+            f"({miembro.bytes_comprimidos / 1024 / 1024:.0f} MB)"
+        )
         crudo.write_bytes(extraer_de_zip_remoto(url, miembro))
 
     bronze = RemPoblacionControl(fuente).preparar(crudo)
@@ -424,8 +461,10 @@ def _procesar_anio_rem(fuente, url, miembro, anio, dir_raw, destino, forzar):
     destino.with_suffix(".reporte.json").write_text(
         json.dumps(rep, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
     )
-    print(f"{anio}: {len(bronze):>9,} bronze -> {len(silver):>8,} silver "
-          f"| periodos {rep['periodos']} | cut inválidos {rep['cut_invalidos']}")
+    print(
+        f"{anio}: {len(bronze):>9,} bronze -> {len(silver):>8,} silver "
+        f"| periodos {rep['periodos']} | cut inválidos {rep['cut_invalidos']}"
+    )
     filas = len(silver)
     # Un año son ~2,6 millones de filas en bronze. Liberarlas antes de empezar el
     # siguiente evita que la memoria crezca con cada iteración.
@@ -475,8 +514,11 @@ def cmd_rem_ingerir(args) -> int:
             resumen.append((anio, f"ZIP ilegible: {type(exc).__name__}", 0))
             continue
 
-        sp = [m for m in miembros
-              if re.search(r"serie\s*_?\s*p", m.nombre, re.I) and m.bytes_reales > 0]
+        sp = [
+            m
+            for m in miembros
+            if re.search(r"serie\s*_?\s*p", m.nombre, re.I) and m.bytes_reales > 0
+        ]
         if not sp:
             print(f"{anio}: sin Serie P en el ZIP", file=sys.stderr)
             resumen.append((anio, "sin Serie P", 0))
@@ -491,8 +533,7 @@ def cmd_rem_ingerir(args) -> int:
             # defecto inesperado no puede costar el trabajo de los demás: la primera
             # corrida murió en 2014 con un TypeError y perdió los once años siguientes,
             # que era justamente lo que el guardado año por año quería evitar.
-            print(f"{anio}: no se pudo procesar — {type(exc).__name__}: {exc}",
-                  file=sys.stderr)
+            print(f"{anio}: no se pudo procesar — {type(exc).__name__}: {exc}", file=sys.stderr)
             resumen.append((anio, f"error: {type(exc).__name__}", 0))
             continue
         resumen.append((anio, "ok", filas))
@@ -526,8 +567,11 @@ def cmd_build_silver(args) -> int:
         "listaespera_minsal": normalizar_listaespera,
     }
     if args.source not in normalizadores:
-        print(f"ERROR: no hay normalizador para {args.source!r}. "
-              f"Disponibles: {sorted(normalizadores)}", file=sys.stderr)
+        print(
+            f"ERROR: no hay normalizador para {args.source!r}. "
+            f"Disponibles: {sorted(normalizadores)}",
+            file=sys.stderr,
+        )
         return 1
     normalizar = normalizadores[args.source]
 
@@ -535,8 +579,10 @@ def cmd_build_silver(args) -> int:
     if entrada is None:
         entrada = elegir_tabla("bronze", args.source)
         if entrada is None:
-            print(f"ERROR: no hay bronze para {args.source}. Corre `obsm ingest` primero.",
-                  file=sys.stderr)
+            print(
+                f"ERROR: no hay bronze para {args.source}. Corre `obsm ingest` primero.",
+                file=sys.stderr,
+            )
             return 1
     bronze = pd.read_parquet(entrada)
     silver, reporte = normalizar(bronze)
@@ -575,9 +621,12 @@ def cmd_build_gold(args) -> int:
     else:
         elegida = elegir_tabla("silver", "ine_proyecciones")
         if elegida is None:
-            print("ERROR: no hay silver de ine_proyecciones y no se pasó --poblacion. "
-                  "Corre `obsm ingest ine_proyecciones` y luego "
-                  "`obsm build silver --source ine_proyecciones`.", file=sys.stderr)
+            print(
+                "ERROR: no hay silver de ine_proyecciones y no se pasó --poblacion. "
+                "Corre `obsm ingest ine_proyecciones` y luego "
+                "`obsm build silver --source ine_proyecciones`.",
+                file=sys.stderr,
+            )
             return 1
         poblacion = pd.read_parquet(elegida)
 
@@ -593,14 +642,19 @@ def cmd_build_gold(args) -> int:
             )
         except ReconciliationError as exc:
             print(f"ERROR de reconciliación, no se publica nada:\n  {exc}", file=sys.stderr)
-            print("\nSi la diferencia es esperable (cambio de base, revisión de la fuente), "
-                  "actualiza `config/anclas.yml` con la nueva cifra y su procedencia. "
-                  "No uses --sin-reconciliar para publicar.", file=sys.stderr)
+            print(
+                "\nSi la diferencia es esperable (cambio de base, revisión de la fuente), "
+                "actualiza `config/anclas.yml` con la nueva cifra y su procedencia. "
+                "No uses --sin-reconciliar para publicar.",
+                file=sys.stderr,
+            )
             return 1
         ok = sum(1 for r in resultados if r["estado"] == "ok")
         omitidas = [r["ancla"] for r in resultados if r["estado"] == "omitida"]
-        print(f"reconciliación: {ok}/{len(resultados)} anclas cuadran"
-              + (f" ({len(omitidas)} omitidas: {omitidas})" if omitidas else ""))
+        print(
+            f"reconciliación: {ok}/{len(resultados)} anclas cuadran"
+            + (f" ({len(omitidas)} omitidas: {omitidas})" if omitidas else "")
+        )
     else:
         resultados = [{"estado": "omitida", "motivo": "--sin-reconciliar"}]
         print("AVISO: reconciliación desactivada. La salida NO es publicable.")
@@ -619,8 +673,12 @@ def cmd_build_gold(args) -> int:
     fuente_num = reg.get(args.source)
     fuente_pob = reg.get("ine_proyecciones")
     gold, meta = tasas_comunales(
-        agregado, poblacion, args.agrupador, avpp=avpp,
-        source_id=args.source, k=args.k,
+        agregado,
+        poblacion,
+        args.agrupador,
+        avpp=avpp,
+        source_id=args.source,
+        k=args.k,
         source_version=fuente_num.source_version,
         poblacion_version=fuente_pob.source_version,
     )
@@ -654,15 +712,16 @@ def cmd_rem_gold(args) -> int:
     dir_silver = ruta_capa("silver", fuente.id, "x").parent
     archivos = sorted(dir_silver.glob("serie_p_*.parquet"))
     if not archivos:
-        print(f"ERROR: no hay silver del REM en {dir_silver}. "
-              f"Correr `obsm rem ingerir` primero.", file=sys.stderr)
+        print(
+            f"ERROR: no hay silver del REM en {dir_silver}. Correr `obsm rem ingerir` primero.",
+            file=sys.stderr,
+        )
         return 1
 
     partes = [pd.read_parquet(a) for a in archivos]
     silver = pd.concat(partes, ignore_index=True)
     anios = sorted({p[:4] for p in silver["periodo"].dropna().unique()})
-    print(f"{len(archivos)} años en silver ({anios[0]}-{anios[-1]}), "
-          f"{len(silver):,} filas")
+    print(f"{len(archivos)} años en silver ({anios[0]}-{anios[-1]}), {len(silver):,} filas")
 
     # Se agrupa por la llave NORMALIZADA, no por la etiqueta cruda: el formulario
     # escribe el mismo concepto con distinta grafía según el año y agrupar por el texto
@@ -690,8 +749,10 @@ def cmd_rem_gold(args) -> int:
     destino.with_suffix(".meta.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
     )
-    print(f"gold escrito: {destino} ({len(gold):,} filas, "
-          f"{meta['supresion']['porcentaje']:.1%} suprimidas)")
+    print(
+        f"gold escrito: {destino} ({len(gold):,} filas, "
+        f"{meta['supresion']['porcentaje']:.1%} suprimidas)"
+    )
     for aviso in meta["advertencias"]:
         print(f"  AVISO: {aviso}")
     return 0
@@ -730,24 +791,25 @@ def cmd_rem_cobertura(args) -> int:
     dir_rem = ruta_capa("silver", "rem_salud_mental", "x").parent
     archivos = sorted(dir_rem.glob("serie_p_*.parquet"))
     if not archivos:
-        print(f"ERROR: no hay silver del REM en {dir_rem}. Correr `obsm rem ingerir`.",
-              file=sys.stderr)
+        print(
+            f"ERROR: no hay silver del REM en {dir_rem}. Correr `obsm rem ingerir`.",
+            file=sys.stderr,
+        )
         return 1
     rem = pd.concat([pd.read_parquet(a) for a in archivos], ignore_index=True)
 
     faltan = []
     inscritos = _cargar_silver_unico("fonasa_inscritos")
     if inscritos is None:
-        faltan.append("obsm ingest fonasa_inscritos && obsm build silver "
-                      "--source fonasa_inscritos")
+        faltan.append("obsm ingest fonasa_inscritos && obsm build silver --source fonasa_inscritos")
     aps = _cargar_silver_unico("deis_establecimientos")
     if aps is None:
-        faltan.append("obsm ingest deis_establecimientos && obsm build silver "
-                      "--source deis_establecimientos")
+        faltan.append(
+            "obsm ingest deis_establecimientos && obsm build silver --source deis_establecimientos"
+        )
     poblacion = _cargar_silver_unico("ine_proyecciones")
     if poblacion is None:
-        faltan.append("obsm ingest ine_proyecciones && obsm build silver "
-                      "--source ine_proyecciones")
+        faltan.append("obsm ingest ine_proyecciones && obsm build silver --source ine_proyecciones")
     if faltan:
         print("ERROR: faltan capas silver para calcular cobertura:", file=sys.stderr)
         for c in faltan:
@@ -761,19 +823,29 @@ def cmd_rem_cobertura(args) -> int:
         bronze = pd.read_parquet(ruta_bronze)
         bronze["comuna_cut"], _ = resolver_cut(bronze["comuna_cut_fuente"])
         inscritos, rep_tramos = marcar_total_incoherente_con_tramos(inscritos, bronze)
-        print(f"coherencia con tramos: {rep_tramos['celdas_incoherentes']} celdas marcadas "
-              f"en {rep_tramos['comunas_incoherentes']} comunas")
+        print(
+            f"coherencia con tramos: {rep_tramos['celdas_incoherentes']} celdas marcadas "
+            f"en {rep_tramos['comunas_incoherentes']} comunas"
+        )
     else:
-        print("AVISO: no hay bronze de fonasa_inscritos; se omite la comprobación de "
-              "coherencia con los tramos de beneficiarios.")
+        print(
+            "AVISO: no hay bronze de fonasa_inscritos; se omite la comprobación de "
+            "coherencia con los tramos de beneficiarios."
+        )
     inscritos, rep_impl = marcar_denominador_implausible(inscritos, poblacion)
-    print(f"padrón minoritario: {rep_impl['celdas_implausibles']} celdas en "
-          f"{rep_impl['comunas_implausibles']} comunas")
+    print(
+        f"padrón minoritario: {rep_impl['celdas_implausibles']} celdas en "
+        f"{rep_impl['comunas_implausibles']} comunas"
+    )
 
     f_rem = reg.get("rem_salud_mental")
     f_ins = reg.get("fonasa_inscritos")
     gold, meta = tabla_cobertura(
-        rem, inscritos, aps, poblacion=poblacion, k=args.k,
+        rem,
+        inscritos,
+        aps,
+        poblacion=poblacion,
+        k=args.k,
         source_version=f_rem.source_version,
         version_inscritos=f_ins.source_version,
     )
@@ -787,8 +859,10 @@ def cmd_rem_cobertura(args) -> int:
     )
     print(f"\ngold escrito: {destino} ({len(gold):,} filas)")
     print(f"  denominador: {meta['celdas_por_denominador']}")
-    print(f"  comunas con cobertura: {meta['comunas_con_cobertura']} de "
-          f"{meta['comunas_en_el_numerador']}")
+    print(
+        f"  comunas con cobertura: {meta['comunas_con_cobertura']} de "
+        f"{meta['comunas_en_el_numerador']}"
+    )
     for aviso in meta["advertencias"]:
         print(f"  AVISO: {aviso}")
     return 0
@@ -799,13 +873,35 @@ def cmd_rem_cobertura(args) -> int:
 #: raspar la página para obtenerla agrega un punto de falla a cambio de nada.
 #: `O’Higgins` lleva apóstrofo TIPOGRÁFICO (U+2019): con el recto, el servidor da 404.
 SERVICIOS_LISTA_ESPERA = (
-    "Arica y Parinacota", "Tarapacá", "Antofagasta", "Atacama", "Coquimbo",
-    "Valparaíso-San Antonio", "Viña del Mar-Quillota", "Aconcagua",
-    "Metropolitano Norte", "Metropolitano Occidente", "Metropolitano Central",
-    "Metropolitano Oriente", "Metropolitano Sur", "Metropolitano Sur Oriente",
-    "O’Higgins", "del Maule", "Ñuble", "Concepción", "Talcahuano", "Biobío",
-    "Arauco", "Araucanía Norte", "Araucanía Sur", "Los Ríos", "Osorno",
-    "del Reloncaví", "Chiloé", "Aysén", "Magallanes",
+    "Arica y Parinacota",
+    "Tarapacá",
+    "Antofagasta",
+    "Atacama",
+    "Coquimbo",
+    "Valparaíso-San Antonio",
+    "Viña del Mar-Quillota",
+    "Aconcagua",
+    "Metropolitano Norte",
+    "Metropolitano Occidente",
+    "Metropolitano Central",
+    "Metropolitano Oriente",
+    "Metropolitano Sur",
+    "Metropolitano Sur Oriente",
+    "O’Higgins",
+    "del Maule",
+    "Ñuble",
+    "Concepción",
+    "Talcahuano",
+    "Biobío",
+    "Arauco",
+    "Araucanía Norte",
+    "Araucanía Sur",
+    "Los Ríos",
+    "Osorno",
+    "del Reloncaví",
+    "Chiloé",
+    "Aysén",
+    "Magallanes",
 )
 
 
@@ -829,8 +925,11 @@ def _descargar_listas_espera(destino: Path) -> bool:
     # certificados incompleta y `certifi` no la resuelve. `truststore` delega al almacén
     # del sistema, que es lo que hace el navegador. NUNCA `verify=False`.
     if not _usar_almacen_de_certificados_del_sistema():
-        print("AVISO: truststore no está instalado; la descarga fallará con un SSLError "
-              "que parece un problema de red y no lo es.", file=sys.stderr)
+        print(
+            "AVISO: truststore no está instalado; la descarga fallará con un SSLError "
+            "que parece un problema de red y no lo es.",
+            file=sys.stderr,
+        )
 
     from .ingest.listaespera_minsal import slug_servicio  # noqa: PLC0415
 
@@ -841,7 +940,8 @@ def _descargar_listas_espera(destino: Path) -> bool:
         slug = "NACIONAL" if nombre == "NACIONAL" else slug_servicio(nombre)
         try:
             r = requests.get(
-                base.format(slug), timeout=60,
+                base.format(slug),
+                timeout=60,
                 headers={"User-Agent": USER_AGENT_NAVEGADOR},
             )
             r.raise_for_status()
@@ -852,12 +952,17 @@ def _descargar_listas_espera(destino: Path) -> bool:
         print(f"ERROR: {len(fallidos)} servicios no se pudieron descargar:", file=sys.stderr)
         for n, e in fallidos:
             print(f"  {n}: {e}", file=sys.stderr)
-        print("Una serie incompleta produce un total nacional que no cuadra con la suma de "
-              "sus partes. No se escribe nada.", file=sys.stderr)
+        print(
+            "Una serie incompleta produce un total nacional que no cuadra con la suma de "
+            "sus partes. No se escribe nada.",
+            file=sys.stderr,
+        )
         return False
     destino.write_text(json.dumps(filas, ensure_ascii=False), encoding="utf-8")
-    print(f"descargados {len(SERVICIOS_LISTA_ESPERA) + 1} archivos -> {destino.name} "
-          f"({len(filas):,} filas)")
+    print(
+        f"descargados {len(SERVICIOS_LISTA_ESPERA) + 1} archivos -> {destino.name} "
+        f"({len(filas):,} filas)"
+    )
     return True
 
 
@@ -893,18 +998,21 @@ def cmd_espera(args) -> int:
     est_bronze = elegir_tabla("bronze", "deis_establecimientos")
     establecimientos = pd.read_parquet(est_bronze) if est_bronze else None
     if establecimientos is None:
-        print("AVISO: sin bronze de deis_establecimientos; no se verifican los nombres de "
-              "los Servicios de Salud contra el maestro.")
+        print(
+            "AVISO: sin bronze de deis_establecimientos; no se verifican los nombres de "
+            "los Servicios de Salud contra el maestro."
+        )
     silver, rep_silver = normalizar_listaespera(bronze, establecimientos=establecimientos)
     destino_silver = ruta_capa("silver", fuente.id, "listaespera.parquet")
     destino_silver.parent.mkdir(parents=True, exist_ok=True)
     silver.to_parquet(destino_silver, index=False)
-    print(f"silver: {rep_silver['filas_salida']:,} filas, {rep_silver['servicios']} servicios, "
-          f"{rep_silver['periodos']} trimestres "
-          f"({rep_silver['rango'][0]} a {rep_silver['rango'][1]})")
+    print(
+        f"silver: {rep_silver['filas_salida']:,} filas, {rep_silver['servicios']} servicios, "
+        f"{rep_silver['periodos']} trimestres "
+        f"({rep_silver['rango'][0]} a {rep_silver['rango'][1]})"
+    )
     if rep_silver.get("servicios_sin_maestro"):
-        print(f"  AVISO: servicios sin equivalente en DEIS: "
-              f"{rep_silver['servicios_sin_maestro']}")
+        print(f"  AVISO: servicios sin equivalente en DEIS: {rep_silver['servicios_sin_maestro']}")
 
     gold, meta = tabla_listas_espera(
         silver, k=args.k, source_version=fuente.source_version or f"consultado {ahora_iso()[:10]}"
@@ -917,8 +1025,10 @@ def cmd_espera(args) -> int:
         json.dumps(meta, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
     )
     print(f"\ngold escrito: {destino} ({len(gold):,} filas)")
-    print(f"  supresión k={meta['supresion']['k']}: {meta['supresion']['filas_suprimidas']} "
-          f"celdas ({meta['supresion']['complementarias']} complementarias)")
+    print(
+        f"  supresión k={meta['supresion']['k']}: {meta['supresion']['filas_suprimidas']} "
+        f"celdas ({meta['supresion']['complementarias']} complementarias)"
+    )
     for aviso in meta["advertencias"]:
         print(f"  AVISO: {aviso}")
     return 0
@@ -960,8 +1070,11 @@ def cmd_glosa06(args) -> int:
     todo = pd.concat(partes, ignore_index=True)
     duplicados = todo.duplicated(subset=["periodo", "especialidad_norm"]).sum()
     if duplicados:
-        print(f"ERROR: {duplicados} pares período×especialidad duplicados. ¿Se pasó el "
-              f"mismo informe dos veces?", file=sys.stderr)
+        print(
+            f"ERROR: {duplicados} pares período×especialidad duplicados. ¿Se pasó el "
+            f"mismo informe dos veces?",
+            file=sys.stderr,
+        )
         return 1
 
     periodos = sorted(todo["periodo"].unique())
@@ -974,8 +1087,10 @@ def cmd_glosa06(args) -> int:
     destino.with_suffix(".meta.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
     )
-    print(f"\ngold escrito: {destino} ({len(gold):,} filas, {meta['especialidades']} "
-          f"especialidades, {len(meta['periodos'])} trimestres)")
+    print(
+        f"\ngold escrito: {destino} ({len(gold):,} filas, {meta['especialidades']} "
+        f"especialidades, {len(meta['periodos'])} trimestres)"
+    )
     for p_, d in sorted(meta["salud_mental"].items()):
         print(f"  {p_}: " + ", ".join(f"{k_} {v_:,}" for k_, v_ in d.items()))
     for aviso in meta["advertencias"]:
@@ -998,24 +1113,124 @@ def _parser_rem(sub) -> None:
     ri = rem.add_parser("ingerir", help="ingiere la Serie P año por año, hasta silver")
     ri.add_argument("--desde", type=int, default=2014)
     ri.add_argument("--hasta", type=int, default=2025)
-    ri.add_argument("--forzar", action="store_true",
-                    help="reprocesa años que ya tienen silver")
+    ri.add_argument("--forzar", action="store_true", help="reprocesa años que ya tienen silver")
     ri.set_defaults(func=cmd_rem_ingerir)
 
     rg = rem.add_parser("gold", help="tabla publicable sobre todos los años")
-    rg.add_argument("--k", type=int, default=5,
-                    help="umbral de supresión (5 = actividad)")
-    rg.add_argument("--por-edad", action="store_true",
-                    help="desagrega por grupo etario y sexo; suprime mucho más")
+    rg.add_argument("--k", type=int, default=5, help="umbral de supresión (5 = actividad)")
+    rg.add_argument(
+        "--por-edad",
+        action="store_true",
+        help="desagrega por grupo etario y sexo; suprime mucho más",
+    )
     rg.set_defaults(func=cmd_rem_gold)
 
     rc = rem.add_parser(
         "cobertura",
         help="tabla de cobertura (I-03): personas en control por mil inscritos",
     )
-    rc.add_argument("--k", type=int, default=5,
-                    help="umbral de supresión del numerador (5 = actividad)")
+    rc.add_argument(
+        "--k", type=int, default=5, help="umbral de supresión del numerador (5 = actividad)"
+    )
     rc.set_defaults(func=cmd_rem_cobertura)
+
+
+def cmd_egresos(args) -> int:
+    """Ingiere un archivo anual de egresos y escribe silver y gold.
+
+    Recibe el ZIP o el CSV a mano porque son 220-290 MB por año y bajar una serie completa
+    sin pedirlo sería una sorpresa cara. La serie de lesión autoinfligida **no se escribe
+    salvo que se pasen recursos de ayuda verificados**: es la puerta de `docs/06` y no
+    tiene valor por defecto.
+    """
+    from .ingest.deis_egresos import DeisEgresos
+    from .io import ruta_capa
+    from .transform.gold import tabla_egresos_autoinfligida, tabla_egresos_salud_mental
+    from .transform.silver import normalizar_egresos
+
+    reg = cargar_registro(args.config)
+    fuente = reg.exigir_verificada("deis_egresos", args.permitir_no_verificada)
+
+    ruta = Path(args.archivo)
+    if not ruta.exists():
+        print(f"ERROR: no existe {ruta}.", file=sys.stderr)
+        return 1
+    if ruta.suffix.lower() == ".zip":
+        import zipfile
+
+        with zipfile.ZipFile(ruta) as z:
+            miembros = [m for m in z.namelist() if m.lower().endswith(".csv")]
+            if len(miembros) != 1:
+                print(
+                    f"ERROR: el ZIP trae {len(miembros)} CSV ({miembros[:3]}); extraer el "
+                    f"que corresponda y pasarlo directo.",
+                    file=sys.stderr,
+                )
+                return 1
+            destino = ruta_capa("raw", fuente.id, miembros[0])
+            destino.parent.mkdir(parents=True, exist_ok=True)
+            if not destino.exists():
+                with z.open(miembros[0]) as fh, destino.open("wb") as out:
+                    while chunk := fh.read(1 << 22):
+                        out.write(chunk)
+            ruta = destino
+
+    bronze, manifiesto = DeisEgresos(fuente).ingerir(ruta)
+    print(f"bronze: {len(bronze):,} filas | sha256={(manifiesto.sha256 or '')[:12]}…")
+
+    silver, rep = normalizar_egresos(bronze)
+    destino_silver = ruta_capa("silver", fuente.id, f"{ruta.stem}.parquet")
+    destino_silver.parent.mkdir(parents=True, exist_ok=True)
+    silver.to_parquet(destino_silver, index=False)
+    print(
+        f"silver: {len(silver):,} filas | sin territorio {rep['sin_territorio_total']:,} "
+        f"(supresión {rep.get('sin_territorio_por_supresion', 0):,}, "
+        f"ignorada {rep.get('sin_territorio_por_residencia_ignorada', 0):,}, "
+        f"extranjero {rep.get('sin_territorio_por_residencia_extranjero', 0):,})"
+    )
+    # Si esto no es cero, la fuente trae un código de comuna que nadie declaró y que se
+    # perdería dentro del balde de «desconocida» sin dejar rastro.
+    if rep.get("sin_territorio_sin_explicar"):
+        print(
+            f"AVISO: {rep['sin_territorio_sin_explicar']:,} filas sin territorio que no son "
+            f"supresión, ni residencia ignorada, ni extranjero. Hay un centinela nuevo: "
+            f"revisar antes de usar la serie comunal.",
+            file=sys.stderr,
+        )
+
+    tabla, meta = tabla_egresos_salud_mental(silver, k=args.k, source_version=fuente.source_version)
+    destino = ruta_capa("gold", "egresos_salud_mental", f"{ruta.stem}.parquet")
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    tabla.to_parquet(destino, index=False)
+    print(
+        f"gold egresos_salud_mental: {len(tabla):,} filas | "
+        f"{int(tabla['egresos'].sum()):,} egresos | suprimidas "
+        f"{meta['supresion']['filas_suprimidas']:,} ({meta['supresion']['porcentaje']:.1f} %)"
+    )
+
+    if not args.recursos_ayuda:
+        print(
+            "\nLa serie de lesión autoinfligida NO se escribió: docs/06 exige recursos de "
+            "ayuda vigentes verificados. Pasarlos con --recursos-ayuda para generarla.\n"
+            "Y aun con ellos, la revisión clínica sigue siendo obligatoria antes de publicar."
+        )
+        return 0
+
+    auto, meta_auto = tabla_egresos_autoinfligida(
+        silver,
+        recursos_ayuda=args.recursos_ayuda,
+        k=args.k_autoinfligida,
+        source_version=fuente.source_version,
+    )
+    destino_auto = ruta_capa("gold", "egresos_lesion_autoinfligida", f"{ruta.stem}.parquet")
+    destino_auto.parent.mkdir(parents=True, exist_ok=True)
+    auto.to_parquet(destino_auto, index=False)
+    print(
+        f"gold egresos_lesion_autoinfligida: {len(auto):,} filas | "
+        f"{int(auto['egresos'].sum()):,} egresos | k={meta_auto['supresion']['k']}"
+    )
+    print(f"  revisión clínica: {meta_auto['revision_clinica']}")
+    return 0
 
 
 def _parser_fase3(sub) -> None:
@@ -1026,11 +1241,39 @@ def _parser_fase3(sub) -> None:
     g6.set_defaults(func=cmd_glosa06)
 
     e = sub.add_parser("espera", help="listas de espera por Servicio de Salud (Fase 3)")
-    e.add_argument("--k", type=int, default=5,
-                   help="umbral de supresión (5 = actividad)")
-    e.add_argument("--forzar-descarga", action="store_true",
-                   help="vuelve a bajar los 30 archivos aunque estén en caché")
+    e.add_argument("--k", type=int, default=5, help="umbral de supresión (5 = actividad)")
+    e.add_argument(
+        "--forzar-descarga",
+        action="store_true",
+        help="vuelve a bajar los 30 archivos aunque estén en caché",
+    )
     e.set_defaults(func=cmd_espera)
+
+    eg = sub.add_parser("egresos", help="egresos hospitalarios por trastorno mental (I-11)")
+    eg.add_argument("archivo", help="EGRESOS_<anio>.zip o el CSV ya extraído")
+    eg.add_argument("--k", type=int, default=5, help="umbral de supresión de la serie de F00-F99")
+    eg.add_argument(
+        "--k-autoinfligida",
+        type=int,
+        default=10,
+        help="umbral de la serie de lesión autoinfligida (10 = mortalidad, por su sensibilidad)",
+    )
+    eg.add_argument(
+        "--recursos-ayuda",
+        nargs="+",
+        default=[],
+        metavar="RECURSO",
+        help=(
+            "recursos de ayuda vigentes en Chile, verificados hoy. SIN esto no se escribe "
+            "la serie de lesión autoinfligida (docs/06). No hay valor por defecto a propósito."
+        ),
+    )
+    eg.add_argument(
+        "--permitir-no-verificada",
+        action="store_true",
+        help="ingiere aunque la fuente no esté verificada (solo desarrollo)",
+    )
+    eg.set_defaults(func=cmd_egresos)
 
 
 def construir_parser() -> argparse.ArgumentParser:
@@ -1062,26 +1305,33 @@ def construir_parser() -> argparse.ArgumentParser:
     i = sub.add_parser("ingest", help="ingerir una fuente a bronze")
     i.add_argument("id")
     i.add_argument("--archivo", required=True, help="ruta al archivo ya descargado")
-    i.add_argument("--permitir-no-verificada", action="store_true",
-                   help="solo desarrollo: ignora que la fuente no esté verificada")
+    i.add_argument(
+        "--permitir-no-verificada",
+        action="store_true",
+        help="solo desarrollo: ignora que la fuente no esté verificada",
+    )
     i.set_defaults(func=cmd_ingest)
 
-    b = sub.add_parser("build", help="construir capas").add_subparsers(
-        dest="capa", required=True
-    )
+    b = sub.add_parser("build", help="construir capas").add_subparsers(dest="capa", required=True)
     bs = b.add_parser("silver")
     bs.add_argument("--source", default="deis_defunciones")
     bs.add_argument("--entrada", default=None, help="parquet de bronze; por defecto, el último")
     bs.set_defaults(func=cmd_build_silver)
     bg = b.add_parser("gold")
     bg.add_argument("--source", default="deis_defunciones")
-    bg.add_argument("--poblacion", default=None,
-                    help="CSV de población. Por defecto usa el silver de ine_proyecciones.")
+    bg.add_argument(
+        "--poblacion",
+        default=None,
+        help="CSV de población. Por defecto usa el silver de ine_proyecciones.",
+    )
     bg.add_argument("--agrupador", default="SUICIDIO")
     bg.add_argument("--k", type=int, default=10)
-    bg.add_argument("--sin-reconciliar", action="store_true",
-                    help="Salta la reconciliación. Solo para depurar: la salida NO es "
-                         "publicable y el metadato lo declara.")
+    bg.add_argument(
+        "--sin-reconciliar",
+        action="store_true",
+        help="Salta la reconciliación. Solo para depurar: la salida NO es "
+        "publicable y el metadato lo declara.",
+    )
     bg.set_defaults(func=cmd_build_gold)
 
     _parser_rem(sub)
@@ -1090,8 +1340,11 @@ def construir_parser() -> argparse.ArgumentParser:
     r = sub.add_parser("run", help="pipeline de Fase 1 completo, en un comando")
     r.add_argument("--agrupador", default="SUICIDIO")
     r.add_argument("--k", type=int, default=10)
-    r.add_argument("--forzar-descarga", action="store_true",
-                   help="vuelve a bajar los archivos aunque estén en caché")
+    r.add_argument(
+        "--forzar-descarga",
+        action="store_true",
+        help="vuelve a bajar los archivos aunque estén en caché",
+    )
     r.set_defaults(func=cmd_run)
 
     q = sub.add_parser("qa", help="comprobaciones sin red")

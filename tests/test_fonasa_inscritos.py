@@ -145,7 +145,9 @@ class TestContrato:
     def test_falla_si_la_cabecera_no_declara_anios(self, tmp_path):
         crudo = FIXTURE.read_bytes().decode("utf-8")
         for a in ("2025", "2024", "2023", "2022", "2021", "2020", "2015"):
-            crudo = crudo.replace(f'<Data ss:Type="String">{a}</Data>', '<Data ss:Type="String">x</Data>')
+            crudo = crudo.replace(
+                f'<Data ss:Type="String">{a}</Data>', '<Data ss:Type="String">x</Data>'
+            )
         destino = tmp_path / "sin_anios.xls"
         destino.write_text(crudo, encoding="utf-8")
         with pytest.raises(SchemaDriftError, match="año"):
@@ -167,6 +169,7 @@ class TestSilverResuelveElCero:
     @pytest.fixture()
     def silver(self, bronze):
         from obsm.transform.silver import normalizar_inscritos
+
         return normalizar_inscritos(bronze)
 
     def test_el_cero_de_una_comuna_sin_servicio_se_vuelve_nulo(self, silver):
@@ -182,11 +185,12 @@ class TestSilverResuelveElCero:
         # diferencia entre una decisión documentada y un dato tocado a mano.
         plata, _ = silver
         motivos = set(plata["motivo_sin_dato"])
-        assert "sin_servicio_municipal" in motivos       # lo declaró SINIM, en 2015
+        assert "sin_servicio_municipal" in motivos  # lo declaró SINIM, en 2015
         assert "sin_servicio_municipal_inferido" in motivos  # lo dedujimos, desde 2020
 
     def test_no_toca_los_ceros_de_comunas_que_nunca_declararon_sin_servicio(self, bronze):
         from obsm.transform.silver import normalizar_inscritos
+
         # Camiña nunca dijo «Sin Servicio». Si su valor fuera 0, sería un 0 de verdad.
         alterado = bronze.copy()
         objetivo = (alterado["comuna_cut_fuente"] == "01402") & (alterado["anio"] == 2020)
@@ -205,13 +209,14 @@ class TestSilverResuelveElCero:
 
     def test_el_reporte_deja_contabilidad_de_lo_que_se_toco(self, silver):
         _, rep = silver
-        assert rep["comunas_sin_servicio_municipal"] == 2   # Tocopilla e Isla de Pascua
-        assert rep["ceros_reinterpretados"] == 5            # los 0 de Tocopilla 2020-2025
+        assert rep["comunas_sin_servicio_municipal"] == 2  # Tocopilla e Isla de Pascua
+        assert rep["ceros_reinterpretados"] == 5  # los 0 de Tocopilla 2020-2025
         assert rep["cut_invalidos"] == 0
 
     def test_una_comuna_repetida_detiene_la_normalizacion(self, bronze):
         from obsm.errors import ReconciliationError
         from obsm.transform.silver import normalizar_inscritos
+
         # Un denominador con la comuna duplicada se suma solo al unir y hunde la cobertura.
         with pytest.raises(ReconciliationError, match="duplicad"):
             normalizar_inscritos(pd.concat([bronze, bronze], ignore_index=True))
@@ -228,28 +233,34 @@ class TestDenominadorImplausible:
 
     @pytest.fixture()
     def caso(self):
-        inscritos = pd.DataFrame({
-            "comuna_cut": ["16201", "16201", "01101", "02301"],
-            "anio": [2014, 2025, 2025, 2025],
-            "poblacion_inscrita": pd.array([9204, 33, 205125, None], dtype="Int64"),
-        })
-        poblacion = pd.DataFrame({
-            "comuna_cut": ["16201", "16201", "01101", "02301"],
-            "anio": [2014, 2025, 2025, 2025],
-            "poblacion": [11800, 12244, 280000, 28369],
-        })
+        inscritos = pd.DataFrame(
+            {
+                "comuna_cut": ["16201", "16201", "01101", "02301"],
+                "anio": [2014, 2025, 2025, 2025],
+                "poblacion_inscrita": pd.array([9204, 33, 205125, None], dtype="Int64"),
+            }
+        )
+        poblacion = pd.DataFrame(
+            {
+                "comuna_cut": ["16201", "16201", "01101", "02301"],
+                "anio": [2014, 2025, 2025, 2025],
+                "poblacion": [11800, 12244, 280000, 28369],
+            }
+        )
         return inscritos, poblacion
 
     def test_marca_la_celda_absurda_y_deja_en_paz_la_creible(self, caso):
         from obsm.quality import marcar_denominador_implausible
+
         marcado, _ = marcar_denominador_implausible(*caso)
         por_llave = marcado.set_index(["comuna_cut", "anio"])["denominador_implausible"]
-        assert por_llave[("16201", 2025)]      # 33 sobre 12.244 habitantes
+        assert por_llave[("16201", 2025)]  # 33 sobre 12.244 habitantes
         assert not por_llave[("16201", 2014)]  # 9.204 sobre 11.800: creíble
         assert not por_llave[("01101", 2025)]
 
     def test_no_borra_ni_imputa_el_valor_marcado(self, caso):
         from obsm.quality import marcar_denominador_implausible
+
         marcado, _ = marcar_denominador_implausible(*caso)
         fila = marcado[(marcado["comuna_cut"] == "16201") & (marcado["anio"] == 2025)]
         assert fila["poblacion_inscrita"].iloc[0] == 33, "el dato original sobrevive"
@@ -257,6 +268,7 @@ class TestDenominadorImplausible:
     def test_una_celda_sin_dato_no_se_marca_como_implausible(self, caso):
         # Nulo y absurdo son cosas distintas: Tocopilla no tiene dato, no tiene un dato malo.
         from obsm.quality import marcar_denominador_implausible
+
         marcado, rep = marcar_denominador_implausible(*caso)
         fila = marcado[marcado["comuna_cut"] == "02301"]
         assert not fila["denominador_implausible"].iloc[0]
@@ -264,6 +276,7 @@ class TestDenominadorImplausible:
 
     def test_el_reporte_cuenta_lo_marcado(self, caso):
         from obsm.quality import marcar_denominador_implausible
+
         _, rep = marcar_denominador_implausible(*caso)
         assert rep["celdas_implausibles"] == 1
         assert rep["comunas_implausibles"] == 1
@@ -285,7 +298,10 @@ class TestFormatoMultivariable:
 
     def test_separa_las_cuatro_variables(self, bronze_multi):
         assert sorted(set(bronze_multi["variable_codigo"])) == [
-            "HPISM", "HPV2064", "HPVM6", "HPVM64"
+            "HPISM",
+            "HPV2064",
+            "HPVM6",
+            "HPVM64",
         ]
         assert len(bronze_multi) == 3 * 4 * 7  # 3 comunas x 4 variables x 7 años
 
@@ -302,6 +318,7 @@ class TestFormatoMultivariable:
 
     def test_silver_se_queda_con_el_total_y_lo_declara(self, bronze_multi):
         from obsm.transform.silver import normalizar_inscritos
+
         plata, rep = normalizar_inscritos(bronze_multi)
         assert len(plata) == 3 * 7
         assert rep["variable"] == "HPISM"
@@ -310,6 +327,7 @@ class TestFormatoMultivariable:
     def test_pedir_una_variable_ausente_falla_en_vez_de_devolver_vacio(self, bronze_multi):
         from obsm.errors import ReconciliationError
         from obsm.transform.silver import normalizar_inscritos
+
         with pytest.raises(ReconciliationError, match="HPXXX"):
             normalizar_inscritos(bronze_multi, variable="HPXXX")
 
@@ -333,6 +351,7 @@ class TestCoherenciaConTramos:
     def marcado(self):
         from obsm.quality import marcar_total_incoherente_con_tramos
         from obsm.transform.silver import normalizar_inscritos, resolver_cut
+
         b = FonasaInscritos().preparar(MULTI)
         total, _ = normalizar_inscritos(b)
         b["comuna_cut"], _ = resolver_cut(b["comuna_cut_fuente"])

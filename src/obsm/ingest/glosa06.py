@@ -156,7 +156,8 @@ def parsear_tabla_especialidades(paginas: list[str]) -> tuple[pd.DataFrame, dict
         norm = [normalizar_especialidad(x) for x in lineas]
         inicio = next(
             (
-                j for j, n in enumerate(norm)
+                j
+                for j, n in enumerate(norm)
                 if n.startswith(ENCABEZADO_ESPECIALIDAD)
                 and any(ENCABEZADO_REGISTROS in m for m in norm[j : j + 3])
             ),
@@ -170,8 +171,9 @@ def parsear_tabla_especialidades(paginas: list[str]) -> tuple[pd.DataFrame, dict
         while j < len(lineas) - 1:
             # La fila de total cierra la tabla: lo que viene después es otra cosa.
             if any(norm[j].startswith(p_) for p_ in ("TOTAL", "SUBTOTAL")):
-                filas.append({"especialidad_fuente": lineas[j],
-                              "registros": _a_entero(lineas[j + 1]) or 0})
+                filas.append(
+                    {"especialidad_fuente": lineas[j], "registros": _a_entero(lineas[j + 1]) or 0}
+                )
                 break
             valor = _a_entero(lineas[j + 1])
             nombre_norm = norm[j] if j < len(norm) else ""
@@ -209,8 +211,7 @@ def parsear_tabla_especialidades(paginas: list[str]) -> tuple[pd.DataFrame, dict
             "suma_detalle": suma_detalle,
             "total_declarado": total_declarado,
             "salud_mental": {
-                r.etiqueta: int(r.registros)
-                for r in tabla[tabla["es_salud_mental"]].itertuples()
+                r.etiqueta: int(r.registros) for r in tabla[tabla["es_salud_mental"]].itertuples()
             },
         }
         # El total que el propio informe declara es un ancla gratis: si la suma del
@@ -222,7 +223,9 @@ def parsear_tabla_especialidades(paginas: list[str]) -> tuple[pd.DataFrame, dict
                 log.warning(
                     "[glosa06] la suma del detalle (%s) no cuadra con el total declarado "
                     "(%s). Suele significar que la tabla cruza de página y solo se leyó "
-                    "una parte.", f"{suma_detalle:,}", f"{total_declarado:,}",
+                    "una parte.",
+                    f"{suma_detalle:,}",
+                    f"{total_declarado:,}",
                 )
 
         faltan = set(ESPECIALIDADES_SALUD_MENTAL.values()) - set(reporte["salud_mental"])
@@ -233,7 +236,8 @@ def parsear_tabla_especialidades(paginas: list[str]) -> tuple[pd.DataFrame, dict
             log.warning(
                 "[glosa06] la tabla de la página %d no trae %s. Si el informe renombró la "
                 "especialidad, agregarla a ESPECIALIDADES_SALUD_MENTAL con su test.",
-                i + 1, sorted(faltan),
+                i + 1,
+                sorted(faltan),
             )
         reporte["salud_mental_faltante"] = sorted(faltan)
         return tabla, reporte
@@ -251,8 +255,14 @@ def parsear_tabla_especialidades(paginas: list[str]) -> tuple[pd.DataFrame, dict
 #: **cierre** del trimestre, porque el corte de la lista es el último día: «III trimestre
 #: 2025» son los datos al 30 de septiembre.
 TRIMESTRES = {
-    "I": "03", "II": "06", "III": "09", "IV": "12",
-    "PRIMER": "03", "SEGUNDO": "06", "TERCER": "09", "CUARTO": "12",
+    "I": "03",
+    "II": "06",
+    "III": "09",
+    "IV": "12",
+    "PRIMER": "03",
+    "SEGUNDO": "06",
+    "TERCER": "09",
+    "CUARTO": "12",
 }
 
 #: Las dos formas observadas en dos informes consecutivos: romanos («III trimestre 2025») y
@@ -309,7 +319,10 @@ class Glosa06(Ingestor):
         if dif:
             log.warning(
                 "[%s] %s: el detalle difiere del total declarado en %+d registros (%.2f %%). "
-                "Ver A-018.", self.source_id, out["periodo"].iloc[0], dif,
+                "Ver A-018.",
+                self.source_id,
+                out["periodo"].iloc[0],
+                dif,
                 100 * abs(dif) / max(rep.get("total_declarado") or 1, 1),
             )
         out.attrs["reporte_parseo"] = rep

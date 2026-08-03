@@ -46,6 +46,7 @@ class TestIngesta:
     def test_contrato_de_esquema_falla_si_faltan_columnas(self):
         ing = DeisDefunciones()
         from obsm.errors import SchemaDriftError
+
         with pytest.raises(SchemaDriftError):
             ing.validar_esquema(pd.DataFrame({"otra_cosa": [1]}))
 
@@ -106,6 +107,7 @@ class TestEstructuraRealDeis:
         agrupador aplicado solo a la básica devuelve cero en veintisiete años sin lanzar
         ningún error, con la forma de un hallazgo epidemiológico.
         """
+
         def es_x60_x84(s):
             return s.str.match(r"^X([6-7]\d|8[0-4])").fillna(False)
 
@@ -220,8 +222,13 @@ class TestGold:
         gold, _ = tasas_comunales(
             agregado, poblacion, "SUICIDIO", source_version="2026-07", poblacion_version="INE-2017"
         )
-        for col in ["source_id", "source_version", "poblacion_version", "pipeline_version",
-                    "fecha_calculo"]:
+        for col in [
+            "source_id",
+            "source_version",
+            "poblacion_version",
+            "pipeline_version",
+            "fecha_calculo",
+        ]:
             assert col in gold.columns
             assert gold[col].notna().all()
 
@@ -340,7 +347,8 @@ class TestManifiestoDeBronze:
 
         monkeypatch.setattr(base, "ruta_capa", lambda *a, **k: tmp_path / a[-1])
         fuente = Fuente(
-            id="deis_defunciones", nombre="Defunciones",
+            id="deis_defunciones",
+            nombre="Defunciones",
             url_indice="https://deis.minsal.cl/#datosabiertos",
             url_archivo="https://ejemplo.cl/DEFUNCIONES.zip",
             source_version="CIFRAS_OFICIALES 1990-2023",
@@ -370,16 +378,20 @@ class TestVentanaDeCobertura:
     """
 
     def _tablas(self):
-        poblacion = pd.DataFrame({
-            "comuna_cut": ["05101"] * 4,
-            "anio": [2020, 2021, 2022, 2023],
-            "poblacion": [100_000] * 4,
-        })
-        agregado = pd.DataFrame({
-            "comuna_cut": ["05101", "05101"],
-            "anio": [2020, 2021],
-            "casos": [12, 15],
-        })
+        poblacion = pd.DataFrame(
+            {
+                "comuna_cut": ["05101"] * 4,
+                "anio": [2020, 2021, 2022, 2023],
+                "poblacion": [100_000] * 4,
+            }
+        )
+        agregado = pd.DataFrame(
+            {
+                "comuna_cut": ["05101", "05101"],
+                "anio": [2020, 2021],
+                "casos": [12, 15],
+            }
+        )
         return agregado, poblacion
 
     def test_descarta_los_anios_sin_numerador(self):
@@ -396,11 +408,13 @@ class TestVentanaDeCobertura:
 
     def test_dentro_de_la_ventana_el_cero_si_se_conserva(self):
         # Una comuna sin muertes en un año cubierto debe aparecer con 0, no desaparecer.
-        poblacion = pd.DataFrame({
-            "comuna_cut": ["05101", "05102"],
-            "anio": [2020, 2020],
-            "poblacion": [100_000, 50_000],
-        })
+        poblacion = pd.DataFrame(
+            {
+                "comuna_cut": ["05101", "05102"],
+                "anio": [2020, 2020],
+                "poblacion": [100_000, 50_000],
+            }
+        )
         agregado = pd.DataFrame({"comuna_cut": ["05101"], "anio": [2020], "casos": [12]})
         gold, _ = tasas_comunales(agregado, poblacion, "SUICIDIO", k=1)
         sin_muertes = gold[gold["comuna_cut"] == "05102"]
@@ -438,13 +452,18 @@ class TestCadenaCompleta:
         from obsm.transform.silver import normalizar_poblacion
 
         defs, rep_d = normalizar_defunciones(DeisDefunciones().preparar(MUESTRA))
-        pob, rep_p = normalizar_poblacion(
-            IneProyecciones().preparar(MUESTRA_POBLACION_CADENA)
-        )
+        pob, rep_p = normalizar_poblacion(IneProyecciones().preparar(MUESTRA_POBLACION_CADENA))
         agregado = agregar_defunciones(defs, "SUICIDIO", dimensiones=["comuna_cut", "anio"])
         gold, meta = tasas_comunales(agregado, pob, "SUICIDIO", k=1)
-        return {"defs": defs, "pob": pob, "agregado": agregado,
-                "gold": gold, "meta": meta, "rep_d": rep_d, "rep_p": rep_p}
+        return {
+            "defs": defs,
+            "pob": pob,
+            "agregado": agregado,
+            "gold": gold,
+            "meta": meta,
+            "rep_d": rep_d,
+            "rep_p": rep_p,
+        }
 
     def test_numerador_y_denominador_comparten_la_grilla(self, cadena):
         assert cadena["rep_d"]["tope_edad"] == cadena["rep_p"]["tope_edad"]
@@ -502,9 +521,7 @@ class TestContratoDelFixtureDePoblacion:
         from obsm.transform.silver import normalizar_poblacion
 
         a_mano = pd.read_csv(POBLACION, dtype={"comuna_cut": str})
-        real, _ = normalizar_poblacion(
-            IneProyecciones().preparar(MUESTRA_POBLACION_CADENA)
-        )
+        real, _ = normalizar_poblacion(IneProyecciones().preparar(MUESTRA_POBLACION_CADENA))
         faltan = set(a_mano.columns) - set(real.columns)
         assert not faltan, (
             f"el fixture a mano usa columnas que `normalizar_poblacion` ya no produce: "
@@ -517,9 +534,7 @@ class TestContratoDelFixtureDePoblacion:
         from obsm.transform.silver import normalizar_poblacion
 
         a_mano = pd.read_csv(POBLACION, dtype={"comuna_cut": str})
-        real, _ = normalizar_poblacion(
-            IneProyecciones().preparar(MUESTRA_POBLACION_CADENA)
-        )
+        real, _ = normalizar_poblacion(IneProyecciones().preparar(MUESTRA_POBLACION_CADENA))
         assert a_mano["comuna_cut"].str.len().eq(5).all()
         assert real["comuna_cut"].str.len().eq(5).all()
 
@@ -547,10 +562,14 @@ class TestAvpp:
     def test_las_muertes_sin_edad_se_cuentan_aparte(self):
         from obsm.transform.silver import agregar_avpp
 
-        df = pd.DataFrame({
-            "comuna_cut": ["05101"] * 2, "anio": [2020] * 2,
-            "edad_anios": [40.0, float("nan")], "es_suicidio": [True, True],
-        })
+        df = pd.DataFrame(
+            {
+                "comuna_cut": ["05101"] * 2,
+                "anio": [2020] * 2,
+                "edad_anios": [40.0, float("nan")],
+                "es_suicidio": [True, True],
+            }
+        )
         av = agregar_avpp(df, "SUICIDIO")
         # Tratar la edad ausente como 0 afirmaría que murió al nacer, y como 80 que
         # murió justo en el límite. Ninguna de las dos es un dato.
@@ -562,18 +581,22 @@ class TestEstandarizacionEnGold:
     def _tablas(self):
         # Dos comunas con el MISMO número de muertes y población, pero estructuras
         # etarias opuestas: sin estandarizar se ven iguales, estandarizadas no.
-        pob = pd.DataFrame({
-            "comuna_cut": ["05101", "05101", "05102", "05102"],
-            "anio": [2020] * 4,
-            "grupo_edad": ["20-24", "80+", "20-24", "80+"],
-            "poblacion": [90_000, 10_000, 10_000, 90_000],
-        })
-        ag = pd.DataFrame({
-            "comuna_cut": ["05101", "05102"],
-            "anio": [2020, 2020],
-            "grupo_edad": ["80+", "80+"],
-            "casos": [20, 20],
-        })
+        pob = pd.DataFrame(
+            {
+                "comuna_cut": ["05101", "05101", "05102", "05102"],
+                "anio": [2020] * 4,
+                "grupo_edad": ["20-24", "80+", "20-24", "80+"],
+                "poblacion": [90_000, 10_000, 10_000, 90_000],
+            }
+        )
+        ag = pd.DataFrame(
+            {
+                "comuna_cut": ["05101", "05102"],
+                "anio": [2020, 2020],
+                "grupo_edad": ["80+", "80+"],
+                "casos": [20, 20],
+            }
+        )
         return ag, pob
 
     def test_la_tasa_cruda_no_distingue_pero_la_estandarizada_si(self):
@@ -594,10 +617,14 @@ class TestEstandarizacionEnGold:
         assert (gold["tasa_estandarizada"] > 0).all()
 
     def test_poblacion_cero_da_estandarizada_indefinida_y_no_cero(self):
-        pob = pd.DataFrame({
-            "comuna_cut": ["05101"], "anio": [2020],
-            "grupo_edad": ["40-44"], "poblacion": [0],
-        })
+        pob = pd.DataFrame(
+            {
+                "comuna_cut": ["05101"],
+                "anio": [2020],
+                "grupo_edad": ["40-44"],
+                "poblacion": [0],
+            }
+        )
         ag = pd.DataFrame({"comuna_cut": [], "anio": [], "grupo_edad": [], "casos": []})
         gold, _ = tasas_comunales(ag, pob, "SUICIDIO", k=1, anios_cobertura=(2020, 2020))
         assert gold["tasa_estandarizada"].isna().all(), (
@@ -619,23 +646,26 @@ class TestSupresionDeDerivadas:
         defs, _ = normalizar_defunciones(DeisDefunciones().preparar(MUESTRA))
         from obsm.ingest.ine_proyecciones import IneProyecciones
         from obsm.transform.silver import normalizar_poblacion
-        pob, _ = normalizar_poblacion(
-            IneProyecciones().preparar(MUESTRA_POBLACION_CADENA)
-        )
-        ag = agregar_defunciones(defs, "SUICIDIO",
-                                 dimensiones=["comuna_cut", "anio", "grupo_edad"])
+
+        pob, _ = normalizar_poblacion(IneProyecciones().preparar(MUESTRA_POBLACION_CADENA))
+        ag = agregar_defunciones(defs, "SUICIDIO", dimensiones=["comuna_cut", "anio", "grupo_edad"])
         av = agregar_avpp(defs, "SUICIDIO")
         return tasas_comunales(ag, pob, "SUICIDIO", avpp=av, k=10)
 
-    @pytest.mark.parametrize("col", [
-        "tasa_cruda", "tasa_estandarizada", "ic95_inferior", "ic95_superior", "avpp",
-    ])
+    @pytest.mark.parametrize(
+        "col",
+        [
+            "tasa_cruda",
+            "tasa_estandarizada",
+            "ic95_inferior",
+            "ic95_superior",
+            "avpp",
+        ],
+    )
     def test_ninguna_derivada_sobrevive_a_la_supresion(self, col):
         gold, _ = self._gold()
         suprimidas = gold[gold["suprimido"]]
-        assert suprimidas[col].isna().all(), (
-            f"{col} permite reconstruir el conteo suprimido"
-        )
+        assert suprimidas[col].isna().all(), f"{col} permite reconstruir el conteo suprimido"
 
     def test_el_avpp_es_el_caso_mas_sensible(self):
         """Con un solo caso, AVPP revela la edad exacta del fallecido.
@@ -660,20 +690,31 @@ class TestProcedenciaEnCadaFila:
     """
 
     def _tablas(self):
-        pob = pd.DataFrame({
-            "comuna_cut": ["05101"], "anio": [2020],
-            "grupo_edad": ["40-44"], "poblacion": [100_000],
-        })
-        ag = pd.DataFrame({
-            "comuna_cut": ["05101"], "anio": [2020],
-            "grupo_edad": ["40-44"], "casos": [12],
-        })
+        pob = pd.DataFrame(
+            {
+                "comuna_cut": ["05101"],
+                "anio": [2020],
+                "grupo_edad": ["40-44"],
+                "poblacion": [100_000],
+            }
+        )
+        ag = pd.DataFrame(
+            {
+                "comuna_cut": ["05101"],
+                "anio": [2020],
+                "grupo_edad": ["40-44"],
+                "casos": [12],
+            }
+        )
         return ag, pob
 
     def test_las_versiones_llegan_a_todas_las_filas(self):
         ag, pob = self._tablas()
         gold, _ = tasas_comunales(
-            ag, pob, "SUICIDIO", k=1,
+            ag,
+            pob,
+            "SUICIDIO",
+            k=1,
             source_version="CIFRAS_OFICIALES 1990-2023",
             poblacion_version="base 2017",
         )

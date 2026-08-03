@@ -29,7 +29,7 @@ class TestSupresion:
     def test_suprime_bajo_el_umbral_y_conserva_el_cero(self):
         df = pd.DataFrame({"comuna_cut": list("abcd"), "casos": [0, 3, 9, 25]})
         out, rep = suprimir_celdas_pequenas(df, "casos", k=10)
-        assert out.loc[0, "casos"] == 0          # el cero informa y no identifica
+        assert out.loc[0, "casos"] == 0  # el cero informa y no identifica
         assert pd.isna(out.loc[1, "casos"])
         assert pd.isna(out.loc[2, "casos"])
         assert out.loc[3, "casos"] == 25
@@ -43,14 +43,12 @@ class TestSupresion:
 
     def test_supresion_complementaria(self):
         """Con una sola celda suprimida en el grupo, el valor es reconstruible por resta."""
-        df = pd.DataFrame(
-            {"anio": [2022] * 3, "comuna_cut": list("abc"), "casos": [4, 30, 50]}
-        )
+        df = pd.DataFrame({"anio": [2022] * 3, "comuna_cut": list("abc"), "casos": [4, 30, 50]})
         out, rep = suprimir_celdas_pequenas(df, "casos", k=10, grupo=["anio"])
         assert rep.filas_suprimidas == 2
         assert rep.filas_suprimidas_complementarias == 1
-        assert pd.isna(out.loc[0, "casos"])   # la original
-        assert pd.isna(out.loc[1, "casos"])   # la complementaria (la menor de las restantes)
+        assert pd.isna(out.loc[0, "casos"])  # la original
+        assert pd.isna(out.loc[1, "casos"])  # la complementaria (la menor de las restantes)
         assert out.loc[2, "casos"] == 50
 
     def test_sin_complementaria_cuando_ya_hay_dos(self):

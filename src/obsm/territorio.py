@@ -71,6 +71,7 @@ N_COMUNAS_ESPERADO = 346
 # Normalización de texto
 # --------------------------------------------------------------------------------------
 
+
 def normalizar_texto(s: str) -> str:
     """Normaliza un nombre para comparación: sin tildes, sin puntuación, minúsculas.
 
@@ -140,6 +141,7 @@ def aplicar_alias(nombre_normalizado: str) -> str:
 # Códigos
 # --------------------------------------------------------------------------------------
 
+
 def formatear_cut_comuna(valor: str | int) -> str:
     """Devuelve un CUT comunal de 5 dígitos como string con ceros a la izquierda.
 
@@ -185,6 +187,7 @@ def region_vigente(cut_comuna: str, anio: int, dpa: DPA | None = None) -> str:
 # --------------------------------------------------------------------------------------
 # Tabla DPA
 # --------------------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class Comuna:
@@ -283,6 +286,7 @@ def validar_dpa(dpa: DPA, estricto: bool = True) -> list[str]:
 # --------------------------------------------------------------------------------------
 # Resolución
 # --------------------------------------------------------------------------------------
+
 
 def normalizar_comuna(
     nombre: str,

@@ -68,7 +68,12 @@ def cargar_mapeo(ruta: Path | str | None = None) -> dict:
 class RemPoblacionControl(Ingestor):
     source_id = "rem_salud_mental"
     columnas_requeridas = (
-        "anio", "mes", "comuna_cut_fuente", "codigo_prestacion", "columna", "valor",
+        "anio",
+        "mes",
+        "comuna_cut_fuente",
+        "codigo_prestacion",
+        "columna",
+        "valor",
     )
     columnas_opcionales = ("establecimiento_deis", "region_cut_fuente", "servicio_salud")
 
@@ -126,7 +131,11 @@ class RemPoblacionControl(Ingestor):
 
         log.info(
             "[%s] %s: %d filas leídas, %d descartadas por no ser de la sección %s",
-            self.source_id, ruta.name, leidas, descartadas, self.hoja,
+            self.source_id,
+            ruta.name,
+            leidas,
+            descartadas,
+            self.hoja,
         )
         if not trozos:
             raise SchemaDriftError(
@@ -206,7 +215,8 @@ class RemPoblacionControl(Ingestor):
             log.warning(
                 "[%s] %d valores fraccionarios en un conteo de personas (ej. %s). "
                 "Son errores de digitación de la fuente; se conservan sin redondear.",
-                self.source_id, int(fraccionarios.sum()),
+                self.source_id,
+                int(fraccionarios.sum()),
                 out.loc[fraccionarios, "valor"].head(3).tolist(),
             )
         out.attrs["valores_fraccionarios"] = int(fraccionarios.sum())

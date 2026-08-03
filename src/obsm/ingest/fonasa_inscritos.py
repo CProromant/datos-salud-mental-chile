@@ -107,8 +107,12 @@ def _celdas(fila: ET.Element) -> list[str]:
 class FonasaInscritos(Ingestor):
     source_id = "fonasa_inscritos"
     columnas_requeridas = (
-        "comuna_cut_fuente", "anio", "variable_codigo", "valor_crudo",
-        "poblacion_inscrita", "motivo_sin_dato",
+        "comuna_cut_fuente",
+        "anio",
+        "variable_codigo",
+        "valor_crudo",
+        "poblacion_inscrita",
+        "motivo_sin_dato",
     )
     columnas_opcionales = ("comuna_nombre",)
 
@@ -125,18 +129,20 @@ class FonasaInscritos(Ingestor):
 
         i_cab, columnas = self._cabecera(filas)
         registros = []
-        for fila in filas[i_cab + 1:]:
+        for fila in filas[i_cab + 1 :]:
             if len(fila) < 2 or not fila[0].strip():
                 continue
             for pos, (variable, anio) in columnas.items():
                 crudo = fila[pos] if pos < len(fila) else ""
-                registros.append({
-                    "comuna_cut_fuente": fila[0].strip(),
-                    "comuna_nombre": fila[1].strip(),
-                    "variable_codigo": variable,
-                    "anio": anio,
-                    "valor_crudo": crudo,
-                })
+                registros.append(
+                    {
+                        "comuna_cut_fuente": fila[0].strip(),
+                        "comuna_nombre": fila[1].strip(),
+                        "variable_codigo": variable,
+                        "anio": anio,
+                        "valor_crudo": crudo,
+                    }
+                )
         if not registros:
             raise SchemaDriftError(
                 f"[{self.source_id}] la cabecera se encontró en la fila {i_cab} pero no hay "
@@ -235,6 +241,8 @@ class FonasaInscritos(Ingestor):
             reparto = out.loc[out["motivo_sin_dato"] != "", "motivo_sin_dato"].value_counts()
             log.info(
                 "[%s] %d celdas sin dato numérico: %s",
-                self.source_id, n_cent, reparto.to_dict(),
+                self.source_id,
+                n_cent,
+                reparto.to_dict(),
             )
         return out

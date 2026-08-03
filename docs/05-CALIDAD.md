@@ -1015,10 +1015,27 @@ nulo, para que ninguna comuna `"*"` llegue al join territorial. No exige un conj
 de columnas —cambió entre entregas— pero **sí exige un solo patrón por archivo**: dos
 formas distintas de enmascarar conviviendo lanzan `SchemaDriftError`.
 
-**Centinela distinto y conviviendo con este:** `99999` / `Ignorada` en la comuna (`99` en
-la región) significa **residencia desconocida**, no supresión. Está en los seis años
-revisados, entre 4.830 y 18.257 filas. Va a nulo y se marca aparte en
-`residencia_ignorada`; sin eso aparece una comuna «99999» que no existe.
+**Hay tres centinelas de territorio y significan cosas distintas:**
+
+| Valor | Glosa | Qué significa | Filas en 2023 |
+|---|---|---|---|
+| `*` | — | DEIS suprimió la demografía de la fila | 128.108 |
+| `99999` / `99` | `Ignorada` | No se sabe dónde reside la persona | 12.264 |
+| `88888` / `88` | `Extranjero` | **Sí se sabe: no reside en Chile** | 661 |
+
+Los tres van a nulo, pero se marcan **por separado** (`suprimido_en_origen`,
+`residencia_ignorada`, `residencia_extranjero`). Mezclarlos borra que un egreso de
+extranjero tiene residencia conocida, solo que fuera del país, y agregarlos produce comunas
+«99999» y «88888» que no existen.
+
+**Cómo apareció el tercero, que es lo que vale registrar.** Los dos primeros se
+encontraron leyendo el archivo; `88888` apareció **corriendo el pipeline completo**: el
+silver reportó 141.033 filas sin territorio y los dos centinelas conocidos solo explicaban
+140.372. Las 661 de diferencia eran «Extranjero». De ahí salió el control que quedó fijo:
+el reporte del silver publica `sin_territorio_sin_explicar` y **tiene que ser cero**; si
+deja de serlo, la fuente agregó un código que la DPA no reconoce y que el balde de «comuna
+desconocida» se tragaría sin que nadie lo note. Un total que cuadra por partes no es lo
+mismo que un total que cuadra.
 
 ### A-023 · deis_egresos · 2026-08-02 {#a-023}
 

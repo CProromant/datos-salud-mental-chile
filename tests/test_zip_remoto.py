@@ -22,7 +22,7 @@ def _lector_local(ruta):
     datos = ruta.read_bytes()
 
     def leer(_url, desde, hasta):
-        if desde < 0:                      # sintaxis de cola: los últimos N bytes
+        if desde < 0:  # sintaxis de cola: los últimos N bytes
             return datos[desde:]
         return datos[desde : hasta + 1]
 
@@ -41,15 +41,17 @@ def zip_demo(tmp_path):
 
 class TestListar:
     def test_lista_los_miembros_sin_leer_el_archivo_entero(self, zip_demo):
-        miembros = listar_zip_remoto("http://ejemplo/demo.zip",
-                                     leer_rango=_lector_local(zip_demo))
+        miembros = listar_zip_remoto("http://ejemplo/demo.zip", leer_rango=_lector_local(zip_demo))
         nombres = [m.nombre for m in miembros]
-        assert nombres == ["Datos/grande.txt", "Diccionarios/dicc.xlsx",
-                           "sin_comprimir.txt"]
+        assert nombres == ["Datos/grande.txt", "Diccionarios/dicc.xlsx", "sin_comprimir.txt"]
 
     def test_reporta_tamanos_comprimido_y_real(self, zip_demo):
-        miembros = {m.nombre: m for m in listar_zip_remoto(
-            "http://ejemplo/demo.zip", leer_rango=_lector_local(zip_demo))}
+        miembros = {
+            m.nombre: m
+            for m in listar_zip_remoto(
+                "http://ejemplo/demo.zip", leer_rango=_lector_local(zip_demo)
+            )
+        }
         grande = miembros["Datos/grande.txt"]
         assert grande.bytes_reales == 500_000
         # Medio mega de la misma letra comprime muchísimo: es lo que permite decidir
@@ -60,16 +62,14 @@ class TestListar:
         malo = tmp_path / "no_es.zip"
         malo.write_bytes(b"esto es texto plano, no un zip")
         with pytest.raises(SourceUnavailableError, match="índice central"):
-            listar_zip_remoto("http://ejemplo/no_es.zip",
-                              leer_rango=_lector_local(malo))
+            listar_zip_remoto("http://ejemplo/no_es.zip", leer_rango=_lector_local(malo))
 
 
 class TestExtraer:
     def test_extrae_un_miembro_comprimido(self, zip_demo):
         leer = _lector_local(zip_demo)
         miembros = {m.nombre: m for m in listar_zip_remoto("u", leer_rango=leer)}
-        datos = extraer_de_zip_remoto(
-            "u", miembros["Diccionarios/dicc.xlsx"], leer_rango=leer)
+        datos = extraer_de_zip_remoto("u", miembros["Diccionarios/dicc.xlsx"], leer_rango=leer)
         assert datos == b"contenido del diccionario"
 
     def test_extrae_un_miembro_sin_comprimir(self, zip_demo):
@@ -77,8 +77,9 @@ class TestExtraer:
         # viene comprimido, este caso reventaría.
         leer = _lector_local(zip_demo)
         miembros = {m.nombre: m for m in listar_zip_remoto("u", leer_rango=leer)}
-        assert extraer_de_zip_remoto("u", miembros["sin_comprimir.txt"],
-                                     leer_rango=leer) == b"y" * 10
+        assert (
+            extraer_de_zip_remoto("u", miembros["sin_comprimir.txt"], leer_rango=leer) == b"y" * 10
+        )
 
     def test_extrae_solo_el_miembro_pedido_y_no_el_resto(self, zip_demo):
         """La razón de ser de todo esto: no bajar los 500 KB para leer 25 bytes."""
@@ -92,19 +93,16 @@ class TestExtraer:
 
         miembros = {m.nombre: m for m in listar_zip_remoto("u", leer_rango=leer_contando)}
         pedidos.clear()
-        extraer_de_zip_remoto("u", miembros["Diccionarios/dicc.xlsx"],
-                              leer_rango=leer_contando)
+        extraer_de_zip_remoto("u", miembros["Diccionarios/dicc.xlsx"], leer_rango=leer_contando)
         assert sum(pedidos) < 20_000, (
-            f"se pidieron {sum(pedidos)} bytes para un miembro de 25: el lector está "
-            f"bajando de más"
+            f"se pidieron {sum(pedidos)} bytes para un miembro de 25: el lector está bajando de más"
         )
 
     def test_un_offset_que_no_apunta_a_un_miembro_falla(self, zip_demo):
         from obsm.io import MiembroZip
 
         leer = _lector_local(zip_demo)
-        falso = MiembroZip("inventado.txt", offset=12_345, bytes_comprimidos=10,
-                           bytes_reales=10)
+        falso = MiembroZip("inventado.txt", offset=12_345, bytes_comprimidos=10, bytes_reales=10)
         with pytest.raises(SourceUnavailableError, match="encabezado"):
             extraer_de_zip_remoto("u", falso, leer_rango=leer)
 
@@ -113,8 +111,10 @@ class TestIntegridad:
     def test_lo_extraido_coincide_con_lo_que_daria_descargar_todo(self, zip_demo):
         """El control que importa: leer por partes no puede dar algo distinto."""
         leer = _lector_local(zip_demo)
-        remotos = {m.nombre: extraer_de_zip_remoto("u", m, leer_rango=leer)
-                   for m in listar_zip_remoto("u", leer_rango=leer)}
+        remotos = {
+            m.nombre: extraer_de_zip_remoto("u", m, leer_rango=leer)
+            for m in listar_zip_remoto("u", leer_rango=leer)
+        }
         with zipfile.ZipFile(zip_demo) as z:
             locales = {n: z.read(n) for n in z.namelist()}
         assert remotos == locales
@@ -143,8 +143,10 @@ class TestNombresConAcento:
             f.writestr("Diccionarios/CÓDIGOS.xlsx", b"contenido")
         leer = _lector_local(z)
         ms = {m.nombre: m for m in listar_zip_remoto("u", leer_rango=leer)}
-        assert extraer_de_zip_remoto("u", ms["Diccionarios/CÓDIGOS.xlsx"],
-                                     leer_rango=leer) == b"contenido"
+        assert (
+            extraer_de_zip_remoto("u", ms["Diccionarios/CÓDIGOS.xlsx"], leer_rango=leer)
+            == b"contenido"
+        )
 
     def test_un_nombre_en_cp850_se_lee_con_sus_tildes(self, tmp_path):
         """El caso real de DEIS, reproducido byte a byte.
@@ -156,16 +158,38 @@ class TestNombresConAcento:
         """
         import struct
 
-        nombre = "CÓDIGOS.txt".encode("cp850")   # la Ó queda como 0xE0
+        nombre = "CÓDIGOS.txt".encode("cp850")  # la Ó queda como 0xE0
         datos = b"contenido"
-        local = (b"PK\x03\x04" + struct.pack("<HHHHHIIIHH", 20, 0, 0, 0, 0, 0,
-                                             len(datos), len(datos), len(nombre), 0)
-                 + nombre + datos)
-        cd = (b"PK\x01\x02" + struct.pack("<HHHHHHIIIHHHHHII", 20, 20, 0, 0, 0, 0, 0,
-                                          len(datos), len(datos), len(nombre),
-                                          0, 0, 0, 0, 0, 0) + nombre)
-        eocd = b"PK\x05\x06" + struct.pack("<HHHHIIH", 0, 0, 1, 1, len(cd),
-                                           len(local), 0)
+        local = (
+            b"PK\x03\x04"
+            + struct.pack("<HHHHHIIIHH", 20, 0, 0, 0, 0, 0, len(datos), len(datos), len(nombre), 0)
+            + nombre
+            + datos
+        )
+        cd = (
+            b"PK\x01\x02"
+            + struct.pack(
+                "<HHHHHHIIIHHHHHII",
+                20,
+                20,
+                0,
+                0,
+                0,
+                0,
+                0,
+                len(datos),
+                len(datos),
+                len(nombre),
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            )
+            + nombre
+        )
+        eocd = b"PK\x05\x06" + struct.pack("<HHHHIIH", 0, 0, 1, 1, len(cd), len(local), 0)
         z = tmp_path / "cp850.zip"
         z.write_bytes(local + cd + eocd)
 

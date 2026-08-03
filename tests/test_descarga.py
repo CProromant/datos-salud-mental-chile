@@ -38,16 +38,14 @@ class TestVerificacionDeHash:
         destino.write_bytes(b"a;b\n1;2\n")
         esperado = sha256_archivo(destino)
         # El archivo ya existe, así que `descargar` no toca la red.
-        m = descargar("https://ejemplo.cl/dato.csv", destino, "demo",
-                      sha256_esperado=esperado)
+        m = descargar("https://ejemplo.cl/dato.csv", destino, "demo", sha256_esperado=esperado)
         assert m.sha256 == esperado
 
     def test_rechaza_el_archivo_cuando_el_hash_no_coincide(self, tmp_path):
         destino = tmp_path / "dato.csv"
         destino.write_bytes(b"contenido distinto")
         with pytest.raises(SourceUnavailableError, match="hash declarado"):
-            descargar("https://ejemplo.cl/dato.csv", destino, "demo",
-                      sha256_esperado="0" * 64)
+            descargar("https://ejemplo.cl/dato.csv", destino, "demo", sha256_esperado="0" * 64)
 
     def test_el_error_explica_las_tres_causas_posibles(self, tmp_path):
         # Quien lo lea tiene que poder decidir qué hacer: reintentar, revisar la URL, o
@@ -71,7 +69,9 @@ class TestAsegurarRaw:
 
     def _fuente(self, tmp_path, **extra):
         return Fuente(
-            id="demo", nombre="Demo", estado="verificada",
+            id="demo",
+            nombre="Demo",
+            estado="verificada",
             fecha_verificacion="2026-01-01",
             url_archivo="https://ejemplo.cl/datos.zip",
             extra=extra,
@@ -118,9 +118,9 @@ class TestAsegurarRaw:
         monkeypatch.setattr("obsm.io.DIR_DATOS", tmp_path)
         self._preparar_zip(tmp_path / "raw" / "demo", "dato.csv")
         with pytest.raises(ObsmError, match="sha256_extraido"):
-            _asegurar_raw(self._fuente(
-                tmp_path, archivo_extraido="dato.csv", sha256_extraido="0" * 64
-            ))
+            _asegurar_raw(
+                self._fuente(tmp_path, archivo_extraido="dato.csv", sha256_extraido="0" * 64)
+            )
 
     def test_un_archivo_que_no_es_zip_se_devuelve_tal_cual(self, tmp_path, monkeypatch):
         monkeypatch.setattr("obsm.io.DIR_DATOS", tmp_path)
@@ -137,6 +137,4 @@ class TestOrdenDelPipeline:
         minutos: fallar temprano cuesta menos."""
         from obsm.cli import PIPELINE_FASE_1
 
-        assert PIPELINE_FASE_1.index("ine_proyecciones") < PIPELINE_FASE_1.index(
-            "deis_defunciones"
-        )
+        assert PIPELINE_FASE_1.index("ine_proyecciones") < PIPELINE_FASE_1.index("deis_defunciones")
