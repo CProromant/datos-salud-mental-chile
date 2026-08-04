@@ -94,7 +94,7 @@ coautor, así que no es comparar el archivo consigo mismo a través de un interm
 | **2010-2019** | **18.691** | **18.695** | **+0,02 %** |
 
 Tres años quedan declarados como anclas ejecutables en `config/anclas.yml`; los diez de la
-serie están en `data/anclas/pendientes/`. La búsqueda anterior falló por buscar en
+serie están en `config/anclas-evidencia/pendientes/`. La búsqueda anterior falló por buscar en
 productos estadísticos generales y no en la monografía temática, que es donde estaba.
 
 **Qué protege esto que no protegía nada antes.** A-004 —cero suicidios en 27 años por leer
@@ -133,9 +133,18 @@ si coincide con lo nuestro. Se capturan en sesiones separadas y a propósito: qu
 no compara, porque saber el resultado esperado es la forma más barata de leer mal una
 tabla.
 
-Viven en `data/anclas/pendientes/`, un archivo YAML por documento. Los documentos de
-origen viven en `data/raw/documentos/` y **no** se versionan; `data/anclas/catalogo.yml`
-guarda URL + sha256 de cada uno para que cualquiera los vuelva a bajar y verifique.
+Viven en `config/anclas-evidencia/pendientes/`, un archivo YAML por documento. Los
+documentos de origen viven en `data/raw/documentos/` y **no** se versionan;
+`config/anclas-evidencia/catalogo.yml` guarda URL + sha256 de cada uno para que cualquiera
+los vuelva a bajar y verifique.
+
+> **Por qué en `config/` y no en `data/`.** El primer intento las puso en `data/anclas/`
+> con una excepción en `.gitignore`, razonando que una cifra transcrita a mano no es una
+> descarga. El CI lo rechazó —su guardia «Sin datos descargados en el repo» prohíbe
+> cualquier archivo versionado bajo `data/` que no sea un `.gitkeep`— y tenía razón: son
+> un catálogo mantenido a mano, hermano de `config/anclas.yml`, y `data/` es para lo que
+> baja de un servidor. Queda anotado porque el error fue de razonamiento, no de tecleo:
+> se argumentó una excepción a una regla en vez de notar que la ubicación estaba mal.
 
 ### Esquema
 

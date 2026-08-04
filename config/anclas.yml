@@ -140,7 +140,7 @@ anclas:
   #
   # Se declaran tres años y no los diez: inicio, fin, y 2015 que es donde la diferencia
   # observada es mayor. Diez anclas del mismo cálculo no atajan nada que no atajen tres.
-  # La serie completa vive en data/anclas/pendientes/ y ahí están los diez años.
+  # La serie completa vive en config/anclas-evidencia/pendientes/ y ahí están los diez años.
 
   - id: suicidios_2010
     descripcion: "Defunciones por suicidio (X60-X84), año calendario 2010"
