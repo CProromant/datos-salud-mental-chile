@@ -1,0 +1,166 @@
+# Anclas de evidencia — Termómetro de la Salud Mental en Chile ACHS-UC, Ronda 8.
+# Esquema en docs/05-CALIDAD.md#anclas-evidencia. Extraídas 2026-08-03.
+#
+# DURAS pese a no ser fuente estatal: ACHS-UC levanta su propia encuesta y publica su
+# propio agregado, no reprocesa a nadie. "Dura" clasifica la cadena de custodia, no la
+# autoridad del emisor.
+#
+# NO ES COMPARABLE CON LA ENS Y NO ES UN CONFLICTO CON ELLA. Otro instrumento (PHQ-9 vs
+# CIDI), otra ventana (2 semanas vs 12 meses), otro modo (telefónico vs presencial), otro
+# panel. Que ambas digan "depresión" es lo único que comparten.
+
+version: 1
+documento_id: achs_uc_termometro_r8
+
+anclas:
+
+  - id: termometro_depresion_moderada_severa_total_2023_12
+    valor: "13.1%"
+    valor_num: 13.1
+    unidad: porcentaje
+    metrica: "Proporción con síntomas de depresión moderada o severa"
+    periodo: "2023-12"
+    ambito: nacional
+    definicion_textual: >-
+      "Proporción con síntomas de depresión moderada/severa (10+ puntos) en últimas 2
+      semanas", instrumento Patient Health Questionnaire (PHQ-9). Es tamizaje de
+      síntomas, no diagnóstico.
+    denominador:
+      descripcion: >-
+        Personas de 18 años y más encuestadas en la ronda 8. Recolección telefónica entre
+        el 1 y el 31 de diciembre de 2023, tasa de respuesta 70 %, sobre una muestra de
+        hogares encuestada antes de manera presencial. Diseño muestral de la Universidad
+        Católica. El tamaño muestral exacto de esta ronda no se pudo atribuir con certeza:
+        la lámina de diseño lista ocho n sin pegarlos a su ronda.
+    documento_id: achs_uc_termometro_r8
+    sha256: "dc71738e80d63a44cfbeb8fd0be0710d048c8a929e3527e062c43cb0dbcc5349"
+    pagina: 26
+    ubicacion: "Lámina 'SÍNTOMAS DE DEPRESIÓN', serie verde, punto 'Diciembre 2023'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+    nota: >
+      El documento usa punto decimal ("13.1%"), no coma. Se transcribe tal cual.
+
+  - id: termometro_depresion_moderada_severa_mujeres_2023_12
+    valor: "17.8%"
+    valor_num: 17.8
+    unidad: porcentaje
+    metrica: "Proporción con síntomas de depresión moderada o severa, mujeres"
+    periodo: "2023-12"
+    ambito: nacional
+    definicion_textual: >-
+      Ídem `termometro_depresion_moderada_severa_total_2023_12`, restringido a mujeres.
+    denominador:
+      descripcion: "Mujeres de 18 años y más encuestadas en la ronda 8"
+    documento_id: achs_uc_termometro_r8
+    sha256: "dc71738e80d63a44cfbeb8fd0be0710d048c8a929e3527e062c43cb0dbcc5349"
+    pagina: 26
+    ubicacion: "Lámina 'SÍNTOMAS DE DEPRESIÓN', serie rosada, punto 'Diciembre 2023'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: termometro_depresion_moderada_severa_hombres_2023_12
+    valor: "8.2%"
+    valor_num: 8.2
+    unidad: porcentaje
+    metrica: "Proporción con síntomas de depresión moderada o severa, hombres"
+    periodo: "2023-12"
+    ambito: nacional
+    definicion_textual: >-
+      Ídem `termometro_depresion_moderada_severa_total_2023_12`, restringido a hombres.
+    denominador:
+      descripcion: "Hombres de 18 años y más encuestados en la ronda 8"
+    documento_id: achs_uc_termometro_r8
+    sha256: "dc71738e80d63a44cfbeb8fd0be0710d048c8a929e3527e062c43cb0dbcc5349"
+    pagina: 26
+    ubicacion: "Lámina 'SÍNTOMAS DE DEPRESIÓN', serie celeste, punto 'Diciembre 2023'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: termometro_soledad_alta_2023_12
+    valor: "20.4%"
+    valor_num: 20.4
+    unidad: porcentaje
+    metrica: "Proporción con altos niveles de soledad percibida"
+    periodo: "2023-12"
+    ambito: nacional
+    definicion_textual: >-
+      "reporta altos niveles de soledad (frecuentemente se siente aislado/excluido por
+      los demás o que le falta compañía)". Instrumento: Escala de Soledad abreviada de
+      3 ítemes UCLA (UCLA-R).
+    denominador:
+      descripcion: "Personas de 18 años y más encuestadas en la ronda 8"
+    documento_id: achs_uc_termometro_r8
+    sha256: "dc71738e80d63a44cfbeb8fd0be0710d048c8a929e3527e062c43cb0dbcc5349"
+    pagina: 16
+    ubicacion: "Lámina 'SOLEDAD PERCIBIDA', texto de conclusión"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: texto_extraido
+    nota: >
+      Va en prosa corrida ("20.4% reporta altos niveles de soledad…"), no en una caja
+      gráfica, así que la extracción de texto conserva la cifra pegada a su definición y
+      no hay ambigüedad de atribución.
+
+  - id: termometro_sospecha_problema_sm_2023_12
+    valor: null
+    valor_num: null
+    unidad: porcentaje
+    metrica: "Proporción con sospecha o presencia de problemas de salud mental"
+    periodo: "2023-12"
+    ambito: nacional
+    definicion_textual: >-
+      "Proporción con sospecha de problema/presencia de problemas de salud mental
+      (GHQ-2: 5+) en las últimas semanas", instrumento General Health Questionnaire
+      (GHQ-12).
+    denominador:
+      descripcion: "Personas de 18 años y más encuestadas en la ronda 8"
+    documento_id: achs_uc_termometro_r8
+    sha256: "dc71738e80d63a44cfbeb8fd0be0710d048c8a929e3527e062c43cb0dbcc5349"
+    pagina: 24
+    ubicacion: "Lámina 'PROBLEMAS DE SALUD MENTAL', caja de conclusión"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: requiere_verificacion_manual
+    metodo_lectura: texto_extraido
+    nota: >
+      SIN VALOR A PROPÓSITO. La cifra vive en una caja gráfica que la extracción de texto
+      deja vacía: la frase queda como "____ exhibió sospecha o presencia de problemas de
+      salud mental en diciembre de 2023". La definición sí se leyó y por eso el ancla
+      existe; el número se obtiene renderizando la página 24. Anotar un valor acá de
+      memoria o por inferencia es exactamente lo que contamina el sistema.
+
+  - id: termometro_ansiedad_moderada_severa_2023_12
+    valor: null
+    valor_num: null
+    unidad: porcentaje
+    metrica: "Proporción con síntomas de ansiedad generalizada moderada o severa"
+    periodo: "2023-12"
+    ambito: nacional
+    definicion_textual: >-
+      "Proporción con síntomas de ansiedad moderada/severa", lámina "SÍNTOMAS DE ANSIEDAD
+      GENERALIZADA". El documento declara que representa un aumento de 2.5 puntos respecto
+      de la medición anterior y que en mujeres la prevalencia es aproximadamente 2,5 veces
+      la de los hombres.
+    denominador:
+      descripcion: "Personas de 18 años y más encuestadas en la ronda 8"
+    documento_id: achs_uc_termometro_r8
+    sha256: "dc71738e80d63a44cfbeb8fd0be0710d048c8a929e3527e062c43cb0dbcc5349"
+    pagina: 28
+    ubicacion: "Lámina 'SINTOMAS DE ANSIEDAD GENERALIZADA', caja de conclusión"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: requiere_verificacion_manual
+    metodo_lectura: texto_extraido
+    nota: >
+      SIN VALOR A PROPÓSITO, misma razón que la anterior: caja gráfica vacía en la
+      extracción. El documento tampoco nombra el instrumento en el texto extraído (se
+      esperaría GAD-7, pero eso es un supuesto y no se registra como dato).
+      Se obtiene renderizando la página 28.

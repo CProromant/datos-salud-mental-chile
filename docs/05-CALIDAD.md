@@ -94,6 +94,68 @@ llamaba**. La regla «si no cuadra, no se publica» dependía de que una persona
 correr la comprobación a mano; la reconciliación de A-005 se hizo en un script desechable
 que después se perdió. Un pipeline que valida solo cuando alguien se acuerda no valida.
 
+## Anclas de evidencia {#anclas-evidencia}
+
+Un **ancla de evidencia** no es lo mismo que un ancla de reconciliación. La de
+reconciliación (arriba, `config/anclas.yml`) declara *contra qué número se compara un
+cálculo del pipeline* y tiene tolerancia y filtro ejecutable. La de evidencia declara
+*qué publicó un tercero, dónde lo publicó y con qué definición* — sin afirmar nada sobre
+si coincide con lo nuestro. Se capturan en sesiones separadas y a propósito: quien extrae
+no compara, porque saber el resultado esperado es la forma más barata de leer mal una
+tabla.
+
+Viven en `data/anclas/pendientes/`, un archivo YAML por documento. Los documentos de
+origen viven en `data/raw/documentos/` y **no** se versionan; `data/anclas/catalogo.yml`
+guarda URL + sha256 de cada uno para que cualquiera los vuelva a bajar y verifique.
+
+### Esquema
+
+| campo | obligatorio | qué es |
+|---|---|---|
+| `id` | sí | identificador estable del ancla |
+| `valor` | sí | **tal como aparece en el documento**, string: `"15,8%"`, `"1.738"`. Sin normalizar |
+| `valor_num` | sí | el mismo número parseado, para poder operar |
+| `unidad` | sí | `porcentaje`, `personas`, `por_100000`, `por_100000_5ymas`… |
+| `metrica` | sí | qué mide, en una línea |
+| `periodo` | sí | ISO. `2019`, `2016-2017`, `2023-12` |
+| `ambito` | sí | `nacional`, `region:10`, `comuna:05101` |
+| `definicion_textual` | sí | la definición **de la fuente**, citada. Es el campo que decide si algo es comparable |
+| `denominador` | si es tasa o % | sobre qué población se calculó, con su fuente |
+| `documento_id` | sí | apunta a `catalogo.yml` |
+| `sha256` | sí | del documento, no del ancla |
+| `pagina` | sí | página física del PDF (1-based), y la impresa si difiere |
+| `ubicacion` | sí | `Tabla 2`, `Figura 5`, `párrafo 2` |
+| `fecha_consulta` | sí | cuándo se leyó |
+| `clase` | sí | `dura` = la fuente primaria publica su propio agregado. `blanda` = alguien reprocesó datos de otro |
+| `estado` | sí | `verificada`, `cadena_incompleta`, `requiere_verificacion_manual` |
+| `metodo_lectura` | sí | `texto_extraido`, `pagina_renderizada`. Las tablas se confirman renderizando |
+| `en_conflicto` | no | id de otra ancla que mide lo mismo con otro valor |
+| `fuente_faltante` | si `cadena_incompleta` | qué documento original no se pudo alcanzar |
+
+### Las tres reglas que hacen que esto sirva
+
+**Cadena de custodia.** Si una cifra en un informe trae su propia referencia, el ancla
+**no** va ahí. Se sigue hasta el original. Si el original no se alcanza, el ancla se
+registra igual con `estado: cadena_incompleta` y `fuente_faltante`, que es una forma
+honesta de decir «esto todavía no vale como evidencia». Un ancla blanda tratada como dura
+convierte el error de otro en un hecho propio.
+
+**Rangos completos.** Si el documento da un intervalo, se guarda el intervalo. Nunca el
+punto medio: el punto medio es una cifra que nadie publicó.
+
+**Conflictos se registran, no se resuelven.** Dos documentos que dan valores distintos
+para lo mismo quedan ambos, marcados `en_conflicto`. Elegir uno en la sesión de
+extracción es decidir sin haber mirado por qué difieren, y la razón casi siempre es
+definicional, no aritmética.
+
+### La comparación tiene tres resultados, no dos
+
+Cuando estas anclas se enfrenten a lo calculado, los desenlaces posibles son **cuadra**,
+**no cuadra** y **no comparable**. El tercero es el más frecuente contra literatura y el
+que se disfraza del segundo. A-005 ya enseñó esto en este repo: la serie semanal del DEIS
+«no cuadraba» al −1,23 % y no había ningún error, eran 53 semanas. Un informe de
+comparación sin ese tercer casillero acusa de error a diferencias que son de método.
+
 ## Quiebres de serie
 
 Una tabla `quiebres` acompaña a todo dataset publicado: fecha, fuente, descripción y efecto

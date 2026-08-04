@@ -1,0 +1,160 @@
+# Anclas de evidencia — DIPRES, Programa Nacional de Prevención del Suicidio,
+# Evaluación Ex Ante, Formulación Presupuestaria 2021.
+# Esquema en docs/05-CALIDAD.md#anclas-evidencia. Extraídas 2026-08-03.
+#
+# ESTE ARCHIVO ES EL CASO DE PRUEBA DE LA CADENA DE CUSTODIA. DIPRES no produce ninguna
+# de estas cifras: las cita del DEIS, y las cita como "(DEIS, MINSAL 2020)", sin nombrar
+# el producto, la tabla ni la página. Por eso NINGUNA se ancla acá como si este fuera el
+# origen: todas quedan `cadena_incompleta` hasta dar con el documento DEIS que las emitió.
+#
+# La distinción no es formal. Estas cifras están calculadas sobre rangos etarios y con
+# ajustes que el propio documento nombra al pasar ("ajustadas por edad y sexo", "entre
+# los 20 y 65 años") y que no coinciden con los del informe MINSAL de la década. Tratar
+# una cita de segunda mano como dato duro es cómo una definición ajena se vuelve propia
+# sin que nadie lo decida.
+
+version: 1
+documento_id: dipres_prog_prevencion_suicidio
+
+anclas:
+
+  - id: dipres_tasa_suicidio_20_65_2014_2017
+    valor: "10,2"
+    valor_num: 10.2
+    unidad: por_100000
+    metrica: "Tasa de mortalidad por suicidio, población de 20 a 65 años"
+    periodo: "2014/2017"
+    ambito: nacional
+    definicion_textual: >-
+      "de acuerdo al Depto. de Estadísticas e Información en Salud (DEIS), si bien las
+      tasas se han mantenido relativamente estables entre 2014 y 2017 entre los 20 y 65
+      años, correspondiente a 10,2 muertes cada 100.000 habitantes". El documento no
+      declara si es tasa observada o ajustada, ni si 10,2 es el promedio del período o el
+      valor de un año.
+    denominador:
+      descripcion: "Población de 20 a 65 años. Fuente y base de proyección no declaradas."
+    documento_id: dipres_prog_prevencion_suicidio
+    sha256: "99e47f81266e21e7fb5ef83e3ffc9d26bf004bff8520ed53a5be2c46a44ff40b"
+    pagina: 2
+    ubicacion: "Sección de diagnóstico del problema, párrafo sobre muerte por suicidio"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: >-
+      Producto del DEIS/MINSAL del que sale la cifra. El documento cita "DEIS" sin
+      identificar publicación, tabla ni página. El informe de la década 2010-2019 no lo
+      resuelve: ese calcula sobre población de 5 años y más, no de 20 a 65.
+    metodo_lectura: texto_extraido
+
+  - id: dipres_tasa_suicidio_nacional_2017
+    valor: "9,2"
+    valor_num: 9.2
+    unidad: por_100000
+    metrica: "Tasa de mortalidad por suicidio, nacional"
+    periodo: "2017"
+    ambito: nacional
+    definicion_textual: >-
+      "Coquimbo logra mantenerse bajo la tasa nacional correspondiente a 9,2 por 100 mil
+      habitantes, (DEIS, MINSAL 2020)". Aparece en un párrafo donde las tasas regionales
+      se describen como "ajustadas por edad y sexo por 100 mil habitantes"; el documento
+      no dice explícitamente si ese ajuste alcanza también a la cifra nacional.
+    denominador:
+      descripcion: "Población nacional. Rango etario y base de proyección no declarados."
+    documento_id: dipres_prog_prevencion_suicidio
+    sha256: "99e47f81266e21e7fb5ef83e3ffc9d26bf004bff8520ed53a5be2c46a44ff40b"
+    pagina: 2
+    ubicacion: "Párrafo sobre priorización de Coquimbo, O'Higgins y Aysén"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Producto DEIS/MINSAL 2020 no identificado en el documento"
+    en_conflicto: [suicidio_tasa_observada_2017, suicidio_tasa_estandarizada_2017]
+    metodo_lectura: texto_extraido
+    nota: >
+      CONFLICTO declarado con el informe MINSAL de la década, que para 2017 publica 10,97
+      observada y 10,11 estandarizada. Tres cifras nacionales de suicidio para el mismo
+      año, de dos documentos del mismo ministerio. Se registran las tres. La hipótesis
+      barata es que difieren por rango etario y por ajuste, pero verificarla es trabajo de
+      la sesión de comparación, no de esta.
+
+  - id: dipres_tasa_suicidio_regional_2012
+    valor: "10,1, 12,4, 13,2"
+    valor_num: null
+    unidad: por_100000
+    metrica: "Tasa de suicidio ajustada por edad y sexo, regiones de Coquimbo, O'Higgins y Aysén"
+    periodo: "2012"
+    ambito: "region:04, region:06, region:11"
+    definicion_textual: >-
+      "al año 2012 estas zonas tenían tasas de suicidio (ajustadas por edad y sexo por
+      100 mil habitantes) mayores a las de la población general (10,1, 12,4, 13,2
+      respectivamente en comparación con 10 a nivel nacional)". El orden declarado es
+      Coquimbo, O'Higgins, Aysén.
+    denominador:
+      descripcion: "Población regional. Base de proyección y población estándar no declaradas."
+    documento_id: dipres_prog_prevencion_suicidio
+    sha256: "99e47f81266e21e7fb5ef83e3ffc9d26bf004bff8520ed53a5be2c46a44ff40b"
+    pagina: 2
+    ubicacion: "Párrafo sobre priorización de Coquimbo, O'Higgins y Aysén"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Producto DEIS/MINSAL del que salen las tasas regionales ajustadas por edad y sexo"
+    metodo_lectura: texto_extraido
+    nota: >
+      Se guarda como terna y no como tres anclas separadas porque el documento las
+      publica en una sola enumeración cuyo orden hay que confiar. Separarlas daría a cada
+      número una precisión de procedencia que no tiene. La cifra nacional que las
+      acompaña, "10", también es del documento.
+
+  - id: dipres_tasa_suicidio_regional_2017
+    valor: "9,1, 10,5, 10"
+    valor_num: null
+    unidad: por_100000
+    metrica: "Tasa de suicidio, regiones de Coquimbo, O'Higgins y Aysén"
+    periodo: "2017"
+    ambito: "region:04, region:06, region:11"
+    definicion_textual: >-
+      "Desde el 2012 las tres regiones han logrado una disminución de sus tasas, con
+      cifras al 2017 de 9,1, 10,5 y 10 para Coquimbo, O'Higgins y Aysén respectivamente".
+    denominador:
+      descripcion: "Población regional. Base de proyección no declarada."
+    documento_id: dipres_prog_prevencion_suicidio
+    sha256: "99e47f81266e21e7fb5ef83e3ffc9d26bf004bff8520ed53a5be2c46a44ff40b"
+    pagina: 2
+    ubicacion: "Párrafo sobre priorización de Coquimbo, O'Higgins y Aysén"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Producto DEIS/MINSAL 2020 no identificado en el documento"
+    metodo_lectura: texto_extraido
+
+  - id: dipres_razon_tasas_sexo_suicidio
+    valor: "3, 4 v/s 16"
+    valor_num: null
+    unidad: por_100000
+    metrica: "Tasas de mortalidad por suicidio por sexo (mujeres vs hombres)"
+    periodo: "no declarado"
+    ambito: nacional
+    definicion_textual: >-
+      "Se mantiene la razón de tasas de muerte por suicidio por sexo, con los hombres 4
+      veces mayores que las tasas de muerte para mujeres (3, 4 v/s 16 cada 100.000
+      habitantes.), en contraste con los intentos por suicidio que se observan mayormente
+      en mujeres (ENS 2016-2017)".
+    denominador:
+      descripcion: "Población por sexo. No declarada."
+    documento_id: dipres_prog_prevencion_suicidio
+    sha256: "99e47f81266e21e7fb5ef83e3ffc9d26bf004bff8520ed53a5be2c46a44ff40b"
+    pagina: 2
+    ubicacion: "Sección de diagnóstico del problema, párrafo sobre muerte por suicidio"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: requiere_verificacion_manual
+    fuente_faltante: "Producto DEIS/MINSAL no identificado; y ENS 2016-2017 para la parte de intentos"
+    metodo_lectura: texto_extraido
+    nota: >
+      NO SE PARSEA A NÚMERO A PROPÓSITO. El documento imprime "(3, 4 v/s 16", que puede
+      ser "3,4 v/s 16" con un espacio mal puesto o ser dos valores. Además el texto dice
+      que los hombres tienen tasas "4 veces mayores", y 16/3,4 ≈ 4,7 mientras 16/4 = 4:
+      la aritmética interna no cierra con ninguna de las dos lecturas de forma limpia.
+      Se transcribe tal cual aparece y se marca para lectura humana de la página 2.
+      El período tampoco está declarado en la frase.

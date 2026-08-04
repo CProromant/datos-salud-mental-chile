@@ -1,0 +1,155 @@
+# Catálogo de documentos de evidencia. Los PDF NO se versionan (CLAUDE.md §2.3):
+# viven en data/raw/documentos/pendientes/ y se re-obtienen desde acá con url + sha256.
+#
+# `leido`: si esta sesión abrió el documento y extrajo de él. Un documento descargado
+# pero no leído NO produce anclas: la regla es que la cifra esté en el documento, no en
+# la memoria de quien lo bajó.
+
+version: 1
+fecha_barrido: "2026-08-03"
+
+documentos:
+
+  - id: minsal_suicidio_decada_2010_2019
+    titulo: "Informe de Mortalidad por Suicidio en Chile: 2010-2019"
+    editor: "Ministerio de Salud de Chile (Depto. Epidemiología, Depto. Salud Mental, DEIS)"
+    anio_publicacion: 2022
+    url: "http://epi.minsal.cl/wp-content/uploads/2022/06/2022.06.10_Informe.de.la.decada.pdf"
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    bytes: 1750348
+    paginas: 45
+    fecha_descarga: "2026-08-03"
+    leido: true
+    clase_predominante: dura
+    nota: >
+      El DEIS es coautor y la fuente del numerador es su propio registro de defunciones.
+      SECCIÓN EXCLUIDA A PROPÓSITO: 9.6 "Análisis según método" (pp. 27-28). docs/06 y
+      CLAUDE.md §2.4 prohíben la desagregación por método de suicidio, y la prohibición
+      alcanza a capturarla como ancla: un ancla vive en el repo y se publica con él.
+
+  - id: who_mhatlas_2020_chile
+    titulo: "Mental Health ATLAS 2020 - Member State Profile: Chile"
+    editor: "World Health Organization"
+    anio_publicacion: 2021
+    url: "https://cdn.who.int/media/docs/default-source/mental-health/mental-health-atlas-2020-country-profiles/chl.pdf"
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    bytes: 606744
+    paginas: 3
+    fecha_descarga: "2026-08-03"
+    leido: true
+    clase_predominante: blanda
+    nota: >
+      La OMS publica, pero no produce: las cifras de recursos las reporta cada Estado por
+      cuestionario. El cuestionario que respondió Chile no es público, así que toda ancla
+      de este documento queda cadena_incompleta. Las de "WHO official estimates" son
+      además modeladas por la OMS, no reportadas por Chile.
+
+  - id: ens_2016_2017_segunda_entrega
+    titulo: "Encuesta Nacional de Salud 2016-2017. Segunda entrega de resultados"
+    editor: "Ministerio de Salud de Chile, Departamento de Epidemiología"
+    anio_publicacion: 2018
+    url: "https://www.minsal.cl/wp-content/uploads/2018/01/2-Resultados-ENS_MINSAL_31_01_2018.pdf"
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    bytes: 3108303
+    paginas: 59
+    fecha_descarga: "2026-08-03"
+    leido: true
+    clase_predominante: dura
+    nota: >
+      MINSAL publica los resultados de su propia encuesta. Es un deck de presentación:
+      las cifras van en cajas gráficas y la extracción de texto las deja sin etiqueta,
+      así que todas se confirmaron renderizando la página.
+
+  - id: achs_uc_termometro_r8
+    titulo: "Termómetro de la Salud Mental en Chile ACHS-UC, Ronda 8"
+    editor: "Asociación Chilena de Seguridad y Pontificia Universidad Católica de Chile"
+    anio_publicacion: 2024
+    url: "https://www.achs.cl/docs/librariesprovider2/2024/achs-221357/termometro-de-la-salud-mental-en-chile-achs-uc-octava-ronda.pdf"
+    sha256: "dc71738e80d63a44cfbeb8fd0be0710d048c8a929e3527e062c43cb0dbcc5349"
+    bytes: 3915824
+    paginas: 55
+    fecha_descarga: "2026-08-03"
+    leido: true
+    clase_predominante: dura
+    nota: >
+      Dura pese a no ser fuente estatal: ACHS-UC levanta su propia encuesta y publica su
+      propio agregado. "Dura" es sobre la cadena de custodia, no sobre la autoridad del
+      emisor. Población URBANA de 18 y más, no población general: no es la ENS.
+
+  - id: dipres_prog_prevencion_suicidio
+    titulo: "Programa Nacional de Prevención del Suicidio — Evaluación Ex Ante, Formulación Presupuestaria 2021"
+    editor: "Dirección de Presupuestos (DIPRES)"
+    anio_publicacion: 2020
+    url: "https://www.dipres.gob.cl/597/articles-212538_doc_pdf1.pdf"
+    sha256: "99e47f81266e21e7fb5ef83e3ffc9d26bf004bff8520ed53a5be2c46a44ff40b"
+    bytes: 278188
+    paginas: 15
+    fecha_descarga: "2026-08-03"
+    leido: true
+    clase_predominante: blanda
+    nota: >
+      Caso de prueba de la cadena de custodia: cita cifras del DEIS sin identificar el
+      producto exacto ("DEIS, MINSAL 2020"). Ninguna de sus cifras se ancla acá como si
+      fuera el origen.
+
+  # --- Descargados y verificados como PDF, NO leídos en esta sesión. Sin anclas. ---
+
+  - id: ens_2016_2017_informe_final
+    titulo: "Encuesta Nacional de Salud 2016-2017. Informe final"
+    editor: "Ministerio de Salud de Chile, Departamento de Epidemiología"
+    url: "https://epi.minsal.cl/wp-content/uploads/2021/01/ENS_2016_2017_Informe_final_V4.3.pdf"
+    sha256: "8e87d313d2079d9a798b3a43b2285c821780853e68dd7062f6c31706ef319d94"
+    bytes: 4436404
+    paginas: 351
+    fecha_descarga: "2026-08-03"
+    leido: false
+    nota: >
+      351 páginas. Es la fuente definitiva de la ENS y debería reemplazar o confirmar
+      las anclas tomadas de la segunda entrega. Pendiente para el próximo lote.
+
+  - id: senda_enpg_2020
+    titulo: "Décimo Cuarto Estudio Nacional de Drogas en Población General de Chile, 2020"
+    editor: "SENDA"
+    url: "https://www.senda.gob.cl/wp-content/uploads/2022/01/Estudio-PG2020.pdf"
+    sha256: "3cbe8f29705031c822f0ddb29e0813d2e4c331a3d6877f6db169c31c11c711c6"
+    bytes: 12759206
+    paginas: 388
+    fecha_descarga: "2026-08-03"
+    leido: false
+
+  - id: senda_enpg_2022
+    titulo: "Principales Resultados, 15° Estudio Nacional de Drogas en Población Escolar"
+    editor: "SENDA, Observatorio Chileno de Drogas"
+    url: "https://www.senda.gob.cl/wp-content/uploads/2025/03/Principales-Resultados-15%C2%B0-ENPE.pdf"
+    sha256: "9d829798c0f71ca3bafd28d781c9b24e623cb384be084f088775662b83c3ef3e"
+    bytes: 974846
+    paginas: 16
+    fecha_descarga: "2026-08-03"
+    leido: hojeado
+    nota: >
+      Hojeado, sin anclas. Lo que trae es prevalencia de consumo de tabaco, alcohol y
+      drogas, que es factor de riesgo y no métrica de salud mental: no cumple la
+      condición (c) sin forzarla. Si se quiere anclar, lo pertinente serían los
+      trastornos por uso de sustancias (F10-F19), que este resumen no reporta.
+      OJO: el nombre del archivo dice "enpg" (población general) pero el documento es de
+      población ESCOLAR. El nombre está mal puesto, el contenido manda.
+
+  - id: who_aims_ii_chile_2014
+    titulo: "Informe WHO-AIMS sobre el Sistema de Salud Mental en Chile (segundo informe)"
+    editor: "Ministerio de Salud de Chile / OMS"
+    url: "https://diprece.minsal.cl/wrdprss_minsal/wp-content/uploads/2016/02/Ministerio-de-Salud_2014_Informe-WHO-AIMS-II.pdf"
+    sha256: "f7858a07aec5c75fe70e589d9185db77da5543ed72f6de4070ad5d2a4589c565"
+    bytes: 1957677
+    paginas: 109
+    fecha_descarga: "2026-08-03"
+    leido: false
+
+  - id: minsal_construyendo_salud_mental_2024
+    titulo: "Construyendo Salud Mental"
+    editor: "Ministerio de Salud de Chile, DIPRECE"
+    url: "https://diprece.minsal.cl/wp-content/uploads/2024/05/2024.05.28_CONSTRUYENDO-SALUD-MENTAL.pdf"
+    sha256: "4c9e91103587adda84a4aab5985338e69bc9d60030ac706e5360126dcb23de8d"
+    bytes: 792869
+    paginas: 78
+    fecha_descarga: "2026-08-03"
+    leido: false

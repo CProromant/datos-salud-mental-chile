@@ -1,0 +1,326 @@
+# Anclas de evidencia — ENS 2016-2017, segunda entrega de resultados (MINSAL).
+# Esquema en docs/05-CALIDAD.md#anclas-evidencia. Extraídas 2026-08-03.
+#
+# TODAS DURAS: MINSAL publica los resultados de su propia encuesta.
+#
+# DOS DEFINICIONES DISTINTAS DE DEPRESIÓN CONVIVEN EN ESTE MISMO DOCUMENTO y no son un
+# conflicto, son dos cosas: "sospecha de depresión" (tamizaje CIDI Short Form, 15,8 %) y
+# "depresión" (diagnóstico CIDI según criterio DSM-IV, 6,2 %). Confundirlas es el error
+# más fácil de cometer con esta fuente, y circula hecho.
+#
+# Es un deck de presentación: las cifras van en cajas gráficas y la extracción de texto
+# las devuelve sin etiqueta. Lo que se confirmó renderizando la página lleva
+# `metodo_lectura: pagina_renderizada`; lo que no, va marcado requiere_verificacion_manual.
+
+version: 1
+documento_id: ens_2016_2017_segunda_entrega
+
+anclas:
+
+  # ---- Tamizaje: sospecha de depresión (CIDI Short Form) ----
+
+  - id: ens_sospecha_depresion_total_2016_2017
+    valor: "15,8%"
+    valor_num: 15.8
+    unidad: porcentaje
+    metrica: "Sospecha de depresión en los últimos 12 meses (tamizaje)"
+    periodo: "2016-2017"
+    ambito: nacional
+    definicion_textual: >-
+      "Sospecha de depresión – últimos 12 meses (≥ 18 años)". Instrumento: CIDI Short
+      Form, "instrumento de tamizaje de síntomas depresivos (abreviado)", 30 preguntas;
+      considera disforia y anhedonia y puntúa sobre 7 criterios complementarios (criterios
+      menores para depresión DSM-IV), de los que deben cumplirse al menos 5. El propio
+      documento declara que el instrumento NO descarta falsos positivos por causa
+      médico-física, otros diagnósticos psiquiátricos (distimia, bipolar, abuso de
+      sustancias) ni duelo.
+    denominador:
+      descripcion: "Población de 18 años y más. El documento restringe a ≥18 para poder comparar con el diagnóstico CIDI del formulario F3."
+    documento_id: ens_2016_2017_segunda_entrega
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    pagina: 47
+    ubicacion: "Lámina 'SOSPECHA DE DEPRESIÓN – CIDI SHORT FORM', barra 2016-17 de 'Total país'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: ens_sospecha_depresion_hombres_2016_2017
+    valor: "10,0%"
+    valor_num: 10.0
+    unidad: porcentaje
+    metrica: "Sospecha de depresión en los últimos 12 meses (tamizaje), hombres"
+    periodo: "2016-2017"
+    ambito: nacional
+    definicion_textual: >-
+      Ídem `ens_sospecha_depresion_total_2016_2017`, restringido a hombres.
+    denominador:
+      descripcion: "Hombres de 18 años y más"
+    documento_id: ens_2016_2017_segunda_entrega
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    pagina: 47
+    ubicacion: "Lámina 'SOSPECHA DE DEPRESIÓN – CIDI SHORT FORM', barra 2016-17 de 'Hombre'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+    nota: >
+      La misma lámina imprime este valor dos veces con distinto formato: "10,0%" en el
+      gráfico y "10%" en el pictograma lateral. Se toma el del gráfico, que es el que
+      trae la precisión declarada.
+
+  - id: ens_sospecha_depresion_mujeres_2016_2017
+    valor: "21,7%"
+    valor_num: 21.7
+    unidad: porcentaje
+    metrica: "Sospecha de depresión en los últimos 12 meses (tamizaje), mujeres"
+    periodo: "2016-2017"
+    ambito: nacional
+    definicion_textual: >-
+      Ídem `ens_sospecha_depresion_total_2016_2017`, restringido a mujeres.
+    denominador:
+      descripcion: "Mujeres de 18 años y más"
+    documento_id: ens_2016_2017_segunda_entrega
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    pagina: 47
+    ubicacion: "Lámina 'SOSPECHA DE DEPRESIÓN – CIDI SHORT FORM', barra 2016-17 de 'Mujer'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: ens_sospecha_depresion_total_2003
+    valor: "17,5%"
+    valor_num: 17.5
+    unidad: porcentaje
+    metrica: "Sospecha de depresión en los últimos 12 meses (tamizaje)"
+    periodo: "2003"
+    ambito: nacional
+    definicion_textual: >-
+      Misma serie y mismo instrumento, medición ENS 2003. El documento declara que no se
+      observan diferencias estadísticamente significativas entre las mediciones 2003,
+      2009-10 y 2016-17 (IC 95 %), en análisis no ajustado.
+    denominador:
+      descripcion: "Población de 18 años y más"
+    documento_id: ens_2016_2017_segunda_entrega
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    pagina: 47
+    ubicacion: "Lámina 'SOSPECHA DE DEPRESIÓN – CIDI SHORT FORM', barra 2003 de 'Total país'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: ens_sospecha_depresion_total_2009_2010
+    valor: "17,9%"
+    valor_num: 17.9
+    unidad: porcentaje
+    metrica: "Sospecha de depresión en los últimos 12 meses (tamizaje)"
+    periodo: "2009-2010"
+    ambito: nacional
+    definicion_textual: >-
+      Misma serie y mismo instrumento, medición ENS 2009-10.
+    denominador:
+      descripcion: "Población de 18 años y más"
+    documento_id: ens_2016_2017_segunda_entrega
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    pagina: 47
+    ubicacion: "Lámina 'SOSPECHA DE DEPRESIÓN – CIDI SHORT FORM', barra 2009-10 de 'Total país'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  # ---- Diagnóstico: depresión (CIDI, criterio DSM-IV) ----
+
+  - id: ens_depresion_cidi_total_2016_2017
+    valor: "6,2%"
+    valor_num: 6.2
+    unidad: porcentaje
+    metrica: "Prevalencia de depresión en los últimos 12 meses (diagnóstico CIDI)"
+    periodo: "2016-2017"
+    ambito: nacional
+    definicion_textual: >-
+      "Prevalencia Depresión de los últimos 12 meses, total según sexo y edad. Criterio
+      DSM IV". Diagnóstico construido con el instrumento CIDI aplicado en el formulario
+      F3, no el tamizaje abreviado. NO es la misma métrica que la sospecha de depresión
+      del CIDI Short Form.
+    denominador:
+      descripcion: "Población de 18 años y más de la submuestra de salud mental (CIDI)"
+    documento_id: ens_2016_2017_segunda_entrega
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    pagina: 50
+    ubicacion: "Lámina 'DEPRESIÓN – CIDI', valor 'Total País' y recuadro '6,2% Nacional'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: texto_extraido
+    nota: >
+      Tomada del texto y no de la página renderizada, pero la lámina imprime el valor dos
+      veces —en el gráfico y en el recuadro lateral "6,2% Nacional"— y esa repetición
+      elimina la ambigüedad de atribución. Lo mismo vale para el desglose por sexo.
+
+  - id: ens_depresion_cidi_hombres_2016_2017
+    valor: "2,1%"
+    valor_num: 2.1
+    unidad: porcentaje
+    metrica: "Prevalencia de depresión en los últimos 12 meses (diagnóstico CIDI), hombres"
+    periodo: "2016-2017"
+    ambito: nacional
+    definicion_textual: >-
+      Ídem `ens_depresion_cidi_total_2016_2017`, restringido a hombres. El documento
+      declara diferencias estadísticamente significativas según sexo (p = 0,001).
+    denominador:
+      descripcion: "Hombres de 18 años y más de la submuestra CIDI"
+    documento_id: ens_2016_2017_segunda_entrega
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    pagina: 50
+    ubicacion: "Lámina 'DEPRESIÓN – CIDI', valor 'Hombre' y recuadro lateral"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: texto_extraido
+
+  - id: ens_depresion_cidi_mujeres_2016_2017
+    valor: "10,1%"
+    valor_num: 10.1
+    unidad: porcentaje
+    metrica: "Prevalencia de depresión en los últimos 12 meses (diagnóstico CIDI), mujeres"
+    periodo: "2016-2017"
+    ambito: nacional
+    definicion_textual: >-
+      Ídem `ens_depresion_cidi_total_2016_2017`, restringido a mujeres.
+    denominador:
+      descripcion: "Mujeres de 18 años y más de la submuestra CIDI"
+    documento_id: ens_2016_2017_segunda_entrega
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    pagina: 50
+    ubicacion: "Lámina 'DEPRESIÓN – CIDI', valor 'Mujer' y recuadro lateral"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: texto_extraido
+
+  # ---- Módulo suicidio. Materia prima de I-05. ----
+
+  - id: ens_ideacion_suicida_total_2016_2017
+    valor: "2,2%"
+    valor_num: 2.2
+    unidad: porcentaje
+    metrica: "Ideación suicida en los últimos 12 meses"
+    periodo: "2016-2017"
+    ambito: nacional
+    definicion_textual: >-
+      "Alguna vez ha pensado seriamente en suicidarse en los últimos 12 meses"
+      (% que respondió Sí en pregunta SD3 o SD16).
+    denominador:
+      descripcion: "Población de 18 años y más de la submuestra de salud mental (CIDI)"
+    documento_id: ens_2016_2017_segunda_entrega
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    pagina: 52
+    ubicacion: "Lámina 'MÓDULO SUICIDIO: IDEACIÓN SUICIDA', barra 'Total País'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+    nota: >
+      El documento se contradice consigo mismo en el operador lógico: el título dice
+      "SD3 o SD16" y la nota al pie de la misma lámina dice "SD3 y SD16". Se transcriben
+      los dos porque cambian el universo, y no es tarea de esta sesión decidir cuál rige.
+      I-05 exige recursos de ayuda y revisión clínica antes de publicar (docs/06).
+
+  - id: ens_ideacion_suicida_hombres_2016_2017
+    valor: "1,7%"
+    valor_num: 1.7
+    unidad: porcentaje
+    metrica: "Ideación suicida en los últimos 12 meses, hombres"
+    periodo: "2016-2017"
+    ambito: nacional
+    definicion_textual: >-
+      Ídem `ens_ideacion_suicida_total_2016_2017`, restringido a hombres. El documento
+      declara que NO se observan diferencias estadísticamente significativas según sexo
+      (p = 0,307).
+    denominador:
+      descripcion: "Hombres de 18 años y más de la submuestra CIDI"
+    documento_id: ens_2016_2017_segunda_entrega
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    pagina: 52
+    ubicacion: "Lámina 'MÓDULO SUICIDIO: IDEACIÓN SUICIDA', barra 'Hombre'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: ens_ideacion_suicida_mujeres_2016_2017
+    valor: "2,8%"
+    valor_num: 2.8
+    unidad: porcentaje
+    metrica: "Ideación suicida en los últimos 12 meses, mujeres"
+    periodo: "2016-2017"
+    ambito: nacional
+    definicion_textual: >-
+      Ídem `ens_ideacion_suicida_total_2016_2017`, restringido a mujeres.
+    denominador:
+      descripcion: "Mujeres de 18 años y más de la submuestra CIDI"
+    documento_id: ens_2016_2017_segunda_entrega
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    pagina: 52
+    ubicacion: "Lámina 'MÓDULO SUICIDIO: IDEACIÓN SUICIDA', barra 'Mujer'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: ens_planificacion_suicida_total_2016_2017
+    valor: "1,5%"
+    valor_num: 1.5
+    unidad: porcentaje
+    metrica: "Planificación suicida en los últimos 12 meses"
+    periodo: "2016-2017"
+    ambito: nacional
+    definicion_textual: >-
+      "Alguna vez ha hecho un plan para suicidarse en los últimos 12 meses"
+      (% que respondió Sí en pregunta SD5 y SD18).
+    denominador:
+      descripcion: "Población de 18 años y más de la submuestra de salud mental (CIDI)"
+    documento_id: ens_2016_2017_segunda_entrega
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    pagina: 53
+    ubicacion: "Lámina de planificación suicida, primera barra (esperada: 'Total País')"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: requiere_verificacion_manual
+    metodo_lectura: texto_extraido
+    nota: >
+      QUÉ FALTA CONFIRMAR: el valor 1,5 % sale del texto extraído, donde los números
+      llegan en orden de dibujo y sin etiqueta pegada. La atribución a "Total País" está
+      inferida por posición, no leída. La lámina imprime la serie 1,5 / 0,4 / 2,5 / 1,3 /
+      1,4 / 1,3 / 3,0 / 1,4 / 0,0 / 0,2 y el patrón de las otras láminas del mismo deck
+      es [total, hombre, mujer, luego 7 grupos etarios], pero eso es un supuesto.
+      Se confirma renderizando la página 53.
+
+  - id: ens_intento_suicida_total_2016_2017
+    valor: "0,7%"
+    valor_num: 0.7
+    unidad: porcentaje
+    metrica: "Intento de suicidio en los últimos 12 meses"
+    periodo: "2016-2017"
+    ambito: nacional
+    definicion_textual: >-
+      "Alguna vez ha Intentado suicidarse en los últimos 12 meses"
+      (% que respondió Sí en pregunta SD10 y SD23).
+    denominador:
+      descripcion: "Población de 18 años y más de la submuestra de salud mental (CIDI)"
+    documento_id: ens_2016_2017_segunda_entrega
+    sha256: "4d328ddc02841d1e9d3c37306a58bd2a548cc1363773216a4c1774172016dbd8"
+    pagina: 54
+    ubicacion: "Lámina de intento de suicidio, primera barra (esperada: 'Total País')"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: requiere_verificacion_manual
+    metodo_lectura: texto_extraido
+    nota: >
+      QUÉ FALTA CONFIRMAR: igual que la anterior, la atribución es por posición. La
+      serie impresa es 0,7 / 0,2 / 1,3 / 0,3 / 0,4 / 0,0 / 2,5 / 0,8 / 0,4 / 0,0.
+      El documento declara diferencias significativas por sexo (p = 0,01).
+      Se confirma renderizando la página 54.

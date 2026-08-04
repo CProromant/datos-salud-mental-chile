@@ -1,0 +1,1019 @@
+# Anclas de evidencia — Informe de Mortalidad por Suicidio en Chile: 2010-2019 (MINSAL).
+# Esquema en docs/05-CALIDAD.md#anclas-evidencia. Extraídas 2026-08-03.
+#
+# Todas DURAS: el DEIS es coautor del informe y la fuente del numerador es su propio
+# registro de defunciones. No hay cadena que seguir hacia atrás.
+#
+# LO QUE HACE FALTA MIRAR ANTES DE COMPARAR CUALQUIERA DE ESTAS:
+#   - excluyen a los menores de 5 años, del numerador Y del denominador;
+#   - las tasas son por 100.000 habitantes DE 5 AÑOS Y MÁS, no sobre población total;
+#   - la estandarización usa como referencia la población INE proyectada para 2002.
+# Tres decisiones que ningún otro emisor de este catálogo repite.
+
+version: 1
+documento_id: minsal_suicidio_decada_2010_2019
+
+anclas:
+
+  - id: suicidio_defunciones_2010
+    valor: "2.000"
+    valor_num: 2000
+    unidad: personas
+    metrica: "Defunciones por suicidio, personas de 5 años y más"
+    periodo: "2010"
+    ambito: nacional
+    definicion_textual: >-
+      Muertes por suicidio: «lesiones autoinfligidas intencionalmente» con resultado de muerte, subcategorías CIE-10 X600 a X849. Excluye a la población menor de 5 años, porque el informe no considera intencionales las lesiones autoinfligidas en ese grupo. Años cerrados estadísticamente.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2010"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_poblacion_5ymas_2010
+    valor: "15.845.950"
+    valor_num: 15845950
+    unidad: personas
+    metrica: "Población de 5 años y más usada como denominador"
+    periodo: "2010"
+    ambito: nacional
+    definicion_textual: >-
+      Población proyectada por el INE en base al censo 2017, restringida a 5 años y más.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2010"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_observada_2010
+    valor: "12,62"
+    valor_num: 12.62
+    unidad: por_100000_5ymas
+    metrica: "Tasa anual observada de mortalidad por suicidio"
+    periodo: "2010"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa observada: total de defunciones dividido por la población proyectada de 5 años y más para ese año, por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2010, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2010"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_estandarizada_2010
+    valor: "12,08"
+    valor_num: 12.08
+    unidad: por_100000_5ymas
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2010"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa estandarizada por edad, método de ajuste directo, usando la población INE proyectada para 2002 como población de referencia. Por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2010, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2010"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_defunciones_2011
+    valor: "2.028"
+    valor_num: 2028
+    unidad: personas
+    metrica: "Defunciones por suicidio, personas de 5 años y más"
+    periodo: "2011"
+    ambito: nacional
+    definicion_textual: >-
+      Muertes por suicidio: «lesiones autoinfligidas intencionalmente» con resultado de muerte, subcategorías CIE-10 X600 a X849. Excluye a la población menor de 5 años, porque el informe no considera intencionales las lesiones autoinfligidas en ese grupo. Años cerrados estadísticamente.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2011"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_poblacion_5ymas_2011
+    valor: "15.997.889"
+    valor_num: 15997889
+    unidad: personas
+    metrica: "Población de 5 años y más usada como denominador"
+    periodo: "2011"
+    ambito: nacional
+    definicion_textual: >-
+      Población proyectada por el INE en base al censo 2017, restringida a 5 años y más.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2011"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_observada_2011
+    valor: "12,68"
+    valor_num: 12.68
+    unidad: por_100000_5ymas
+    metrica: "Tasa anual observada de mortalidad por suicidio"
+    periodo: "2011"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa observada: total de defunciones dividido por la población proyectada de 5 años y más para ese año, por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2011, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2011"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_estandarizada_2011
+    valor: "12,01"
+    valor_num: 12.01
+    unidad: por_100000_5ymas
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2011"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa estandarizada por edad, método de ajuste directo, usando la población INE proyectada para 2002 como población de referencia. Por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2011, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2011"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_defunciones_2012
+    valor: "1.841"
+    valor_num: 1841
+    unidad: personas
+    metrica: "Defunciones por suicidio, personas de 5 años y más"
+    periodo: "2012"
+    ambito: nacional
+    definicion_textual: >-
+      Muertes por suicidio: «lesiones autoinfligidas intencionalmente» con resultado de muerte, subcategorías CIE-10 X600 a X849. Excluye a la población menor de 5 años, porque el informe no considera intencionales las lesiones autoinfligidas en ese grupo. Años cerrados estadísticamente.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2012"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_poblacion_5ymas_2012
+    valor: "16.149.833"
+    valor_num: 16149833
+    unidad: personas
+    metrica: "Población de 5 años y más usada como denominador"
+    periodo: "2012"
+    ambito: nacional
+    definicion_textual: >-
+      Población proyectada por el INE en base al censo 2017, restringida a 5 años y más.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2012"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_observada_2012
+    valor: "11,40"
+    valor_num: 11.40
+    unidad: por_100000_5ymas
+    metrica: "Tasa anual observada de mortalidad por suicidio"
+    periodo: "2012"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa observada: total de defunciones dividido por la población proyectada de 5 años y más para ese año, por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2012, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2012"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_estandarizada_2012
+    valor: "10,83"
+    valor_num: 10.83
+    unidad: por_100000_5ymas
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2012"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa estandarizada por edad, método de ajuste directo, usando la población INE proyectada para 2002 como población de referencia. Por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2012, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2012"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_defunciones_2013
+    valor: "1.738"
+    valor_num: 1738
+    unidad: personas
+    metrica: "Defunciones por suicidio, personas de 5 años y más"
+    periodo: "2013"
+    ambito: nacional
+    definicion_textual: >-
+      Muertes por suicidio: «lesiones autoinfligidas intencionalmente» con resultado de muerte, subcategorías CIE-10 X600 a X849. Excluye a la población menor de 5 años, porque el informe no considera intencionales las lesiones autoinfligidas en ese grupo. Años cerrados estadísticamente.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2013"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_poblacion_5ymas_2013
+    valor: "16.391.839"
+    valor_num: 16391839
+    unidad: personas
+    metrica: "Población de 5 años y más usada como denominador"
+    periodo: "2013"
+    ambito: nacional
+    definicion_textual: >-
+      Población proyectada por el INE en base al censo 2017, restringida a 5 años y más.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2013"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_observada_2013
+    valor: "10,60"
+    valor_num: 10.60
+    unidad: por_100000_5ymas
+    metrica: "Tasa anual observada de mortalidad por suicidio"
+    periodo: "2013"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa observada: total de defunciones dividido por la población proyectada de 5 años y más para ese año, por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2013, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2013"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_estandarizada_2013
+    valor: "9,93"
+    valor_num: 9.93
+    unidad: por_100000_5ymas
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2013"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa estandarizada por edad, método de ajuste directo, usando la población INE proyectada para 2002 como población de referencia. Por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2013, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2013"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_defunciones_2014
+    valor: "1.789"
+    valor_num: 1789
+    unidad: personas
+    metrica: "Defunciones por suicidio, personas de 5 años y más"
+    periodo: "2014"
+    ambito: nacional
+    definicion_textual: >-
+      Muertes por suicidio: «lesiones autoinfligidas intencionalmente» con resultado de muerte, subcategorías CIE-10 X600 a X849. Excluye a la población menor de 5 años, porque el informe no considera intencionales las lesiones autoinfligidas en ese grupo. Años cerrados estadísticamente.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2014"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_poblacion_5ymas_2014
+    valor: "16.580.957"
+    valor_num: 16580957
+    unidad: personas
+    metrica: "Población de 5 años y más usada como denominador"
+    periodo: "2014"
+    ambito: nacional
+    definicion_textual: >-
+      Población proyectada por el INE en base al censo 2017, restringida a 5 años y más.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2014"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_observada_2014
+    valor: "10,79"
+    valor_num: 10.79
+    unidad: por_100000_5ymas
+    metrica: "Tasa anual observada de mortalidad por suicidio"
+    periodo: "2014"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa observada: total de defunciones dividido por la población proyectada de 5 años y más para ese año, por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2014, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2014"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_estandarizada_2014
+    valor: "10,07"
+    valor_num: 10.07
+    unidad: por_100000_5ymas
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2014"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa estandarizada por edad, método de ajuste directo, usando la población INE proyectada para 2002 como población de referencia. Por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2014, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2014"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_defunciones_2015
+    valor: "1.834"
+    valor_num: 1834
+    unidad: personas
+    metrica: "Defunciones por suicidio, personas de 5 años y más"
+    periodo: "2015"
+    ambito: nacional
+    definicion_textual: >-
+      Muertes por suicidio: «lesiones autoinfligidas intencionalmente» con resultado de muerte, subcategorías CIE-10 X600 a X849. Excluye a la población menor de 5 años, porque el informe no considera intencionales las lesiones autoinfligidas en ese grupo. Años cerrados estadísticamente.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2015"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_poblacion_5ymas_2015
+    valor: "16.769.852"
+    valor_num: 16769852
+    unidad: personas
+    metrica: "Población de 5 años y más usada como denominador"
+    periodo: "2015"
+    ambito: nacional
+    definicion_textual: >-
+      Población proyectada por el INE en base al censo 2017, restringida a 5 años y más.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2015"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_observada_2015
+    valor: "10,94"
+    valor_num: 10.94
+    unidad: por_100000_5ymas
+    metrica: "Tasa anual observada de mortalidad por suicidio"
+    periodo: "2015"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa observada: total de defunciones dividido por la población proyectada de 5 años y más para ese año, por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2015, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2015"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_estandarizada_2015
+    valor: "10,11"
+    valor_num: 10.11
+    unidad: por_100000_5ymas
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2015"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa estandarizada por edad, método de ajuste directo, usando la población INE proyectada para 2002 como población de referencia. Por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2015, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2015"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_defunciones_2016
+    valor: "1.859"
+    valor_num: 1859
+    unidad: personas
+    metrica: "Defunciones por suicidio, personas de 5 años y más"
+    periodo: "2016"
+    ambito: nacional
+    definicion_textual: >-
+      Muertes por suicidio: «lesiones autoinfligidas intencionalmente» con resultado de muerte, subcategorías CIE-10 X600 a X849. Excluye a la población menor de 5 años, porque el informe no considera intencionales las lesiones autoinfligidas en ese grupo. Años cerrados estadísticamente.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2016"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_poblacion_5ymas_2016
+    valor: "16.953.924"
+    valor_num: 16953924
+    unidad: personas
+    metrica: "Población de 5 años y más usada como denominador"
+    periodo: "2016"
+    ambito: nacional
+    definicion_textual: >-
+      Población proyectada por el INE en base al censo 2017, restringida a 5 años y más.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2016"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_observada_2016
+    valor: "10,97"
+    valor_num: 10.97
+    unidad: por_100000_5ymas
+    metrica: "Tasa anual observada de mortalidad por suicidio"
+    periodo: "2016"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa observada: total de defunciones dividido por la población proyectada de 5 años y más para ese año, por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2016, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2016"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_estandarizada_2016
+    valor: "10,17"
+    valor_num: 10.17
+    unidad: por_100000_5ymas
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2016"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa estandarizada por edad, método de ajuste directo, usando la población INE proyectada para 2002 como población de referencia. Por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2016, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2016"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_defunciones_2017
+    valor: "1.879"
+    valor_num: 1879
+    unidad: personas
+    metrica: "Defunciones por suicidio, personas de 5 años y más"
+    periodo: "2017"
+    ambito: nacional
+    definicion_textual: >-
+      Muertes por suicidio: «lesiones autoinfligidas intencionalmente» con resultado de muerte, subcategorías CIE-10 X600 a X849. Excluye a la población menor de 5 años, porque el informe no considera intencionales las lesiones autoinfligidas en ese grupo. Años cerrados estadísticamente.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2017"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_poblacion_5ymas_2017
+    valor: "17.131.671"
+    valor_num: 17131671
+    unidad: personas
+    metrica: "Población de 5 años y más usada como denominador"
+    periodo: "2017"
+    ambito: nacional
+    definicion_textual: >-
+      Población proyectada por el INE en base al censo 2017, restringida a 5 años y más.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2017"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_observada_2017
+    valor: "10,97"
+    valor_num: 10.97
+    unidad: por_100000_5ymas
+    metrica: "Tasa anual observada de mortalidad por suicidio"
+    periodo: "2017"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa observada: total de defunciones dividido por la población proyectada de 5 años y más para ese año, por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2017, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2017"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+    en_conflicto: ['dipres_tasa_suicidio_nacional_2017']
+    nota: >
+      CONFLICTO. DIPRES publica 9,2 como tasa nacional 2017 citando al DEIS, sin identificar el producto. Tres cifras nacionales para el mismo año entre dos documentos del mismo ministerio.
+      No se resuelve en la sesión de extracción: la causa probable es
+      definicional, y decidir sin verificarla es elegir a ciegas.
+
+  - id: suicidio_tasa_estandarizada_2017
+    valor: "10,11"
+    valor_num: 10.11
+    unidad: por_100000_5ymas
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2017"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa estandarizada por edad, método de ajuste directo, usando la población INE proyectada para 2002 como población de referencia. Por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2017, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2017"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+    en_conflicto: ['dipres_tasa_suicidio_nacional_2017']
+    nota: >
+      CONFLICTO. Ídem: DIPRES publica 9,2 para 2017 y no declara si su cifra está ajustada.
+      No se resuelve en la sesión de extracción: la causa probable es
+      definicional, y decidir sin verificarla es elegir a ciegas.
+
+  - id: suicidio_defunciones_2018
+    valor: "1.823"
+    valor_num: 1823
+    unidad: personas
+    metrica: "Defunciones por suicidio, personas de 5 años y más"
+    periodo: "2018"
+    ambito: nacional
+    definicion_textual: >-
+      Muertes por suicidio: «lesiones autoinfligidas intencionalmente» con resultado de muerte, subcategorías CIE-10 X600 a X849. Excluye a la población menor de 5 años, porque el informe no considera intencionales las lesiones autoinfligidas en ese grupo. Años cerrados estadísticamente.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2018"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_poblacion_5ymas_2018
+    valor: "17.539.510"
+    valor_num: 17539510
+    unidad: personas
+    metrica: "Población de 5 años y más usada como denominador"
+    periodo: "2018"
+    ambito: nacional
+    definicion_textual: >-
+      Población proyectada por el INE en base al censo 2017, restringida a 5 años y más.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2018"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_observada_2018
+    valor: "10,39"
+    valor_num: 10.39
+    unidad: por_100000_5ymas
+    metrica: "Tasa anual observada de mortalidad por suicidio"
+    periodo: "2018"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa observada: total de defunciones dividido por la población proyectada de 5 años y más para ese año, por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2018, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2018"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_estandarizada_2018
+    valor: "9,65"
+    valor_num: 9.65
+    unidad: por_100000_5ymas
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2018"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa estandarizada por edad, método de ajuste directo, usando la población INE proyectada para 2002 como población de referencia. Por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2018, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2018"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_defunciones_2019
+    valor: "1.900"
+    valor_num: 1900
+    unidad: personas
+    metrica: "Defunciones por suicidio, personas de 5 años y más"
+    periodo: "2019"
+    ambito: nacional
+    definicion_textual: >-
+      Muertes por suicidio: «lesiones autoinfligidas intencionalmente» con resultado de muerte, subcategorías CIE-10 X600 a X849. Excluye a la población menor de 5 años, porque el informe no considera intencionales las lesiones autoinfligidas en ese grupo. Años cerrados estadísticamente.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2019"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_poblacion_5ymas_2019
+    valor: "17.905.040"
+    valor_num: 17905040
+    unidad: personas
+    metrica: "Población de 5 años y más usada como denominador"
+    periodo: "2019"
+    ambito: nacional
+    definicion_textual: >-
+      Población proyectada por el INE en base al censo 2017, restringida a 5 años y más.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2019"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_observada_2019
+    valor: "10,61"
+    valor_num: 10.61
+    unidad: por_100000_5ymas
+    metrica: "Tasa anual observada de mortalidad por suicidio"
+    periodo: "2019"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa observada: total de defunciones dividido por la población proyectada de 5 años y más para ese año, por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2019, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2019"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_estandarizada_2019
+    valor: "9,78"
+    valor_num: 9.78
+    unidad: por_100000_5ymas
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2019"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa estandarizada por edad, método de ajuste directo, usando la población INE proyectada para 2002 como población de referencia. Por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2019, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2019"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+    en_conflicto: ['who_tasa_suicidio_estandarizada_2019']
+    nota: >
+      CONFLICTO. La OMS publica 8.04 para el mismo año, país y métrica declarada. Este documento estandariza contra la población INE proyectada 2002 y calcula sobre población de 5 años y más; el Atlas no declara ninguna de las dos cosas.
+      No se resuelve en la sesión de extracción: la causa probable es
+      definicional, y decidir sin verificarla es elegir a ciegas.
+
+  - id: suicidio_defunciones_2010_2014
+    valor: "9.396"
+    valor_num: 9396
+    unidad: personas
+    metrica: "Defunciones por suicidio, personas de 5 años y más"
+    periodo: "2010/2014"
+    ambito: nacional
+    definicion_textual: >-
+      Muertes por suicidio: «lesiones autoinfligidas intencionalmente» con resultado de muerte, subcategorías CIE-10 X600 a X849. Excluye a la población menor de 5 años, porque el informe no considera intencionales las lesiones autoinfligidas en ese grupo. Años cerrados estadísticamente.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2010/2014"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_poblacion_5ymas_2010_2014
+    valor: "80.966.468"
+    valor_num: 80966468
+    unidad: personas
+    metrica: "Población de 5 años y más usada como denominador"
+    periodo: "2010/2014"
+    ambito: nacional
+    definicion_textual: >-
+      Población proyectada por el INE en base al censo 2017, restringida a 5 años y más.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2010/2014"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_observada_2010_2014
+    valor: "11,60"
+    valor_num: 11.60
+    unidad: por_100000_5ymas
+    metrica: "Tasa anual observada de mortalidad por suicidio"
+    periodo: "2010/2014"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa observada: total de defunciones dividido por la población proyectada de 5 años y más para ese año, por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2010_2014, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2010/2014"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_estandarizada_2010_2014
+    valor: "10,99"
+    valor_num: 10.99
+    unidad: por_100000_5ymas
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2010/2014"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa estandarizada por edad, método de ajuste directo, usando la población INE proyectada para 2002 como población de referencia. Por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2010_2014, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2010/2014"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_defunciones_2015_2019
+    valor: "9.295"
+    valor_num: 9295
+    unidad: personas
+    metrica: "Defunciones por suicidio, personas de 5 años y más"
+    periodo: "2015/2019"
+    ambito: nacional
+    definicion_textual: >-
+      Muertes por suicidio: «lesiones autoinfligidas intencionalmente» con resultado de muerte, subcategorías CIE-10 X600 a X849. Excluye a la población menor de 5 años, porque el informe no considera intencionales las lesiones autoinfligidas en ese grupo. Años cerrados estadísticamente.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2015/2019"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_poblacion_5ymas_2015_2019
+    valor: "86.299.997"
+    valor_num: 86299997
+    unidad: personas
+    metrica: "Población de 5 años y más usada como denominador"
+    periodo: "2015/2019"
+    ambito: nacional
+    definicion_textual: >-
+      Población proyectada por el INE en base al censo 2017, restringida a 5 años y más.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2015/2019"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_observada_2015_2019
+    valor: "10,77"
+    valor_num: 10.77
+    unidad: por_100000_5ymas
+    metrica: "Tasa anual observada de mortalidad por suicidio"
+    periodo: "2015/2019"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa observada: total de defunciones dividido por la población proyectada de 5 años y más para ese año, por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2015_2019, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2015/2019"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_estandarizada_2015_2019
+    valor: "9,96"
+    valor_num: 9.96
+    unidad: por_100000_5ymas
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2015/2019"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa estandarizada por edad, método de ajuste directo, usando la población INE proyectada para 2002 como población de referencia. Por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2015_2019, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2015/2019"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_defunciones_2010_2019
+    valor: "18.691"
+    valor_num: 18691
+    unidad: personas
+    metrica: "Defunciones por suicidio, personas de 5 años y más"
+    periodo: "2010/2019"
+    ambito: nacional
+    definicion_textual: >-
+      Muertes por suicidio: «lesiones autoinfligidas intencionalmente» con resultado de muerte, subcategorías CIE-10 X600 a X849. Excluye a la población menor de 5 años, porque el informe no considera intencionales las lesiones autoinfligidas en ese grupo. Años cerrados estadísticamente.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2010/2019"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_poblacion_5ymas_2010_2019
+    valor: "167.266.465"
+    valor_num: 167266465
+    unidad: personas
+    metrica: "Población de 5 años y más usada como denominador"
+    periodo: "2010/2019"
+    ambito: nacional
+    definicion_textual: >-
+      Población proyectada por el INE en base al censo 2017, restringida a 5 años y más.
+    # sin denominador: es un conteo
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2010/2019"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_observada_2010_2019
+    valor: "11,17"
+    valor_num: 11.17
+    unidad: por_100000_5ymas
+    metrica: "Tasa anual observada de mortalidad por suicidio"
+    periodo: "2010/2019"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa observada: total de defunciones dividido por la población proyectada de 5 años y más para ese año, por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2010_2019, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2010/2019"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: suicidio_tasa_estandarizada_2010_2019
+    valor: "10,47"
+    valor_num: 10.47
+    unidad: por_100000_5ymas
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2010/2019"
+    ambito: nacional
+    definicion_textual: >-
+      Tasa estandarizada por edad, método de ajuste directo, usando la población INE proyectada para 2002 como población de referencia. Por 100.000 habitantes de cinco años y más.
+    denominador: { ancla: suicidio_poblacion_5ymas_2010_2019, fuente: "Proyecciones INE base censo 2017" }
+    documento_id: minsal_suicidio_decada_2010_2019
+    sha256: "8d5fda272500916aaba6dd8ae2c8c4787cd409ad40b939399c89922435bdf95a"
+    pagina: 15
+    ubicacion: "Tabla 2, fila 2010/2019"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
