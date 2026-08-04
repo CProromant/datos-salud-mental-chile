@@ -7,6 +7,15 @@ data/**
 !data/**/.gitkeep
 !data/.gitkeep
 
+# EXCEPCIÓN a lo anterior: `data/anclas/` NO es data cruda. Son cifras transcritas a
+# mano desde documentos publicados por terceros, con su procedencia. Son un artefacto
+# hecho por una persona, no un archivo descargado, y la regla de CLAUDE.md §2.3 existe
+# para que no se versionen descargas. Si las anclas no se versionan, la evidencia contra
+# la que se valida el proyecto vive solo en un disco y no la puede auditar nadie.
+# Los documentos de origen sí quedan fuera: viven en data/raw/documentos/ y se
+# re-obtienen desde `catalogo.yml`, que sí está versionado, usando URL + sha256.
+!data/anclas/**
+
 __pycache__/
 *.py[cod]
 .pytest_cache/

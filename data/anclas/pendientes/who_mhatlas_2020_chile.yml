@@ -1,0 +1,372 @@
+# Anclas de evidencia — Mental Health ATLAS 2020, perfil de Chile (OMS).
+# Esquema en docs/05-CALIDAD.md#anclas-evidencia. Extraídas 2026-08-03.
+#
+# TODAS BLANDAS. La OMS publica pero no produce: las cifras de recursos las reporta cada
+# Estado por cuestionario, y el cuestionario que respondió Chile no es público. Por eso
+# casi todas quedan `cadena_incompleta`. Las marcadas "WHO official estimates" son
+# distintas: las modela la propia OMS a partir de registros vitales, así que la OMS sí es
+# el origen del número aunque no del dato subyacente.
+#
+# El PDF es de formulario y la extracción de texto devuelve valores SIN sus etiquetas,
+# en orden de dibujo. Todas se confirmaron renderizando la página; ninguna se tomó del
+# texto extraído.
+
+version: 1
+documento_id: who_mhatlas_2020_chile
+
+anclas:
+
+  # ---- Carga y mortalidad: estimaciones propias de la OMS ----
+
+  - id: who_tasa_suicidio_estandarizada_2019
+    valor: "8.04"
+    valor_num: 8.04
+    unidad: por_100000
+    metrica: "Tasa de mortalidad por suicidio estandarizada por edad"
+    periodo: "2019"
+    ambito: nacional
+    definicion_textual: >-
+      "Age-standardized suicide mortality rate (per 100 000 population)", bajo el
+      encabezado "Burden of mental disorders (WHO official estimates)". El documento no
+      declara en esta página la población estándar usada ni el rango etario incluido.
+    denominador:
+      fuente: "No declarado en el documento. Población total (UN official estimate) 18 952 035 aparece en la misma página"
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 1
+    ubicacion: "Bloque 'Burden of mental disorders', y Figura 'Age-standardized suicide mortality rate per 100 000 population, 2013, 2016 and 2019'"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+    en_conflicto: [suicidio_tasa_estandarizada_2019]
+    nota: >
+      CONFLICTO con `suicidio_tasa_estandarizada_2019` (MINSAL, 9,78 para el mismo año,
+      mismo país, misma métrica declarada). No se resuelve acá. Las dos diferencias
+      documentadas que podrían explicarlo: el MINSAL estandariza contra la población INE
+      proyectada 2002 y calcula sobre población de 5 años y más; este documento no
+      declara ninguna de las dos cosas. Registrar ambas es el punto.
+
+  - id: who_avad_trastornos_mentales_2019
+    valor: "1 994.2"
+    valor_num: 1994.2
+    unidad: por_100000
+    metrica: "Años de vida ajustados por discapacidad (DALY) por trastornos mentales"
+    periodo: "2019"
+    ambito: nacional
+    definicion_textual: >-
+      "Disability-adjusted life years (per 100 000 population)", bajo el encabezado
+      "Burden of mental disorders (WHO official estimates)".
+    denominador:
+      fuente: "Población total del país; el documento cita 18 952 035 (UN official estimate)"
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 1
+    ubicacion: "Bloque 'Burden of mental disorders'"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  # ---- Financiamiento: reportado por Chile ----
+
+  - id: who_gasto_sm_pct_gasto_salud_2020
+    valor: "2.0%"
+    valor_num: 2.0
+    unidad: porcentaje
+    metrica: "Gasto público en salud mental como porcentaje del gasto público total en salud"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      "The government's total expenditure on mental health as % of total government
+      health expenditure".
+    denominador:
+      descripcion: "Gasto público total en salud. El documento no publica el monto."
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 1
+    ubicacion: "Bloque 'Mental health financing'"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Respuesta de Chile al cuestionario del Mental Health Atlas 2020 (no publicada)"
+    metodo_lectura: pagina_renderizada
+    nota: >
+      Relevante para I-07, que quedó redefinido porque el presupuesto chileno no separa
+      salud mental (solo 0,05 % de la partida 16 lleva glosa). Este 2,0 % es un número
+      que alguien en MINSAL construyó para responderle a la OMS; sin el cuestionario no
+      se sabe con qué criterio, y esa es exactamente la pregunta de I-07.
+
+  - id: who_gasto_hospitales_psiq_pct_2020
+    valor: "11.2%"
+    valor_num: 11.2
+    unidad: porcentaje
+    metrica: "Gasto público en hospitales psiquiátricos como porcentaje del gasto público en salud mental"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      "The government's total expenditure on mental hospitals as % of total government
+      mental health expenditure".
+    denominador:
+      descripcion: "Gasto público total en salud mental. El documento no publica el monto."
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 1
+    ubicacion: "Bloque 'Mental health financing'"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Respuesta de Chile al cuestionario del Mental Health Atlas 2020 (no publicada)"
+    metodo_lectura: pagina_renderizada
+
+  - id: who_gasto_sm_per_capita_2020
+    valor: "8 588.6 [Chilean pesos]"
+    valor_num: 8588.6
+    unidad: clp_nominal_por_persona
+    metrica: "Gasto total en salud mental por persona"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      "Total mental health expenditure per person (reported currency)". El documento
+      no declara si es nominal o real, ni el año base.
+    denominador:
+      descripcion: "Población total del país"
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 1
+    ubicacion: "Encabezado del perfil, bajo '[Chile]'"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Respuesta de Chile al cuestionario del Mental Health Atlas 2020 (no publicada)"
+    metodo_lectura: pagina_renderizada
+    nota: >
+      Sin año base declarado, un monto en pesos no es comparable en el tiempo. CLAUDE.md
+      §5 exige guardar nominal y derivar real: acá ni siquiera consta cuál de los dos es.
+
+  # ---- Recursos humanos: reportado por Chile. Materia prima de I-08. ----
+
+  - id: who_psiquiatras_por_100k_2020
+    valor: "8.52"
+    valor_num: 8.52
+    unidad: por_100000
+    metrica: "Psiquiatras por 100.000 habitantes"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      "Psychiatrists", fila de la tabla "Mental health workforce", columna "No. per
+      100 000 population". La columna vecina, "Total Number (gov. and non gov.)", da
+      1 615: incluye sector público y privado.
+    denominador:
+      descripcion: "Población total del país; el documento cita 18 952 035 (UN official estimate)"
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 2
+    ubicacion: "Tabla 'Mental health workforce', fila Psychiatrists"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Respuesta de Chile al cuestionario del Mental Health Atlas 2020 (no publicada)"
+    metodo_lectura: pagina_renderizada
+    nota: >
+      Es la cifra directamente comparable con I-08. Ojo con el universo: cuenta gov +
+      non gov, y el numerador es de profesionales, no de cargos ni de jornadas.
+
+  - id: who_psiquiatras_total_2020
+    valor: "1 615"
+    valor_num: 1615
+    unidad: personas
+    metrica: "Número total de psiquiatras (sector público y privado)"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      "Psychiatrists", columna "Total Number (gov. and non gov.)" de la tabla
+      "Mental health workforce".
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 2
+    ubicacion: "Tabla 'Mental health workforce', fila Psychiatrists"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Respuesta de Chile al cuestionario del Mental Health Atlas 2020 (no publicada)"
+    metodo_lectura: pagina_renderizada
+
+  - id: who_psicologos_por_100k_2020
+    valor: "5.39"
+    valor_num: 5.39
+    unidad: por_100000
+    metrica: "Psicólogos por 100.000 habitantes"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      "Psychologists", tabla "Mental health workforce". Total (gov. y non gov.): 1 022.
+    denominador:
+      descripcion: "Población total del país"
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 2
+    ubicacion: "Tabla 'Mental health workforce', fila Psychologists"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Respuesta de Chile al cuestionario del Mental Health Atlas 2020 (no publicada)"
+    metodo_lectura: pagina_renderizada
+
+  - id: who_enfermeras_sm_por_100k_2020
+    valor: "1.16"
+    valor_num: 1.16
+    unidad: por_100000
+    metrica: "Enfermeras de salud mental por 100.000 habitantes"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      "Mental health nurses", tabla "Mental health workforce". Total: 220.
+    denominador:
+      descripcion: "Población total del país"
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 2
+    ubicacion: "Tabla 'Mental health workforce', fila Mental health nurses"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Respuesta de Chile al cuestionario del Mental Health Atlas 2020 (no publicada)"
+    metodo_lectura: pagina_renderizada
+
+  - id: who_total_profesionales_sm_por_100k_2020
+    valor: "20.06"
+    valor_num: 20.06
+    unidad: por_100000
+    metrica: "Total de profesionales de salud mental por 100.000 habitantes"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      "Total mental health professionals", tabla "Mental health workforce". Total: 3 802.
+      Suma psiquiatras, enfermeras de salud mental, psicólogos, trabajadores sociales y
+      "other specialized mental health workers (e.g. Occupational Therapists)".
+    denominador:
+      descripcion: "Población total del país"
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 2
+    ubicacion: "Tabla 'Mental health workforce', fila Total mental health professionals; y figura 'Mental health workers per 100 000 population, 2014, 2017 and 2020'"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Respuesta de Chile al cuestionario del Mental Health Atlas 2020 (no publicada)"
+    metodo_lectura: pagina_renderizada
+    nota: >
+      La figura de la misma página da la serie 2014 = 15.10, 2017 = 6.97, 2020 = 20.06.
+      Se registra tal cual aparece. Evaluar si esa serie es plausible no es tarea de una
+      sesión de extracción.
+
+  - id: who_psiquiatras_infantiles_total_2020
+    valor: "434"
+    valor_num: 434
+    unidad: personas
+    metrica: "Psiquiatras de niños y/o adolescentes"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      "Child and/or adolescent psychiatrists", bloque "Mental health workers in child
+      and/or adolescent mental health services". La columna por 100.000 da 8.76, que NO
+      está sobre población total sino sobre población infanto-adolescente; el documento
+      no declara el denominador.
+    denominador:
+      descripcion: "No declarado en el documento. La cifra 8.76 por 100.000 no es sobre población total."
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 2
+    ubicacion: "Bloque 'Mental health workers in child and/or adolescent mental health services'"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Respuesta de Chile al cuestionario del Mental Health Atlas 2020 (no publicada)"
+    metodo_lectura: pagina_renderizada
+
+  # ---- Capacidad de la red ----
+
+  - id: who_camas_hospital_psiq_por_100k_2020
+    valor: "5.50"
+    valor_num: 5.50
+    unidad: por_100000
+    metrica: "Camas en hospitales psiquiátricos por 100.000 habitantes"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      "Mental hospital beds / annual admissions" = "5.50 / 21.75", bloque "Inpatient care
+      (beds/admissions per 100 000 population)". El primer valor son camas; el segundo,
+      21.75, son admisiones anuales por 100.000.
+    denominador:
+      descripcion: "Población total del país"
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 2
+    ubicacion: "Bloque 'Inpatient care (beds/admissions per 100 000 population)'"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Respuesta de Chile al cuestionario del Mental Health Atlas 2020 (no publicada)"
+    metodo_lectura: pagina_renderizada
+
+  - id: who_hospitales_psiquiatricos_2020
+    valor: "4"
+    valor_num: 4
+    unidad: establecimientos
+    metrica: "Número de hospitales psiquiátricos"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      "Mental hospitals", bloque "Inpatient care (total facilities)".
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 2
+    ubicacion: "Bloque 'Inpatient care (total facilities)'"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Respuesta de Chile al cuestionario del Mental Health Atlas 2020 (no publicada)"
+    metodo_lectura: pagina_renderizada
+
+  - id: who_admisiones_involuntarias_2020
+    valor: "339"
+    valor_num: 339
+    unidad: admisiones
+    metrica: "Admisiones involuntarias en hospitales psiquiátricos"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      "Admissions that are involuntary", bloque "Mental hospitals". El total de
+      admisiones del mismo bloque es 4 123.
+    denominador:
+      descripcion: "No es tasa. El total de admisiones (4 123) está en el mismo bloque."
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 2
+    ubicacion: "Bloque 'Mental hospitals'"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Respuesta de Chile al cuestionario del Mental Health Atlas 2020 (no publicada)"
+    metodo_lectura: pagina_renderizada
+
+  - id: who_casos_tratados_psicosis_2020
+    valor: "6 431"
+    valor_num: 6431
+    unidad: casos
+    metrica: "Casos tratados de psicosis (hospitalizados y ambulatorios)"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      "Treated cases of psychosis (inpatient and outpatient)", bloque "Treated prevalence
+      of psychosis and by sex". Desglose publicado: 3 535 hombres y 2 896 mujeres.
+    documento_id: who_mhatlas_2020_chile
+    sha256: "33777c83417bae950057278beabed77ca7c259ece321ebf9e95b291441e04076"
+    pagina: 2
+    ubicacion: "Bloque 'Treated prevalence of psychosis and by sex'"
+    fecha_consulta: "2026-08-03"
+    clase: blanda
+    estado: cadena_incompleta
+    fuente_faltante: "Respuesta de Chile al cuestionario del Mental Health Atlas 2020 (no publicada)"
+    metodo_lectura: pagina_renderizada
