@@ -164,9 +164,9 @@ Detalle en [`docs/02-ARQUITECTURA.md`](docs/02-ARQUITECTURA.md).
 |---|---|
 | Tests | 652 pasando |
 | Lint y tipos | limpios |
-| Fuentes verificadas con descarga real | 12 de 20 |
+| Fuentes verificadas con descarga real | 13 de 20 |
 | Anclas de reconciliación automáticas | 8 de 8 cuadrando |
-| Anclas de evidencia externa capturadas | 117, de 6 documentos |
+| Anclas de evidencia externa capturadas | 126, de 15 documentos |
 | Anomalías documentadas | 24 |
 
 Una fuente está `verificada` solo cuando alguien **abrió el archivo y lo entendió** — no

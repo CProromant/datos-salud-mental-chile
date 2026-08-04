@@ -335,7 +335,7 @@ evidencia de la imposibilidad, y decirlo en la ficha.
 
 | métrica | valor | al 2026-07-27 |
 |---|---|---|
-| fuentes verificadas con descarga real | 12 de 20 | 4 de 17 |
+| fuentes verificadas con descarga real | 13 de 20 | 4 de 17 |
 | ingestores funcionando | 8 | 2 |
 | series publicadas | 5 (release v0.3.0) | 1 |
 | indicadores activos con ficha y verificación externa | 4 (I-01, I-02, I-03, I-06) | 2 |

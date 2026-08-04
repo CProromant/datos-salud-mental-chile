@@ -193,3 +193,104 @@ documentos:
         - SENDA, Décimo Cuarto Estudio en Población General, 2020
         - OECD Health Statistics 2023
       Perseguir esas siete es más productivo que extraer de este documento.
+
+  # --- Boletines del IPC de diciembre. Nueve documentos, un ancla cada uno. ---
+
+  - id: ine_ipc_boletin_dic_2017
+    titulo: "Boletín estadístico: Índice de Precios al Consumidor, diciembre 2017"
+    editor: "Instituto Nacional de Estadísticas (INE)"
+    anio_publicacion: 2018
+    url: "https://www.ine.gob.cl/docs/default-source/%C3%ADndice-de-precios-al-consumidor/boletines/espa%C3%B1ol/2017/bolet%C3%ADn-indice-de-precios-al-consumidor-(ipc)-diciembre-2017.pdf"
+    sha256: "074fb8ca3a3599a589b458258fcf856dc709718d79f7dde7292591c5dc7a0be8"
+    bytes: 240448
+    fecha_descarga: "2026-08-04"
+    leido: true
+    clase_predominante: dura
+
+  - id: ine_ipc_boletin_dic_2018
+    titulo: "Boletín estadístico: Índice de Precios al Consumidor, diciembre 2018"
+    editor: "Instituto Nacional de Estadísticas (INE)"
+    anio_publicacion: 2019
+    url: "https://www.ine.gob.cl/docs/default-source/%C3%ADndice-de-precios-al-consumidor/boletines/espa%C3%B1ol/2018/bolet%C3%ADn-indice-de-precios-al-consumidor-(ipc)-diciembre-2018.pdf"
+    sha256: "dcf19bab9ebe5185be8b71db8a19b8bf58d6f5c034fe8e281ae97d86e9251191"
+    bytes: 262885
+    fecha_descarga: "2026-08-04"
+    leido: true
+    clase_predominante: dura
+
+  - id: ine_ipc_boletin_dic_2019
+    titulo: "Boletín estadístico: Índice de Precios al Consumidor, diciembre 2019"
+    editor: "Instituto Nacional de Estadísticas (INE)"
+    anio_publicacion: 2020
+    url: "https://www.ine.gob.cl/docs/default-source/%C3%ADndice-de-precios-al-consumidor/boletines/espa%C3%B1ol/2019/bolet%C3%ADn-indice-de-precios-al-consumidor-(ipc)-diciembre-2019.pdf"
+    sha256: "8f45c6a2ff5cae6a50a6a3e886d0d9a1a757cad3739fc5583b350682ace9c5f7"
+    bytes: 166385
+    fecha_descarga: "2026-08-04"
+    leido: true
+    clase_predominante: dura
+
+  - id: ine_ipc_boletin_dic_2020
+    titulo: "Boletín estadístico: Índice de Precios al Consumidor, diciembre 2020"
+    editor: "Instituto Nacional de Estadísticas (INE)"
+    anio_publicacion: 2021
+    url: "https://www.ine.gob.cl/docs/default-source/%C3%ADndice-de-precios-al-consumidor/boletines/espa%C3%B1ol/2020/bolet%C3%ADn-indice-de-precios-al-consumidor-(ipc)-diciembre-2020.pdf"
+    sha256: "e8ea3c171c9173df204da573e73fbc0aa9b40757ca529f0f8950405db92c1066"
+    bytes: 479089
+    fecha_descarga: "2026-08-04"
+    leido: true
+    clase_predominante: dura
+
+  - id: ine_ipc_boletin_dic_2021
+    titulo: "Boletín estadístico: Índice de Precios al Consumidor, diciembre 2021"
+    editor: "Instituto Nacional de Estadísticas (INE)"
+    anio_publicacion: 2022
+    url: "https://www.ine.gob.cl/docs/default-source/%C3%ADndice-de-precios-al-consumidor/boletines/espa%C3%B1ol/2021/bolet%C3%ADn-indice-de-precios-al-consumidor-(ipc)-diciembre-2021.pdf"
+    sha256: "51499d831f1bda53d7af033921a9e18f7b1573b441e267b31b724a58f2363a11"
+    bytes: 480043
+    fecha_descarga: "2026-08-04"
+    leido: true
+    clase_predominante: dura
+
+  - id: ine_ipc_boletin_dic_2022
+    titulo: "Boletín estadístico: Índice de Precios al Consumidor, diciembre 2022"
+    editor: "Instituto Nacional de Estadísticas (INE)"
+    anio_publicacion: 2023
+    url: "https://www.ine.gob.cl/docs/default-source/%C3%ADndice-de-precios-al-consumidor/boletines/espa%C3%B1ol/2022/bolet%C3%ADn-%C3%ADndice-de-precios-al-consumidor-(ipc)-diciembre-2022.pdf"
+    sha256: "6af9aa4322388c8f4e1d7d9a0bd5b1462407f9363eb1fa6de6f3458a02008f30"
+    bytes: 716973
+    fecha_descarga: "2026-08-04"
+    leido: true
+    clase_predominante: dura
+
+  - id: ine_ipc_boletin_dic_2023
+    titulo: "Boletín estadístico: Índice de Precios al Consumidor, diciembre 2023"
+    editor: "Instituto Nacional de Estadísticas (INE)"
+    anio_publicacion: 2024
+    url: "https://www.ine.gob.cl/docs/default-source/%C3%ADndice-de-precios-al-consumidor/boletines/espa%C3%B1ol/2023/bolet%C3%ADn-%C3%ADndice-de-precios-al-consumidor-(ipc)-diciembre-2023.pdf"
+    sha256: "9802556430b22bcccf2fd2b32e3230f6bbe1724aed6b7f67913cd9d8e77aee3d"
+    bytes: 1011879
+    fecha_descarga: "2026-08-04"
+    leido: true
+    clase_predominante: dura
+
+  - id: ine_ipc_boletin_dic_2024
+    titulo: "Boletín estadístico: Índice de Precios al Consumidor, diciembre 2024"
+    editor: "Instituto Nacional de Estadísticas (INE)"
+    anio_publicacion: 2025
+    url: "https://www.ine.gob.cl/docs/default-source/%C3%ADndice-de-precios-al-consumidor/boletines/espa%C3%B1ol/2024/bolet%C3%ADn-%C3%ADndice-de-precios-al-consumidor-(ipc)-diciembre-2024.pdf"
+    sha256: "edf8b6c365c1e9f17cce001bbbca1d83a43354e574f05f9209a38786c8bbaa67"
+    bytes: 937000
+    fecha_descarga: "2026-08-04"
+    leido: true
+    clase_predominante: dura
+
+  - id: ine_ipc_boletin_dic_2025
+    titulo: "Boletín estadístico: Índice de Precios al Consumidor, diciembre 2025"
+    editor: "Instituto Nacional de Estadísticas (INE)"
+    anio_publicacion: 2026
+    url: "https://www.ine.gob.cl/docs/default-source/%C3%ADndice-de-precios-al-consumidor/boletines/espa%C3%B1ol/2025/boletin-%C3%ADndice-de-precios-al-consumidor-diciembre-2025.pdf"
+    sha256: "3770a6d69c470911076498c4e186b721e8e9d972000cd3b2a95a4a55ab75e30d"
+    bytes: 850050
+    fecha_descarga: "2026-08-04"
+    leido: true
+    clase_predominante: dura

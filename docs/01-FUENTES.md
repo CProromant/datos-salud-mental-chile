@@ -323,11 +323,53 @@ estructurado para responder la pregunta.** Cambió el alcance de la Fase 4 y la 
 - **Uso:** deflactar. Todo monto se guarda nominal; el real se deriva
   (`CLAUDE.md` §5). Es la dependencia que falta para
   [I-07](04-INDICADORES.md#i-07).
-- **Estado: `no_verificada`.** No se encontró un archivo descargable del índice. **URL:**
-  *por_confirmar* — y no se escribe ninguna en `config/sources.yml` hasta tenerla.
+- **Estado: `verificada` desde el 2026-08-04.** No por donde se buscaba.
 
-**Seis vías cerradas, todas comprobadas el 2026-08-02.** Se anotan para que la próxima
-sesión no las repita:
+**La séptima vía, que sí abrió: el boletín mensual en PDF.** Las seis anteriores buscaban
+un *archivo de serie* —CSV, XLSX, una API—. No existe. Lo que sí existe es el boletín
+mensual, y **el de diciembre declara en prosa la variación acumulada del año**:
+
+> «En diciembre de 2017, el Índice de Precios al Consumidor (IPC) anotó una variación
+> mensual de 0,1%, acumulando **2,3% en 2017**.»
+
+Nueve boletines de diciembre bajados y verificados (2017-2025) dan la serie anual completa,
+y encadenarlas **evita por completo el problema del empalme**: cada cifra es la variación
+del año, no un nivel, así que los cambios de base (2013=100 → 2018=100 → 2023=100) no la
+afectan. El boletín trae además el «Índice General» del mes, que sí depende de la base.
+
+| año | variación acumulada |
+|---|---|
+| 2017 | 2,3 % |
+| 2018 | 2,6 % |
+| 2019 | 3,0 % |
+| 2020 | 3,0 % |
+| 2021 | 7,2 % |
+| 2022 | 12,8 % |
+| 2023 | 3,9 % |
+| 2024 | 4,5 % |
+| 2025 | 3,5 % |
+
+**Trampa del nombre de archivo:** no sigue patrón. Tres variantes comprobadas y la
+diferencia está en dónde llevan tilde («boletín-indice» en 2017-2021, «boletín-índice» en
+2022-2024, «boletin-índice» en 2025). Hay una cuarta en el mismo repositorio que dice
+«consumir» en vez de «consumidor». Los nombres se escriben a mano; generarlos no funciona.
+Están escritos uno a uno en `config/sources.yml`.
+
+**Salvedad de 2019:** su boletín califica la cifra a doce meses con dos llamadas al pie
+—«con respecto a la base referencial del índice»— porque ese año entró la base 2018=100.
+La acumulada del año no lleva esa salvedad, pero conviene saberlo antes de usar el 3,0 %
+de 2019 para otra cosa.
+
+**Lo que sigue faltando:** un ingestor. La fuente está verificada y las nueve cifras están
+capturadas como anclas de evidencia en `config/anclas-evidencia/`, pero I-07 necesita el
+deflactor dentro del pipeline, no en un catálogo. Eso es trabajo pendiente.
+
+**Lección, que es la misma de A-015 en otra forma:** las seis vías fallaron por buscar el
+formato que uno querría —una tabla— en vez del formato en que el organismo publica. El INE
+publica boletines, no series. Se perdieron dos días asumiendo lo contrario.
+
+**Seis vías cerradas, todas comprobadas el 2026-08-02.** Se dejan anotadas: siguen siendo
+ciertas, y son la razón por la que hubo que buscar de otra forma.
 
 | Vía | Resultado |
 |---|---|

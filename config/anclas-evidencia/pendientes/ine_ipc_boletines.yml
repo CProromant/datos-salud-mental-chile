@@ -1,0 +1,228 @@
+# Anclas de evidencia — Boletines del IPC de diciembre, 2017-2025 (INE).
+# Esquema en docs/05-CALIDAD.md#anclas-evidencia. Extraídas 2026-08-04.
+#
+# TODAS DURAS: el INE calcula y publica el IPC. No hay cadena que seguir.
+#
+# QUÉ SON Y QUÉ NO SON. Cada una es la variación ACUMULADA DEL AÑO, no un nivel del
+# índice. Esa elección es deliberada y es lo que hace utilizable la serie: una variación
+# anual no depende del año base, así que los tres cambios de base del período
+# (2013=100 → 2018=100 → 2023=100) no la afectan y las nueve se encadenan sin empalmar
+# nada. El «Índice General» que traen los mismos boletines sí depende de la base y por eso
+# NO se captura acá.
+#
+# PARA QUÉ SIRVEN: son el deflactor que I-07 necesita y que bloqueaba la Fase 4 entera.
+# Con la advertencia de que un ancla no es un ingestor: esto es la evidencia verificada,
+# no la fuente cableada al pipeline.
+
+version: 1
+# A diferencia del resto de los archivos de este directorio, éste NO tiene un
+# `documento_id` de cabecera: abarca nueve documentos distintos, uno por año. Cada ancla
+# declara el suyo y apunta a su propia entrada del catálogo con su propio sha256.
+documentos_id:
+  [ine_ipc_boletin_dic_2017, ine_ipc_boletin_dic_2018, ine_ipc_boletin_dic_2019,
+   ine_ipc_boletin_dic_2020, ine_ipc_boletin_dic_2021, ine_ipc_boletin_dic_2022,
+   ine_ipc_boletin_dic_2023, ine_ipc_boletin_dic_2024, ine_ipc_boletin_dic_2025]
+
+anclas:
+
+  - id: ipc_variacion_anual_2017
+    valor: "2,3%"
+    valor_num: 2.3
+    unidad: porcentaje
+    metrica: "Variación anual acumulada del Índice de Precios al Consumidor"
+    periodo: "2017"
+    ambito: nacional
+    definicion_textual: >-
+      «acumulando 2,3% en 2017», del boletín del IPC de diciembre de 2017. Es la variación acumulada del
+      índice general en el año calendario. Mide hogares URBANOS: el IPC no cubre la
+      población rural.
+    denominador:
+      descripcion: "Índice general del IPC en diciembre del año anterior"
+    documento_id: ine_ipc_boletin_dic_2017
+    sha256: "074fb8ca3a3599a589b458258fcf856dc709718d79f7dde7292591c5dc7a0be8"
+    pagina: 1
+    ubicacion: "Párrafo de apertura del boletín"
+    fecha_consulta: "2026-08-04"
+    clase: dura
+    estado: verificada
+    metodo_lectura: texto_extraido
+
+  - id: ipc_variacion_anual_2018
+    valor: "2,6%"
+    valor_num: 2.6
+    unidad: porcentaje
+    metrica: "Variación anual acumulada del Índice de Precios al Consumidor"
+    periodo: "2018"
+    ambito: nacional
+    definicion_textual: >-
+      «acumulando 2,6% en ese año», del boletín del IPC de diciembre de 2018. Es la variación acumulada del
+      índice general en el año calendario. Mide hogares URBANOS: el IPC no cubre la
+      población rural.
+    denominador:
+      descripcion: "Índice general del IPC en diciembre del año anterior"
+    documento_id: ine_ipc_boletin_dic_2018
+    sha256: "dcf19bab9ebe5185be8b71db8a19b8bf58d6f5c034fe8e281ae97d86e9251191"
+    pagina: 1
+    ubicacion: "Párrafo de apertura del boletín"
+    fecha_consulta: "2026-08-04"
+    clase: dura
+    estado: verificada
+    metodo_lectura: texto_extraido
+
+  - id: ipc_variacion_anual_2019
+    valor: "3,0%"
+    valor_num: 3.0
+    unidad: porcentaje
+    metrica: "Variación anual acumulada del Índice de Precios al Consumidor"
+    periodo: "2019"
+    ambito: nacional
+    definicion_textual: >-
+      «acumulando 3,0% en lo que va del año», del boletín del IPC de diciembre de 2019. Es la variación acumulada del
+      índice general en el año calendario. Mide hogares URBANOS: el IPC no cubre la
+      población rural.
+    denominador:
+      descripcion: "Índice general del IPC en diciembre del año anterior"
+    documento_id: ine_ipc_boletin_dic_2019
+    sha256: "8f45c6a2ff5cae6a50a6a3e886d0d9a1a757cad3739fc5583b350682ace9c5f7"
+    pagina: 1
+    ubicacion: "Párrafo de apertura del boletín"
+    fecha_consulta: "2026-08-04"
+    clase: dura
+    estado: verificada
+    metodo_lectura: texto_extraido
+    nota: >
+      El boletín califica la cifra a doce meses con dos llamadas al pie —«con respecto a la base referencial del índice»— porque ese año entró la base 2018=100. La acumulada del año no lleva esa salvedad.
+
+  - id: ipc_variacion_anual_2020
+    valor: "3,0%"
+    valor_num: 3.0
+    unidad: porcentaje
+    metrica: "Variación anual acumulada del Índice de Precios al Consumidor"
+    periodo: "2020"
+    ambito: nacional
+    definicion_textual: >-
+      «acumulando 3,0% en lo que va del año», del boletín del IPC de diciembre de 2020. Es la variación acumulada del
+      índice general en el año calendario. Mide hogares URBANOS: el IPC no cubre la
+      población rural.
+    denominador:
+      descripcion: "Índice general del IPC en diciembre del año anterior"
+    documento_id: ine_ipc_boletin_dic_2020
+    sha256: "e8ea3c171c9173df204da573e73fbc0aa9b40757ca529f0f8950405db92c1066"
+    pagina: 1
+    ubicacion: "Párrafo de apertura del boletín"
+    fecha_consulta: "2026-08-04"
+    clase: dura
+    estado: verificada
+    metodo_lectura: texto_extraido
+
+  - id: ipc_variacion_anual_2021
+    valor: "7,2%"
+    valor_num: 7.2
+    unidad: porcentaje
+    metrica: "Variación anual acumulada del Índice de Precios al Consumidor"
+    periodo: "2021"
+    ambito: nacional
+    definicion_textual: >-
+      «acumulando 7,2% en lo que va del año», del boletín del IPC de diciembre de 2021. Es la variación acumulada del
+      índice general en el año calendario. Mide hogares URBANOS: el IPC no cubre la
+      población rural.
+    denominador:
+      descripcion: "Índice general del IPC en diciembre del año anterior"
+    documento_id: ine_ipc_boletin_dic_2021
+    sha256: "51499d831f1bda53d7af033921a9e18f7b1573b441e267b31b724a58f2363a11"
+    pagina: 1
+    ubicacion: "Párrafo de apertura del boletín"
+    fecha_consulta: "2026-08-04"
+    clase: dura
+    estado: verificada
+    metodo_lectura: texto_extraido
+
+  - id: ipc_variacion_anual_2022
+    valor: "12,8%"
+    valor_num: 12.8
+    unidad: porcentaje
+    metrica: "Variación anual acumulada del Índice de Precios al Consumidor"
+    periodo: "2022"
+    ambito: nacional
+    definicion_textual: >-
+      «acumulando un aumento de 12,8% en el año y a doce meses», del boletín del IPC de diciembre de 2022. Es la variación acumulada del
+      índice general en el año calendario. Mide hogares URBANOS: el IPC no cubre la
+      población rural.
+    denominador:
+      descripcion: "Índice general del IPC en diciembre del año anterior"
+    documento_id: ine_ipc_boletin_dic_2022
+    sha256: "6af9aa4322388c8f4e1d7d9a0bd5b1462407f9363eb1fa6de6f3458a02008f30"
+    pagina: 1
+    ubicacion: "Párrafo de apertura del boletín"
+    fecha_consulta: "2026-08-04"
+    clase: dura
+    estado: verificada
+    metodo_lectura: texto_extraido
+
+  - id: ipc_variacion_anual_2023
+    valor: "3,9%"
+    valor_num: 3.9
+    unidad: porcentaje
+    metrica: "Variación anual acumulada del Índice de Precios al Consumidor"
+    periodo: "2023"
+    ambito: nacional
+    definicion_textual: >-
+      «acumulando 3,9% en el año y a doce meses», del boletín del IPC de diciembre de 2023. Es la variación acumulada del
+      índice general en el año calendario. Mide hogares URBANOS: el IPC no cubre la
+      población rural.
+    denominador:
+      descripcion: "Índice general del IPC en diciembre del año anterior"
+    documento_id: ine_ipc_boletin_dic_2023
+    sha256: "9802556430b22bcccf2fd2b32e3230f6bbe1724aed6b7f67913cd9d8e77aee3d"
+    pagina: 1
+    ubicacion: "Párrafo de apertura del boletín"
+    fecha_consulta: "2026-08-04"
+    clase: dura
+    estado: verificada
+    metodo_lectura: texto_extraido
+
+  - id: ipc_variacion_anual_2024
+    valor: "4,5%"
+    valor_num: 4.5
+    unidad: porcentaje
+    metrica: "Variación anual acumulada del Índice de Precios al Consumidor"
+    periodo: "2024"
+    ambito: nacional
+    definicion_textual: >-
+      «acumulando 4,5% en el año y de 4,5% a doce meses, respecto de la serie empalmada», del boletín del IPC de diciembre de 2024. Es la variación acumulada del
+      índice general en el año calendario. Mide hogares URBANOS: el IPC no cubre la
+      población rural.
+    denominador:
+      descripcion: "Índice general del IPC en diciembre del año anterior"
+    documento_id: ine_ipc_boletin_dic_2024
+    sha256: "edf8b6c365c1e9f17cce001bbbca1d83a43354e574f05f9209a38786c8bbaa67"
+    pagina: 1
+    ubicacion: "Párrafo de apertura del boletín"
+    fecha_consulta: "2026-08-04"
+    clase: dura
+    estado: verificada
+    metodo_lectura: texto_extraido
+    nota: >
+      El boletín declara que la cifra es «respecto de la serie empalmada», por el cambio a base 2023=100.
+
+  - id: ipc_variacion_anual_2025
+    valor: "3,5%"
+    valor_num: 3.5
+    unidad: porcentaje
+    metrica: "Variación anual acumulada del Índice de Precios al Consumidor"
+    periodo: "2025"
+    ambito: nacional
+    definicion_textual: >-
+      «acumulando 3,5% en el año y 3,5% a doce meses», del boletín del IPC de diciembre de 2025. Es la variación acumulada del
+      índice general en el año calendario. Mide hogares URBANOS: el IPC no cubre la
+      población rural.
+    denominador:
+      descripcion: "Índice general del IPC en diciembre del año anterior"
+    documento_id: ine_ipc_boletin_dic_2025
+    sha256: "3770a6d69c470911076498c4e186b721e8e9d972000cd3b2a95a4a55ab75e30d"
+    pagina: 1
+    ubicacion: "Párrafo de apertura del boletín"
+    fecha_consulta: "2026-08-04"
+    clase: dura
+    estado: verificada
+    metodo_lectura: texto_extraido

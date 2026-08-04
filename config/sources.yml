@@ -565,10 +565,42 @@ fuentes:
     nombre: "Índice de precios al consumidor"
     organismo: "INE"
     dominio: "ine.gob.cl"
-    origen_url: por_confirmar
-    estado: no_verificada
+    # No hay archivo de serie: la página lo arma con JavaScript y las otras cinco vías
+    # están cerradas (docs/01-FUENTES.md#d3). Lo que SÍ existe es el boletín mensual en
+    # PDF, y el de diciembre trae la variación acumulada del año en prosa. Encadenando
+    # esas nueve cifras se obtiene el deflactor sin depender de ninguna base.
+    origen_url: verificada_en_sesion
+    url_indice: "https://www.ine.gob.cl/estadisticas-por-tema/precios-e-inflacion/indice-de-precios-al-consumidor"
+    ejemplos_url_observados:
+      - "https://www.ine.gob.cl/docs/default-source/%C3%ADndice-de-precios-al-consumidor/boletines/espa%C3%B1ol/2017/bolet%C3%ADn-indice-de-precios-al-consumidor-(ipc)-diciembre-2017.pdf"
+      - "https://www.ine.gob.cl/docs/default-source/%C3%ADndice-de-precios-al-consumidor/boletines/espa%C3%B1ol/2022/bolet%C3%ADn-%C3%ADndice-de-precios-al-consumidor-(ipc)-diciembre-2022.pdf"
+      - "https://www.ine.gob.cl/docs/default-source/%C3%ADndice-de-precios-al-consumidor/boletines/espa%C3%B1ol/2025/boletin-%C3%ADndice-de-precios-al-consumidor-diciembre-2025.pdf"
+    formato: pdf
+    granularidad: mensual
+    estado: verificada
+    fecha_verificacion: "2026-08-04"
     prioridad: 3
     fase: 4
+    # OJO: `url_indice` es la página que NO sirve para descargar —arma sus enlaces con
+    # JavaScript—. Está declarada porque es donde un humano empieza, no porque se pueda
+    # raspar. Los tres ejemplos de arriba son las tres variantes de nombre comprobadas.
+    # TRAMPA: el nombre del archivo NO sigue patrón. Tres variantes comprobadas, y la
+    # diferencia está en dónde llevan tilde. Adivinarlas cuesta; por eso van escritas.
+    #   2017-2021  boletín-indice-de-precios-al-consumidor-(ipc)-diciembre-AAAA.pdf
+    #   2022-2024  boletín-índice-de-precios-al-consumidor-(ipc)-diciembre-AAAA.pdf
+    #   2025       boletin-índice-de-precios-al-consumidor-diciembre-AAAA.pdf
+    # Hay una cuarta en el mismo repositorio, "consumir" en vez de "consumidor"
+    # (mayo 2026), que confirma que los nombres se escriben a mano y no se pueden generar.
+    archivos_diciembre:
+      2017: "bolet%C3%ADn-indice-de-precios-al-consumidor-(ipc)-diciembre-2017.pdf"
+      2018: "bolet%C3%ADn-indice-de-precios-al-consumidor-(ipc)-diciembre-2018.pdf"
+      2019: "bolet%C3%ADn-indice-de-precios-al-consumidor-(ipc)-diciembre-2019.pdf"
+      2020: "bolet%C3%ADn-indice-de-precios-al-consumidor-(ipc)-diciembre-2020.pdf"
+      2021: "bolet%C3%ADn-indice-de-precios-al-consumidor-(ipc)-diciembre-2021.pdf"
+      2022: "bolet%C3%ADn-%C3%ADndice-de-precios-al-consumidor-(ipc)-diciembre-2022.pdf"
+      2023: "bolet%C3%ADn-%C3%ADndice-de-precios-al-consumidor-(ipc)-diciembre-2023.pdf"
+      2024: "bolet%C3%ADn-%C3%ADndice-de-precios-al-consumidor-(ipc)-diciembre-2024.pdf"
+      2025: "boletin-%C3%ADndice-de-precios-al-consumidor-diciembre-2025.pdf"
 
   - id: fonasa_inscritos
     nombre: "Población inscrita validada en servicios de salud municipal (FONASA)"
