@@ -110,8 +110,8 @@ anclas:
       no hay ambigüedad de atribución.
 
   - id: termometro_sospecha_problema_sm_2023_12
-    valor: null
-    valor_num: null
+    valor: "17.1%"
+    valor_num: 17.1
     unidad: porcentaje
     metrica: "Proporción con sospecha o presencia de problemas de salud mental"
     periodo: "2023-12"
@@ -125,42 +125,127 @@ anclas:
     documento_id: achs_uc_termometro_r8
     sha256: "dc71738e80d63a44cfbeb8fd0be0710d048c8a929e3527e062c43cb0dbcc5349"
     pagina: 24
-    ubicacion: "Lámina 'PROBLEMAS DE SALUD MENTAL', caja de conclusión"
+    ubicacion: "Lámina 'PROBLEMAS DE SALUD MENTAL', serie verde, punto 'Diciembre 2023'"
     fecha_consulta: "2026-08-03"
     clase: dura
-    estado: requiere_verificacion_manual
-    metodo_lectura: texto_extraido
+    estado: verificada
+    metodo_lectura: pagina_renderizada
     nota: >
-      SIN VALOR A PROPÓSITO. La cifra vive en una caja gráfica que la extracción de texto
-      deja vacía: la frase queda como "____ exhibió sospecha o presencia de problemas de
-      salud mental en diciembre de 2023". La definición sí se leyó y por eso el ancla
-      existe; el número se obtiene renderizando la página 24. Anotar un valor acá de
-      memoria o por inferencia es exactamente lo que contamina el sistema.
+      Desglose por sexo de la misma lámina: mujeres 17.4 %, hombres 16.8 %. Es el único
+      indicador del documento donde las series por sexo casi se tocan, y el propio texto
+      lo señala: "esta estabilidad esconde dos tendencias opuestas: una caída de casi 8
+      puntos en la prevalencia en mujeres en contraste con un incremento de 7 puntos en
+      la tasa para los hombres".
+
+  - id: termometro_sospecha_problema_sm_mujeres_2023_12
+    valor: "17.4%"
+    valor_num: 17.4
+    unidad: porcentaje
+    metrica: "Proporción con sospecha o presencia de problemas de salud mental, mujeres"
+    periodo: "2023-12"
+    ambito: nacional
+    definicion_textual: >-
+      Ídem `termometro_sospecha_problema_sm_2023_12`, restringido a mujeres.
+    denominador:
+      descripcion: "Mujeres de 18 años y más encuestadas en la ronda 8"
+    documento_id: achs_uc_termometro_r8
+    sha256: "dc71738e80d63a44cfbeb8fd0be0710d048c8a929e3527e062c43cb0dbcc5349"
+    pagina: 24
+    ubicacion: "Lámina 'PROBLEMAS DE SALUD MENTAL', serie rosada, punto 'Diciembre 2023'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: termometro_sospecha_problema_sm_hombres_2023_12
+    valor: "16.8%"
+    valor_num: 16.8
+    unidad: porcentaje
+    metrica: "Proporción con sospecha o presencia de problemas de salud mental, hombres"
+    periodo: "2023-12"
+    ambito: nacional
+    definicion_textual: >-
+      Ídem `termometro_sospecha_problema_sm_2023_12`, restringido a hombres.
+    denominador:
+      descripcion: "Hombres de 18 años y más encuestados en la ronda 8"
+    documento_id: achs_uc_termometro_r8
+    sha256: "dc71738e80d63a44cfbeb8fd0be0710d048c8a929e3527e062c43cb0dbcc5349"
+    pagina: 24
+    ubicacion: "Lámina 'PROBLEMAS DE SALUD MENTAL', serie celeste, punto 'Diciembre 2023'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
 
   - id: termometro_ansiedad_moderada_severa_2023_12
-    valor: null
-    valor_num: null
+    valor: "24.8%"
+    valor_num: 24.8
     unidad: porcentaje
     metrica: "Proporción con síntomas de ansiedad generalizada moderada o severa"
     periodo: "2023-12"
     ambito: nacional
     definicion_textual: >-
-      "Proporción con síntomas de ansiedad moderada/severa", lámina "SÍNTOMAS DE ANSIEDAD
-      GENERALIZADA". El documento declara que representa un aumento de 2.5 puntos respecto
-      de la medición anterior y que en mujeres la prevalencia es aproximadamente 2,5 veces
-      la de los hombres.
+      "Proporción con síntomas de ansiedad moderada/severa", instrumento General Anxiety
+      Disorder (GAD-7). El documento declara que representa un aumento de 2.5 puntos
+      respecto de abril de 2023 y que en mujeres la prevalencia es aproximadamente 2,5
+      veces la de los hombres.
     denominador:
       descripcion: "Personas de 18 años y más encuestadas en la ronda 8"
     documento_id: achs_uc_termometro_r8
     sha256: "dc71738e80d63a44cfbeb8fd0be0710d048c8a929e3527e062c43cb0dbcc5349"
     pagina: 28
-    ubicacion: "Lámina 'SINTOMAS DE ANSIEDAD GENERALIZADA', caja de conclusión"
+    ubicacion: "Lámina 'SINTOMAS DE ANSIEDAD GENERALIZADA', serie verde, punto 'Diciembre 2023'"
     fecha_consulta: "2026-08-03"
     clase: dura
-    estado: requiere_verificacion_manual
-    metodo_lectura: texto_extraido
+    estado: verificada
+    metodo_lectura: pagina_renderizada
     nota: >
-      SIN VALOR A PROPÓSITO, misma razón que la anterior: caja gráfica vacía en la
-      extracción. El documento tampoco nombra el instrumento en el texto extraído (se
-      esperaría GAD-7, pero eso es un supuesto y no se registra como dato).
-      Se obtiene renderizando la página 28.
+      El instrumento es GAD-7, confirmado al renderizar. Cuando la cifra estaba pendiente
+      se dejó anotado que "se esperaría GAD-7, pero eso es un supuesto y no se registra";
+      el supuesto resultó correcto y aun así no debía escribirse antes de verlo.
+      La serie de esta lámina empieza en agosto de 2021, no en julio de 2020 como las de
+      depresión y GHQ: el eje muestra las tres primeras rondas vacías.
+      Desglose por sexo: mujeres 34.6 %, hombres 14 %.
+
+  - id: termometro_ansiedad_moderada_severa_mujeres_2023_12
+    valor: "34.6%"
+    valor_num: 34.6
+    unidad: porcentaje
+    metrica: "Proporción con síntomas de ansiedad generalizada moderada o severa, mujeres"
+    periodo: "2023-12"
+    ambito: nacional
+    definicion_textual: >-
+      Ídem `termometro_ansiedad_moderada_severa_2023_12`, restringido a mujeres.
+    denominador:
+      descripcion: "Mujeres de 18 años y más encuestadas en la ronda 8"
+    documento_id: achs_uc_termometro_r8
+    sha256: "dc71738e80d63a44cfbeb8fd0be0710d048c8a929e3527e062c43cb0dbcc5349"
+    pagina: 28
+    ubicacion: "Lámina 'SINTOMAS DE ANSIEDAD GENERALIZADA', serie rosada, punto 'Diciembre 2023'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+
+  - id: termometro_ansiedad_moderada_severa_hombres_2023_12
+    valor: "14%"
+    valor_num: 14.0
+    unidad: porcentaje
+    metrica: "Proporción con síntomas de ansiedad generalizada moderada o severa, hombres"
+    periodo: "2023-12"
+    ambito: nacional
+    definicion_textual: >-
+      Ídem `termometro_ansiedad_moderada_severa_2023_12`, restringido a hombres.
+    denominador:
+      descripcion: "Hombres de 18 años y más encuestados en la ronda 8"
+    documento_id: achs_uc_termometro_r8
+    sha256: "dc71738e80d63a44cfbeb8fd0be0710d048c8a929e3527e062c43cb0dbcc5349"
+    pagina: 28
+    ubicacion: "Lámina 'SINTOMAS DE ANSIEDAD GENERALIZADA', serie celeste, punto 'Diciembre 2023'"
+    fecha_consulta: "2026-08-03"
+    clase: dura
+    estado: verificada
+    metodo_lectura: pagina_renderizada
+    nota: >
+      El documento imprime "14%" sin decimal, a diferencia del resto de la lámina que usa
+      una décima. Se transcribe tal cual.
