@@ -100,6 +100,8 @@ externas**, no contra la salida del propio código:
 | Defunciones totales 2023 | 122.218 — **exacto** contra el Anuario del INE |
 | Defunciones totales 2020 | 126.169 — **exacto** contra la misma fuente |
 | Población nacional 2020 y 2023 | **exacto** contra las proyecciones del INE |
+| **Suicidios 2010, 2015 y 2019** | **+0,05 %, +0,11 % y +0,05 %** contra el informe de mortalidad por suicidio del MINSAL |
+| Suicidios de la década 2010-2019 | 18.695 contra 18.691 publicados — **+0,02 %** |
 | Tasa nacional de suicidio 2015-2023 | 8,0 a 10,6 por 100.000 (lo publicado para Chile ≈ 10) |
 | Conservación de casos | 46.810 = 40.730 publicados + 6.080 declarados fuera |
 
@@ -163,7 +165,8 @@ Detalle en [`docs/02-ARQUITECTURA.md`](docs/02-ARQUITECTURA.md).
 | Tests | 652 pasando |
 | Lint y tipos | limpios |
 | Fuentes verificadas con descarga real | 12 de 20 |
-| Anclas de reconciliación automáticas | 5 de 5 cuadrando |
+| Anclas de reconciliación automáticas | 8 de 8 cuadrando |
+| Anclas de evidencia externa capturadas | 117, de 6 documentos |
 | Anomalías documentadas | 24 |
 
 Una fuente está `verificada` solo cuando alguien **abrió el archivo y lo entendió** — no

@@ -44,8 +44,12 @@ lugar a otro.
 | `causas_externas_hombres_2023` | derivación de `causa_cie10` | 6.180 | 1 % | Anuario Vitales 2023, Gráfico 28 p.49 |
 | `poblacion_nacional_2020` | denominador | 19.458.310 | 0,01 % | INE, proyecciones base 2017 |
 | `poblacion_nacional_2023` | denominador | 19.960.889 | 0,01 % | ídem |
+| `suicidios_2010` | **el numerador del indicador** | 2.000 | 0,5 % | Informe Mortalidad por Suicidio 2010-2019, Tabla 2 p.15 |
+| `suicidios_2015` | ídem | 1.834 | 0,5 % | ídem |
+| `suicidios_2019` | ídem | 1.900 | 0,5 % | ídem |
 
-Cuatro reconcilian **exacto** (0,000000 %) y la de causas externas queda en 0,39 %.
+Cuatro reconcilian **exacto** (0,000000 %), la de causas externas queda en 0,39 % y las tres
+de suicidio entre 0,05 % y 0,11 %.
 
 **El ancla de causas externas es la que vigila A-004.** Es la única que toca la derivación
 de `causa_cie10`. Si el ingestor volviera a leer solo `DIAG1`, las causas externas caerían a
@@ -72,16 +76,41 @@ todas las caídas de una vez.
 Existe `--sin-reconciliar` para depurar. La salida que produce **no es publicable** y el
 metadato lo declara.
 
-**Lo que estas anclas NO validan.** Sigue sin haber ancla del conteo de suicidios en sí:
-el subconjunto X60-X84 no tiene una cifra oficial publicada que se haya comprobado en
-sesión. Se buscó el 2026-07-27 sin éxito en el Anuario del INE (solo trae porcentajes por
-capítulo), en los *Indicadores Básicos de Salud* del DEIS (traen tasas de 2007, no conteos,
-y una tasa antigua arrastra el denominador de su época) y en la vigilancia de epi.minsal.cl
-(cubre lesiones no mortales). Queda pendiente.
+**El conteo de suicidios quedó cubierto el 2026-08-04.** Este párrafo decía, desde el
+2026-07-27, que no había ancla del subconjunto X60-X84 porque no se encontraba una cifra
+oficial publicada: se había buscado sin éxito en el Anuario del INE (solo trae porcentajes
+por capítulo), en los *Indicadores Básicos de Salud* del DEIS (tasas de 2007, no conteos) y
+en la vigilancia de epi.minsal.cl (cubre lesiones no mortales).
 
-Lo verificado, entonces: la ingesta completa cuadra, el denominador cuadra, y el capítulo de
-causas externas cuadra. Eso acota mucho dónde podría estar un error del numerador, pero no
-es lo mismo que verificar el suicidio. La diferencia importa y por eso queda escrita.
+La cifra existía y estaba en otro producto: el **Informe de Mortalidad por Suicidio en
+Chile 2010-2019** (MINSAL, 2022), cuya Tabla 2 publica el conteo año por año. El DEIS es
+coautor, así que no es comparar el archivo consigo mismo a través de un intermediario.
+
+| año | publicado | observado | diferencia |
+|---|---|---|---|
+| 2010 | 2.000 | 2.001 | +0,05 % |
+| 2015 | 1.834 | 1.836 | +0,11 % |
+| 2019 | 1.900 | 1.901 | +0,05 % |
+| **2010-2019** | **18.691** | **18.695** | **+0,02 %** |
+
+Tres años quedan declarados como anclas ejecutables en `config/anclas.yml`; los diez de la
+serie están en `data/anclas/pendientes/`. La búsqueda anterior falló por buscar en
+productos estadísticos generales y no en la monografía temática, que es donde estaba.
+
+**Qué protege esto que no protegía nada antes.** A-004 —cero suicidios en 27 años por leer
+`DIAG1`— lo destapó una persona mirando, no una comprobación automática. Un error que
+afectara solo a X60-X84 pasaba invisible entre las anclas de causas externas. Ya no.
+
+**Lo que sigue sin validarse: la TASA.** El informe publica sus tasas por 100.000
+habitantes **de cinco años y más** y estandarizadas contra la población INE proyectada
+**2002**. Ninguna de las dos decisiones coincide con las de este proyecto, así que sus
+tasas no son comparables con las nuestras sin recalcular: son *no comparables*, no
+discrepantes. La diferencia entre «el conteo cuadra» y «la tasa cuadra» sigue en pie, más
+chica que antes pero en pie.
+
+> Dato medido al comparar, que ahorra una discusión futura: en 2010-2019 hay **cero**
+> defunciones por suicidio bajo 5 años en el archivo. La exclusión de menores de 5 que hace
+> el informe no mueve el conteo en absoluto; solo mueve el denominador de sus tasas.
 
 **Sobre el desglose por sexo del anuario.** El archivo trae 63.711 hombres y el anuario dice
 63.710. La diferencia es del anuario: su desglose sale de la Tabla 3 (p.45), que suma 122.217

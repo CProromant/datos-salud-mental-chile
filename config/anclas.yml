@@ -124,8 +124,83 @@ anclas:
     referencia: "INE, Estimaciones y proyecciones 2002-2035 base 2017, total país"
     fecha_verificacion: "2026-07-27"
 
-# Pendientes: no hay ancla para el conteo de suicidios en sí. Los totales del archivo de
-# causas se reconcilian contra el anuario, pero el subconjunto X60-X84 no tiene una cifra
-# oficial publicada que se haya verificado en sesión. Mientras no la haya, lo que está
-# validado es la ingesta completa y el denominador, no el numerador específico del
-# indicador. Decirlo importa: es la diferencia entre «el total cuadra» y «la tasa cuadra».
+  # --- Conteo de suicidios. El hueco que este archivo declaró abierto desde el principio
+  # y que quedó cerrado el 2026-08-04 al aparecer una cifra oficial publicada. ---
+  #
+  # Fuente: MINSAL, «Informe de Mortalidad por Suicidio en Chile: 2010-2019» (2022),
+  # Tabla 2, p.15. El DEIS es coautor y la fuente del numerador es su propio registro,
+  # así que esto NO es comparar el archivo consigo mismo a través de un intermediario:
+  # es comparar nuestra derivación contra la que publicó quien produce el dato.
+  #
+  # SOBRE LA DEFINICIÓN, que es donde estas anclas se podrían romper mal. El informe
+  # calcula sobre X600-X849 y EXCLUYE a los menores de 5 años. Medido: en 2010-2019 hay
+  # cero defunciones por suicidio bajo 5 años en el archivo, así que la exclusión no
+  # mueve el conteo. **Para las TASAS sí importa** —su denominador es población de 5 y
+  # más— y por eso estas anclas son de conteo y no de tasa.
+  #
+  # Se declaran tres años y no los diez: inicio, fin, y 2015 que es donde la diferencia
+  # observada es mayor. Diez anclas del mismo cálculo no atajan nada que no atajen tres.
+  # La serie completa vive en data/anclas/pendientes/ y ahí están los diez años.
+
+  - id: suicidios_2010
+    descripcion: "Defunciones por suicidio (X60-X84), año calendario 2010"
+    source_id: deis_defunciones
+    metrica:
+      tipo: conteo_filas
+    filtro:
+      anio: 2010
+      es_suicidio: true
+    valor: 2000
+    unidad: personas
+    tolerancia_relativa: 0.005
+    fuente_ancla: minsal_informe_suicidio_decada
+    referencia: "MINSAL, Informe de Mortalidad por Suicidio en Chile 2010-2019 (2022), Tabla 2, p.15"
+    fecha_verificacion: "2026-08-04"
+
+  - id: suicidios_2015
+    descripcion: "Defunciones por suicidio (X60-X84), año calendario 2015"
+    source_id: deis_defunciones
+    metrica:
+      tipo: conteo_filas
+    filtro:
+      anio: 2015
+      es_suicidio: true
+    valor: 1834
+    unidad: personas
+    tolerancia_relativa: 0.005
+    fuente_ancla: minsal_informe_suicidio_decada
+    referencia: "MINSAL, Informe de Mortalidad por Suicidio en Chile 2010-2019 (2022), Tabla 2, p.15"
+    fecha_verificacion: "2026-08-04"
+    nota: >
+      Es el año de mayor discrepancia de la década: observado 1.836 contra 1.834
+      publicados, +0,11 %. Sigue muy dentro de tolerancia. La hipótesis barata es que el
+      archivo se reconsolida entre publicaciones —el informe es de 2022 y nuestro archivo
+      es la edición 1990-2023—, pero NO está verificada y no debe darse por buena.
+
+  - id: suicidios_2019
+    descripcion: "Defunciones por suicidio (X60-X84), año calendario 2019"
+    source_id: deis_defunciones
+    metrica:
+      tipo: conteo_filas
+    filtro:
+      anio: 2019
+      es_suicidio: true
+    valor: 1900
+    unidad: personas
+    tolerancia_relativa: 0.005
+    fuente_ancla: minsal_informe_suicidio_decada
+    referencia: "MINSAL, Informe de Mortalidad por Suicidio en Chile 2010-2019 (2022), Tabla 2, p.15"
+    fecha_verificacion: "2026-08-04"
+    nota: >
+      LO QUE ESTA ANCLA PROTEGE, y que ninguna de las anteriores protegía: el conteo de
+      suicidios en sí. Las de causas externas vigilan que el capítulo XX se derive bien,
+      pero un error que afectara solo al subconjunto X60-X84 pasaba invisible. A-004 fue
+      exactamente eso —cero suicidios en 27 años por leer DIAG1— y se descubrió mirando,
+      no por una comprobación automática.
+
+# Sobre las tasas: sigue sin haber ancla de la TASA de suicidio. El informe MINSAL publica
+# tasas por 100.000 habitantes de cinco años y más, estandarizadas contra la población INE
+# proyectada 2002; ninguna de las dos decisiones coincide con las de este proyecto, así que
+# sus tasas no son comparables con las nuestras sin recalcular. Lo validado es el conteo.
+# La diferencia entre «el conteo cuadra» y «la tasa cuadra» sigue en pie, más chica que
+# antes pero en pie.
